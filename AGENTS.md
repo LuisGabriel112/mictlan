@@ -12,6 +12,7 @@ Eres el **ejecutor** de este proyecto. El plan lo escribe Claude y lo aprueba Ve
 - **`packages/core` es puro y determinista:**
   - Sin `Date`, `Math.random`, `setTimeout`, red ni DOM.
   - El tiempo llega por `dtMs` y la aleatoriedad por el RNG con semilla.
+  - Excepción: `packages/core/sim/` (simulador CLI) puede usar `process.argv`, `console` y medir tiempo; nunca lo importa `src/`.
 - Los números de juego viven en `packages/core/src/data/`, nunca escritos sueltos en la lógica.
 - El código y los identificadores van en inglés. El texto visible para el jugador va en español.
 - Funciones pequeñas y con nombre claro. Sin dependencias nuevas salvo que la tarea lo pida (si las necesitas, justifícalo en tu reporte).
