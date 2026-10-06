@@ -1,5 +1,5 @@
 import { advancePlayerAbilities, cancelPlayerCast, usePlayerAbility } from './abilities.js';
-import { resolveCombatEffects } from './combat-effects.js';
+import { advanceAuraEffects, resolveCombatEffects } from './combat-effects.js';
 import type { CombatResult } from './combat-effects.js';
 import { BOSS } from './data/boss.js';
 import { CLASSES, COMBAT_RULES, PARTY_RULES } from './data/classes.js';
@@ -200,13 +200,13 @@ export function step(state: EncounterState, inputs: readonly Input[], dtMs: numb
   if (dtMs !== COMBAT_RULES.tickDurationMs) {
     throw new Error(`Cada paso debe durar ${COMBAT_RULES.tickDurationMs} ms.`);
   }
-  // Decrement existing forces first so a newly resolved Taunt retains its full duration.
-  const timed = advanceThreatTimers({ ...state, tick: state.tick + 1 });
+  // Existing timers advance before casts and inputs so newly applied auras retain their full duration.
+  const timed = advanceAuraEffects(advanceThreatTimers({ ...state, tick: state.tick + 1 }));
   // Completed casts must affect later validations before any input moves a target.
-  const advanced = runPlayerPhase(timed, (player, current) =>
+  const advanced = runPlayerPhase(timed.state, (player, current) =>
     advancePlayerAbilities(player, current.entities, current.tick));
   const grouped = groupInputs(inputs);
   const processed = runPlayerPhase(advanced.state, (player, current) => processPlayerInput(player, current, grouped.get(player.id)));
   // One final selection prevents intermediate threat and positions from changing hysteresis.
-  return { state: updateEnemyTargets(processed.state), events: [...advanced.events, ...processed.events] };
+  return { state: updateEnemyTargets(processed.state), events: [...timed.events, ...advanced.events, ...processed.events] };
 }

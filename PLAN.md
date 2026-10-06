@@ -75,7 +75,7 @@
   - La amenaza plana no se multiplica por ×3.
 - **Verificación:** `npm run check`
 
-### [ ] T1.6 Auras
+### [x] T1.6 Auras
 - **Archivos:** `src/auras.ts` y sus tests.
 - **Hacer:** buffs y debuffs con duración, efectos periódicos (Copal) y modificadores de daño (Escudo), integrados con `combat.ts`.
 - **Criterios:**

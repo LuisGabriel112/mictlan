@@ -12,7 +12,9 @@
 
 | T1.5 Amenaza | `c426820` | 0 | — |
 
-Siguiente: **T1.6** (no lanzada).
+| T1.6 Auras | (pendiente) | 0 | Incluye la corrección de Provocar con muertos |
+
+Siguiente: **T1.7** (no lanzada).
 
 ## Configuración de Codex
 
@@ -49,8 +51,14 @@ Siguiente: **T1.6** (no lanzada).
 - Orden del tick: al inicio bajan los temporizadores de Provocar; al final del tick, tras todos los jugadores, se reevalúa el objetivo de cada enemigo (una sola vez).
 - La amenaza es decimal (la curación se reparte sin redondear). Los umbrales se comparan en bps.
 - Un objetivo actual con amenaza igual al máximo se conserva (histéresis).
-- Provocar toma como "máxima actual" toda la tabla, **incluidas las entradas de jugadores muertos**. Se corrige en T1.6 (ver abajo).
+- Provocar tomaba como "máxima actual" las entradas de jugadores muertos. Corregido en T1.6: solo cuentan los vivos.
 - La amenaza se acumula antes del pull; T1.7 decide qué pasa con ella.
+
+**T1.6**
+- Las auras avanzan al inicio del tick, antes de los casteos; el último pulso de Copal ocurre en el tick en que expira.
+- Escudo activo exactamente 120 ticks: desde el tick en que se aplica hasta 119 ticks después.
+- Aplicar un aura **no emite evento**. El log de combate (T3.4) puede necesitar un evento `auraApplied`.
+- Copal sigue curando si el sanador muere, pero esa curación ya no genera amenaza.
 
 ## Decisiones de Venegas (2026-10-06)
 
@@ -67,42 +75,6 @@ Siguiente: **T1.6** (no lanzada).
 ## Decisiones pendientes (de Venegas)
 
 Ninguna.
-
-## Prompt listo para T1.6
-
-Lanzar con `/codex:rescue --fresh --model gpt-6-astra --effort xhigh` y este texto:
-
-```
-Tarea T1.6 — Auras.
-
-Lee AGENTS.md, SPEC.md (v0.3: §3 y las filas de Copal y Escudo de obsidiana en §5) y la tarea T1.6 de PLAN.md. Implementa SOLO T1.6, más la corrección de Provocar de abajo.
-
-IMPORTANTE: las dependencias ya están instaladas. NO ejecutes `npm ci` ni `npm install`: borran node_modules y tu sandbox no tiene red. Usa npm.cmd (Windows PowerShell). No hagas commit.
-
-Alcance:
-- packages/core/src/auras.ts (nuevo) y sus tests. Puedes tocar combat-effects.ts y encounter.ts solo para conectar las auras.
-- Usa los datos que ya existen en data/classes.ts (efecto applyAura de Copal y de Escudo, tipos AuraDefinition y Aura). Nada de números sueltos.
-- Copal: cura 20 cada 1.0 s durante 10 s (10 ticks de curación, el primero 1 s después de aplicarlo). Recargarlo reinicia duración y ritmo, sin acumular. Cada tick de Copal puede criticar (fuente jugador) y genera amenaza por curación efectiva como cualquier curación (threat.ts ya lo hace con eventos healing).
-- Escudo de obsidiana: −50 % de daño recibido durante 6 s exactos (120 ticks). Pasa su modificador a calculateDamage.
-- Decide y documenta en qué punto del tick avanzan las auras (propuesta: junto a los demás timers, al inicio del tick).
-- Las auras desaparecen al morir la unidad.
-- Los eventos de curación de Copal llevan sourceId (el sanador) y abilityId 'copal'.
-
-Corrección de T1.5 (incluida en esta tarea):
-- threat.ts, tauntEnemy: la "máxima actual" debe considerar solo jugadores vivos. Actualiza el test "taunt maximum includes existing dead-player entries…" para que pruebe lo contrario.
-
-Criterios (un test por punto):
-1. Copal cura 200 en total en 10 s, en 10 ticks de 20.
-2. Recargar Copal reinicia la duración y el ritmo sin acumular.
-3. El Escudo expira a los 6 s exactos.
-4. Golpe del Descarnado (400) al Jaguar con Escudo real (aplicado con la habilidad) hace 140.
-5. Provocar ignora la amenaza de jugadores muertos.
-
-Reglas existentes: step no muta el estado y reutiliza por referencia las entidades sin cambios. Tests con critChance: 0 salvo que pruebes el crítico.
-
-Si algo del SPEC es ambiguo, detente y reporta una propuesta. No inventes.
-Termina con npm.cmd run check en verde y el reporte del formato de AGENTS.md.
-```
 
 ## Recordatorios para los próximos prompts
 

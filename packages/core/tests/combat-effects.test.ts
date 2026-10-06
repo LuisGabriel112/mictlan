@@ -153,11 +153,11 @@ test('area resolution uses stable id order independently of entity insertion and
   expect(combatTick(state, inputs).state.rngState).toBe(expectedRng);
 });
 
-test.each(['copal', 'obsidianShield', 'warCry'] satisfies PlayerAbilityId[])(
+test.each(['warCry'] satisfies PlayerAbilityId[])(
   '%s keeps its future-task effect inactive', (abilityId) => {
     const state = combatEncounter();
-    const playerId = abilityId === 'copal' ? 'p2' : abilityId === 'warCry' ? 'p3' : 'p1';
-    combatPlayer(state, playerId).targetId = abilityId === 'copal' ? 'p1' : BOSS.id;
+    const playerId = 'p3';
+    combatPlayer(state, playerId).targetId = BOSS.id;
     const result = combatTick(state, [combatCast(abilityId, playerId)]);
     expect(result.events).toHaveLength(1);
     expect(result.events[0].type).toBe('abilityResolved');

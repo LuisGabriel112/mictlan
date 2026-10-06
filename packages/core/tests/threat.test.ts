@@ -110,11 +110,15 @@ test.each<{ threat: Record<string, number>; expected: number }>([
   expect(result.entities.p1).toBe(state.entities.p1);
 });
 
-test('taunt maximum includes existing dead-player entries but those players cannot be selected', () => {
+test('C5: taunt maximum excludes existing dead-player entries', () => {
   const state = combatEncounter();
   state.entities.p3.health = 0;
-  threatEnemy(state).threat = { p3: 100 };
-  expect(threatEnemy(applyThreatEvent(state, threatTaunt())).threat).toEqual({ p1: 110, p3: 100 });
+  threatEnemy(state).threat = { p2: 100, p3: 1000, missing: 2000, [BOSS.id]: 3000 };
+  freezeCombat(state);
+  const result = applyThreatEvent(state, threatTaunt());
+  expect(threatEnemy(result).threat).toEqual({ ...threatEnemy(state).threat, p1: 110 });
+  expect(threatEnemy(result).targetId).toBe('p1');
+  expect(threatEnemy(state).threat.p1).toBeUndefined();
 });
 
 test.each([

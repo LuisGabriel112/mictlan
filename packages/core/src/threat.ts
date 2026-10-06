@@ -56,8 +56,9 @@ function applyHealingThreat(state: EncounterState, source: PlayerEntity, event: 
   return transformLivingEnemies(state, (enemy) => addThreat(enemy, source.id, amount));
 }
 
-function tauntEnemy(enemy: EnemyEntity, sourceId: string, effect: TauntEffect): EnemyEntity {
-  const maximum = Math.max(0, ...Object.values(enemy.threat));
+function tauntEnemy(state: EncounterState, enemy: EnemyEntity, sourceId: string, effect: TauntEffect): EnemyEntity {
+  const highest = highestThreatPlayer(state, enemy);
+  const maximum = Math.max(0, highest ? enemy.threat[highest.id] : 0);
   const amount = Math.max(enemy.threat[sourceId] ?? 0, maximum * effect.threatMultiplierBps / COMBAT_RULES.basisPointsScale);
   return {
     ...enemy, threat: { ...enemy.threat, [sourceId]: amount }, targetId: sourceId,
@@ -70,7 +71,7 @@ function applyTauntThreat(state: EncounterState, source: PlayerEntity, event: Re
   if (effect?.type !== 'taunt') return state;
   const enemy = enemyTarget(state, event.targetId);
   if (!enemy || enemy.health <= 0) return state;
-  return replaceEnemy(state, tauntEnemy(enemy, source.id, effect));
+  return replaceEnemy(state, tauntEnemy(state, enemy, source.id, effect));
 }
 
 export function applyThreatEvent(state: EncounterState, event: CombatEvent): EncounterState {
