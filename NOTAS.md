@@ -12,9 +12,11 @@
 
 | T1.5 Amenaza | `c426820` | 0 | — |
 
-| T1.6 Auras | (pendiente) | 0 | Incluye la corrección de Provocar con muertos |
+| T1.6 Auras | `70aaafe` | 0 | Incluye la corrección de Provocar con muertos |
 
-Siguiente: **T1.7** (no lanzada).
+| T1.7 IA de enemigo y jefe | (pendiente) | 0 | Incluye el auto-ataque del Jaguar, que no estaba en ninguna tarea |
+
+Siguiente: **T1.8** (no lanzada).
 
 ## Configuración de Codex
 
@@ -59,6 +61,15 @@ Siguiente: **T1.7** (no lanzada).
 - Escudo activo exactamente 120 ticks: desde el tick en que se aplica hasta 119 ticks después.
 - Aplicar un aura **no emite evento**. El log de combate (T3.4) puede necesitar un evento `auraApplied`.
 - Copal sigue curando si el sanador muere, pero esa curación ya no genera amenaza.
+
+**T1.7**
+- Orden del tick: auras y Provocar → casteos de jugadores → inputs → auto-ataque del Jaguar → pull → `updateEnemyTargets` → enemigos en orden de id (casteo y temporizadores del jefe → persecución → auto-ataque).
+- El tick del pull cuenta como `elapsedTicks = 1`. El primer Golpe empieza con `elapsedTicks = 200` (199 ticks después del tick del pull). T1.8 debe respetar la misma convención para los 10 s de cada fase.
+- Pull: cualquier amenaza > 0 de un jugador vivo, o un jugador vivo a ≤ 10 m (centros − radio del jefe).
+- Auto-ataques: el temporizador baja hasta 0 y espera ahí; el primer golpe sale al entrar en alcance. No hay auto-ataque mientras se castea.
+- Una habilidad con temporizador en 0 entra a la cola y conserva el orden; su intervalo se reinicia al empezar de verdad.
+- Viento, Lamento y Llamado de los xolos se programan y emiten eventos, pero aún no tienen efectos (T1.9 y T1.10).
+- Viento (sin casteo) emite `castStarted` con duración 0 y `abilityResolved`.
 
 ## Decisiones de Venegas (2026-10-06)
 

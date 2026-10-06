@@ -70,11 +70,11 @@ test('ties select the lower id and a dead player loses the enemy target', () => 
 
 test('damage threat uses mitigated final damage and remains local to the target', () => {
   const state = combatEncounter();
-  Object.assign(combatPlayer(state, 'p1'), { x: 0, y: 0, targetId: BOSS.id });
+  Object.assign(combatPlayer(state, 'p1'), { x: 0, y: 0, targetId: BOSS.id, autoAttackRemainingTicks: 40 });
   threatEnemy(state).armorBps = 3000;
   state.entities.other = { ...threatEnemy(state), id: 'other' };
   const result = combatTick(state, [combatCast('claw', 'p1')]);
-  expect(result.events.at(-1)).toMatchObject({ type: 'damage', amount: 28 });
+  expect(result.events).toContainEqual(expect.objectContaining({ type: 'damage', abilityId: 'claw', amount: 28 }));
   expect(threatEnemy(result.state).threat).toEqual({ p1: 84 });
   expect(result.state.entities.other).toBe(state.entities.other);
 });
@@ -99,7 +99,7 @@ test('area healing accumulates per healed ally and ignores full-health allies', 
 
 test('target selection runs only after all players instead of applying intermediate hysteresis', () => {
   const state = combatEncounter();
-  Object.assign(combatPlayer(state, 'p1'), { x: 0, y: 0, targetId: BOSS.id });
+  Object.assign(combatPlayer(state, 'p1'), { x: 0, y: 0, targetId: BOSS.id, autoAttackRemainingTicks: 40 });
   combatPlayer(state).targetId = BOSS.id;
   threatEnemy(state).threat = { p3: 51 };
   const inputs: Input[] = [combatCast('quickShot'), combatCast('claw', 'p1')];
@@ -126,7 +126,7 @@ test('dead sources cannot create damage, flat, healing or forced threat through 
   expect(combatTick(state, [combatCast('offering', 'p2')]).state.entities[BOSS.id]).toBe(state.entities[BOSS.id]);
 });
 
-test('frozen state is deterministic and unchanged entities are reused while threat accumulates before pull', () => {
+test('frozen state is deterministic and unchanged entities are reused when damage pulls the boss', () => {
   const state = combatEncounter();
   combatPlayer(state).targetId = BOSS.id;
   const original = structuredClone(state);
@@ -136,7 +136,8 @@ test('frozen state is deterministic and unchanged entities are reused while thre
   const result = combatTick(state, inputs);
   expect(state).toEqual(original);
   expect(result).toEqual(combatTick(state, inputs));
-  expect(threatEnemy(result.state)).toMatchObject({ threat: { p3: 70 }, targetId: 'p3', x: 0, y: 0, autoAttackRemainingTicks: 0 });
-  expect(result.state).toMatchObject({ bossActive: false, elapsedTicks: 0, phaseElapsedTicks: 0 });
+  expect(threatEnemy(result.state)).toMatchObject({ threat: { p3: 70 }, targetId: 'p3', autoAttackRemainingTicks: 0 });
+  expect(Math.hypot(result.state.entities.boss.x, result.state.entities.boss.y)).toBeCloseTo(0.25, 12);
+  expect(result.state).toMatchObject({ bossActive: true, elapsedTicks: 1, phaseElapsedTicks: 1 });
   for (const id of ['p1', 'p2']) expect(result.state.entities[id]).toBe(state.entities[id]);
 });

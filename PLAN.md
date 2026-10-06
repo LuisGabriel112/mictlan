@@ -85,7 +85,7 @@
   - Golpe del Descarnado al Jaguar con Escudo real hace 140.
 - **Verificación:** `npm run check`
 
-### [ ] T1.7 IA de enemigo y casteos del jefe
+### [x] T1.7 IA de enemigo y casteos del jefe
 - **Archivos:** `src/enemy.ts`, `src/boss.ts` y sus tests.
 - **Hacer:** IA genérica de enemigo reutilizable por los xolos (auto-ataque, persecución a 5 m/s, objetivo por amenaza). Pull del jefe (SPEC §6). Casteos del jefe con las reglas de SPEC §3 "Casteo (enemigos)", incluida la cola. Golpe del Descarnado completo.
 - **Criterios:**

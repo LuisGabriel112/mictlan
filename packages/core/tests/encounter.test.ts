@@ -244,8 +244,6 @@ describe('T1.2 clock and movement', () => {
 
   test('enemy and unknown movement inputs are ignored and pull remains inactive', () => {
     const state = createEncounter(createConfig(), 42);
-    getPlayer(state).x = 0;
-    getPlayer(state).y = -1;
     const result = step(state, [
       { playerId: BOSS.id, type: 'move', dx: 1, dy: 0 },
       { playerId: 'missing', type: 'move', dx: 1, dy: 0 },

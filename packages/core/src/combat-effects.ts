@@ -7,7 +7,7 @@ import type { Ability, AbilityEffect, CombatEvent, EncounterState, Entity, Playe
 
 type TargetEffect = Extract<AbilityEffect, { type: 'damage' | 'areaDamage' | 'heal' | 'areaHeal' | 'applyAura' }>;
 type ResolvedEvent = Extract<CombatEvent, { type: 'abilityResolved' | 'castFinished' }>;
-type EffectAttribution = Pick<ResolvedEvent, 'sourceId' | 'abilityId' | 'tick'>;
+type EffectAttribution = Pick<Extract<CombatEvent, { type: 'damage' }>, 'sourceId' | 'abilityId' | 'tick'>;
 
 export interface CombatResult {
   state: EncounterState;
@@ -34,9 +34,23 @@ function effectTargets(state: EncounterState, source: PlayerEntity, ability: Abi
   return target && target.health > 0 ? [target] : [];
 }
 
-function replaceCombatEntity(state: EncounterState, entity: Entity): EncounterState {
+export function replaceCombatEntity(state: EncounterState, entity: Entity): EncounterState {
   const cleaned = clearDeadAuras(entity);
   return cleaned === state.entities[entity.id] ? state : { ...state, entities: { ...state.entities, [entity.id]: cleaned } };
+}
+
+function applyEntityEffect(state: EncounterState, result: ReturnType<typeof applyDamage>, rngState: number): CombatResult {
+  const updated = replaceCombatEntity(state, result.entity);
+  const threatened = result.events.reduce(applyThreatEvent, { ...updated, rngState });
+  return { state: threatened, events: result.events };
+}
+
+export function resolveDamageEffect(state: EncounterState, event: EffectAttribution, target: Entity, baseDamage: number): CombatResult {
+  const roll = rollCritical(state.entities[event.sourceId].type, state.rngState, state.critChance);
+  const amount = calculateDamage(baseDamage, target.armorBps, damageTakenModifiers(target), roll.critical);
+  const attribution = { sourceId: event.sourceId, abilityId: event.abilityId, tick: event.tick };
+  const result = applyDamage(target, { ...attribution, amount, critical: roll.critical });
+  return applyEntityEffect(state, result, roll.rngState);
 }
 
 function resolveTargetEffect(state: EncounterState, event: EffectAttribution, target: Entity, effect: TargetEffect): CombatResult {
@@ -44,18 +58,13 @@ function resolveTargetEffect(state: EncounterState, event: EffectAttribution, ta
     const entity = applyAura(target, effect.aura, event.sourceId, effect.aura.id);
     return { state: replaceCombatEntity(state, entity), events: [] };
   }
+  if ('baseDamage' in effect) return resolveDamageEffect(state, event, target, effect.baseDamage);
   const roll = rollCritical('player', state.rngState, state.critChance);
   const attribution = { sourceId: event.sourceId, abilityId: event.abilityId, tick: event.tick, critical: roll.critical };
-  const result = 'baseDamage' in effect
-    ? applyDamage(target, {
-      ...attribution, amount: calculateDamage(effect.baseDamage, target.armorBps, damageTakenModifiers(target), roll.critical),
-    })
-    : applyHealing(target, {
-      ...attribution, amount: calculateHealing(effect.baseHealing, target.health, target.maxHealth, roll.critical).amount,
-    });
-  const updated = replaceCombatEntity(state, result.entity);
-  const threatened = result.events.reduce(applyThreatEvent, { ...updated, rngState: roll.rngState });
-  return { state: threatened, events: result.events };
+  const result = applyHealing(target, {
+    ...attribution, amount: calculateHealing(effect.baseHealing, target.health, target.maxHealth, roll.critical).amount,
+  });
+  return applyEntityEffect(state, result, roll.rngState);
 }
 
 function livingSource(state: EncounterState, sourceId: string): PlayerEntity | undefined {

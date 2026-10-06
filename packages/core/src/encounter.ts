@@ -1,6 +1,8 @@
 import { advancePlayerAbilities, cancelPlayerCast, usePlayerAbility } from './abilities.js';
 import { advanceAuraEffects, resolveCombatEffects } from './combat-effects.js';
 import type { CombatResult } from './combat-effects.js';
+import { advanceBossAbilities, advanceBossEncounter } from './boss.js';
+import { advanceEnemy, advanceJaguarAutoAttack } from './enemy.js';
 import { BOSS } from './data/boss.js';
 import { CLASSES, COMBAT_RULES, PARTY_RULES } from './data/classes.js';
 import { createRngState } from './rng.js';
@@ -129,7 +131,6 @@ export function createEncounter(config: EncounterConfig, seed: number): Encounte
     critChance: config.critChance ?? COMBAT_RULES.defaultCritChance,
     bossActive: false,
     enraged: false,
-    // Pull and phase scheduling are implemented in later tasks.
     bossAbilityTimers: {},
     bossAbilityQueue: [],
   };
@@ -196,6 +197,22 @@ function runPlayerPhase(state: EncounterState, phase: PlayerPhase): CombatResult
   return result;
 }
 
+function runEntityPhase(state: EncounterState, phase: (state: EncounterState, id: string) => CombatResult): CombatResult {
+  const events: CombatResult['events'] = [];
+  for (const id of Object.keys(state.entities).sort()) {
+    const result = phase(state, id);
+    state = result.state;
+    events.push(...result.events);
+  }
+  return { state, events };
+}
+
+function advanceEnemyActions(state: EncounterState, id: string): CombatResult {
+  const cast = id === BOSS.id ? advanceBossAbilities(state) : { state, events: [] };
+  const attack = advanceEnemy(cast.state, id);
+  return { state: attack.state, events: [...cast.events, ...attack.events] };
+}
+
 export function step(state: EncounterState, inputs: readonly Input[], dtMs: number): CombatResult {
   if (dtMs !== COMBAT_RULES.tickDurationMs) {
     throw new Error(`Cada paso debe durar ${COMBAT_RULES.tickDurationMs} ms.`);
@@ -207,6 +224,8 @@ export function step(state: EncounterState, inputs: readonly Input[], dtMs: numb
     advancePlayerAbilities(player, current.entities, current.tick));
   const grouped = groupInputs(inputs);
   const processed = runPlayerPhase(advanced.state, (player, current) => processPlayerInput(player, current, grouped.get(player.id)));
+  const attacked = runEntityPhase(processed.state, advanceJaguarAutoAttack);
   // One final selection prevents intermediate threat and positions from changing hysteresis.
-  return { state: updateEnemyTargets(processed.state), events: [...timed.events, ...advanced.events, ...processed.events] };
+  const enemies = runEntityPhase(updateEnemyTargets(advanceBossEncounter(attacked.state)), advanceEnemyActions);
+  return { state: enemies.state, events: [...timed.events, ...advanced.events, ...processed.events, ...attacked.events, ...enemies.events] };
 }

@@ -25,6 +25,10 @@ function castCopal(state = combatEncounter()) {
   ]);
 }
 
+function copalEvents(events: readonly CombatEvent[]): CombatEvent[] {
+  return events.filter((event) => event.type === 'healing' && event.abilityId === 'copal');
+}
+
 test('C1: Copal heals 200 over ten seconds in ten pulses of 20 starting after one second', () => {
   const initial = combatEncounter();
   initial.entities.p1.health = 900;
@@ -33,13 +37,13 @@ test('C1: Copal heals 200 over ten seconds in ten pulses of 20 starting after on
   const waiting = advanceTicks(applied.state, 19);
   expect(waiting.events).toEqual([]);
   const result = advanceTicks(waiting.state, 181);
-  expect(result.events).toEqual(Array.from({ length: 10 }, (_, index) => ({
+  expect(copalEvents(result.events)).toEqual(Array.from({ length: 10 }, (_, index) => ({
     type: 'healing', tick: applied.state.tick + (index + 1) * 20, sourceId: 'p2', abilityId: 'copal',
     targetId: 'p1', amount: 20, effectiveAmount: 20, critical: false,
   })));
   expect(result.state.entities.p1).toMatchObject({ health: 1100, auras: [] });
   expect(threatEnemy(result.state).threat).toEqual({ p2: 100 });
-  expect(advanceTicks(result.state, 20).events).toEqual([]);
+  expect(copalEvents(advanceTicks(result.state, 20).events)).toEqual([]);
 });
 
 test('C2: refreshing Copal resets duration and pulse rhythm without stacking', () => {
@@ -53,10 +57,10 @@ test('C2: refreshing Copal resets duration and pulse rhythm without stacking', (
   const waiting = advanceTicks(refreshed.state, 19);
   expect(waiting.events).toEqual([]);
   const result = advanceTicks(waiting.state, 181);
-  expect(result.events).toHaveLength(10);
-  expect(result.events.map(({ tick }) => tick)).toEqual(Array.from({ length: 10 }, (_, index) => refreshed.state.tick + (index + 1) * 20));
+  expect(copalEvents(result.events)).toHaveLength(10);
+  expect(copalEvents(result.events).map(({ tick }) => tick)).toEqual(Array.from({ length: 10 }, (_, index) => refreshed.state.tick + (index + 1) * 20));
   expect(result.state.entities.p1).toMatchObject({ health: 1020, auras: [] });
-  expect(advanceTicks(result.state, 20).events).toEqual([]);
+  expect(copalEvents(advanceTicks(result.state, 20).events)).toEqual([]);
 });
 
 test('C3: Shield expires at exactly six seconds or 120 ticks after applying the ability', () => {
@@ -121,7 +125,7 @@ test('Copal generates shared threat only for effective healing and excludes dead
   expect(first.state.entities.dead).toBe(initial.entities.dead);
   const second = advanceTicks(first.state, 20);
   expect(second.events[0]).toMatchObject({ amount: 20, effectiveAmount: 0 });
-  expect(threatEnemy(second.state)).toBe(threatEnemy(first.state));
+  expect(threatEnemy(second.state).threat).toBe(threatEnemy(first.state).threat);
 });
 
 test('a due Copal pulse resolves before a completed healing cast', () => {

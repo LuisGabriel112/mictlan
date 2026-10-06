@@ -21,9 +21,10 @@ test.each([
   '$abilityId applies configured direct damage with attribution', ({ abilityId, playerId, amount }) => {
     const state = combatEncounter();
     Object.assign(combatPlayer(state, playerId), { x: 0, y: 0, targetId: BOSS.id });
+    state.entities[playerId].autoAttackRemainingTicks = 40;
     const result = combatTick(state, [combatCast(abilityId, playerId)]);
     expect(result.state.entities[BOSS.id].health).toBe(24000 - amount);
-    expect(result.events.at(-1)).toEqual({
+    expect(result.events).toContainEqual({
       type: 'damage', sourceId: playerId, abilityId, targetId: BOSS.id, amount, critical: false, tick: 1,
     });
   },
@@ -73,7 +74,8 @@ test('Roar includes body-adjusted boundary enemies, excludes dead and distant en
   if (boss.type === 'player') throw new Error('Expected boss');
   state.entities.add = { ...boss, id: 'add', type: 'xolo', x: 0, health: 100 };
   const result = combatTick(state, [combatCast('roar', 'p1')]);
-  expect(result.events.filter((event) => event.type === 'damage').map((hit) => [hit.targetId, hit.amount])).toEqual([
+  const roarHits = result.events.filter((event) => event.type === 'damage').filter((hit) => hit.abilityId === 'roar');
+  expect(roarHits.map((hit) => [hit.targetId, hit.amount])).toEqual([
     ['add', 25], [BOSS.id, 25],
   ]);
   for (const id of ['outside', 'dead', 'p2', 'p3']) expect(result.state.entities[id]).toBe(state.entities[id]);
