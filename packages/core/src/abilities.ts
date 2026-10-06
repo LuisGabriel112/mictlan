@@ -1,4 +1,5 @@
 import { CLASSES, COMBAT_RULES } from './data/classes.js';
+import { displace } from './movement.js';
 import type {
   Ability,
   AbilityRejectionReason,
@@ -132,12 +133,31 @@ export function advancePlayerAbilities(player: PlayerEntity, entities: Entities,
   return finishPlayerCast(advanced, entities, tick);
 }
 
+function resolveInstantAbility(player: PlayerEntity, ability: Ability, targetId: string | null, tick: number): AbilityResult {
+  if (ability.effect.type !== 'dash') return resolveAbility(player, ability, targetId, tick);
+  const cancelled = cancelPlayerCast(player, 'flight', tick);
+  const position = displace(cancelled.player, player.facing, ability.effect.distanceMeters);
+  const resolved = resolveAbility({ ...cancelled.player, ...position }, ability, targetId, tick);
+  return { player: resolved.player, events: [...cancelled.events, ...resolved.events] };
+}
+
+function startPlayerAbility(player: PlayerEntity, ability: Ability, tick: number): AbilityResult {
+  const abilityId = ability.id;
+  const targetId = ability.targetType === 'self' ? player.id
+    : ability.targetType === 'none' ? null : player.targetId;
+  const started = ability.triggersGcd ? { ...player, gcdRemainingTicks: COMBAT_RULES.gcdTicks } : player;
+  if (ability.castTicks === 0) return resolveInstantAbility(started, ability, targetId, tick);
+  return {
+    player: {
+      ...started,
+      cast: { abilityId, targetId, durationTicks: ability.castTicks, remainingTicks: ability.castTicks, interruptible: true },
+    },
+    events: [{ type: 'castStarted', tick, sourceId: player.id, abilityId, targetId, durationTicks: ability.castTicks }],
+  };
+}
+
 export function usePlayerAbility(
-  player: PlayerEntity,
-  abilityId: PlayerAbilityId,
-  entities: Entities,
-  moving: boolean,
-  tick: number,
+  player: PlayerEntity, abilityId: PlayerAbilityId, entities: Entities, moving: boolean, tick: number,
 ): AbilityResult {
   const ability = CLASSES[player.classId].abilities.find(({ id }) => id === abilityId);
   if (!ability) return { player, events: [] };
@@ -145,19 +165,5 @@ export function usePlayerAbility(
   if (reason !== null) {
     return { player, events: [{ type: 'abilityRejected', tick, sourceId: player.id, abilityId, reason }] };
   }
-
-  const targetId = ability.targetType === 'self' ? player.id
-    : ability.targetType === 'none' ? null : player.targetId;
-  const started = ability.triggersGcd ? { ...player, gcdRemainingTicks: COMBAT_RULES.gcdTicks } : player;
-  if (ability.castTicks === 0) return resolveAbility(started, ability, targetId, tick);
-  return {
-    player: {
-      ...started,
-      cast: {
-        abilityId, targetId, durationTicks: ability.castTicks,
-        remainingTicks: ability.castTicks, interruptible: true,
-      },
-    },
-    events: [{ type: 'castStarted', tick, sourceId: player.id, abilityId, targetId, durationTicks: ability.castTicks }],
-  };
+  return startPlayerAbility(player, ability, tick);
 }

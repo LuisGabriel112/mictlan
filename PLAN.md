@@ -52,7 +52,7 @@
   - El alcance se mide restando el radio de cuerpo del objetivo.
 - **Verificación:** `npm run check`
 
-### [ ] T1.4 Daño, curación, mitigación, muerte y Vuelo
+### [x] T1.4 Daño, curación, mitigación, muerte y Vuelo
 - **Archivos:** `src/combat.ts`, `src/abilities.ts` (solo para Vuelo) y sus tests.
 - **Hacer:** las fórmulas de SPEC §3 como funciones puras (crítico con RNG, armadura, lista de modificadores, redondeo hacia abajo, mínimo 1), tope de curación y curación efectiva, muerte. Conectar `abilityResolved` a los efectos de daño y curación directa de las clases (no Copal ni Escudo, que llegan en T1.6). Implementar el desplazamiento de Vuelo según SPEC §5.3 "Detalle de Vuelo".
 - **Criterios:**

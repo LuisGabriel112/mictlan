@@ -1,9 +1,11 @@
 import { advancePlayerAbilities, cancelPlayerCast, usePlayerAbility } from './abilities.js';
+import { resolveCombatEffects } from './combat-effects.js';
+import type { CombatResult } from './combat-effects.js';
 import { BOSS } from './data/boss.js';
 import { CLASSES, COMBAT_RULES, PARTY_RULES } from './data/classes.js';
 import { createRngState } from './rng.js';
+import { displace, normalize } from './movement.js';
 import type {
-  CombatEvent,
   EncounterConfig,
   EncounterState,
   EnemyEntity,
@@ -11,7 +13,6 @@ import type {
   Input,
   PlayerCount,
   PlayerEntity,
-  Position,
 } from './types.js';
 
 type MoveInput = Extract<Input, { type: 'move' }>;
@@ -40,11 +41,6 @@ function compareIds(left: string, right: string): number {
 
 function isPlayerCount(count: number): count is PlayerCount {
   return count >= PARTY_RULES.minPlayers && count <= PARTY_RULES.maxPlayers;
-}
-
-function normalize(x: number, y: number): Position {
-  const length = Math.hypot(x, y);
-  return length === 0 ? { x: 0, y: 0 } : { x: x / length, y: y / length };
 }
 
 function createPlayer(
@@ -138,79 +134,75 @@ export function createEncounter(config: EncounterConfig, seed: number): Encounte
   };
 }
 
-function clampToWall(position: Position): Position {
-  const { center, wallRadiusMeters } = COMBAT_RULES.arena;
-  const dx = position.x - center.x;
-  const dy = position.y - center.y;
-  const distance = Math.hypot(dx, dy);
-  if (distance <= wallRadiusMeters) return position;
-
-  // Round inward so floating-point projection cannot leave the center outside.
-  const scale = (wallRadiusMeters / distance) * (1 - Number.EPSILON);
-  return { x: center.x + dx * scale, y: center.y + dy * scale };
-}
-
 function movePlayer(player: PlayerEntity, input: MoveInput): PlayerEntity {
   if (input.dx === 0 && input.dy === 0) return player;
 
   const facing = normalize(input.dx, input.dy);
   const distance = player.speedMetersPerSecond / COMBAT_RULES.ticksPerSecond;
-  const position = clampToWall({
-    x: player.x + facing.x * distance,
-    y: player.y + facing.y * distance,
-  });
+  const position = displace(player, facing, distance);
   return { ...player, ...position, facing };
 }
 
-export function step(
-  state: EncounterState,
-  inputs: readonly Input[],
-  dtMs: number,
-): { state: EncounterState; events: CombatEvent[] } {
+type PlayerAbilityResult = ReturnType<typeof usePlayerAbility>;
+type PlayerPhase = (player: PlayerEntity, state: EncounterState) => PlayerAbilityResult;
+
+function isSelectableTarget(state: EncounterState, entityId: string | null): boolean {
+  return entityId === null || (Object.hasOwn(state.entities, entityId) && state.entities[entityId].health > 0);
+}
+
+function selectTargets(player: PlayerEntity, targets: PlayerInputs['targets'], state: EncounterState): PlayerEntity {
+  if (player.health <= 0) return player;
+  for (const { entityId } of targets) {
+    if (isSelectableTarget(state, entityId) && entityId !== player.targetId) player = { ...player, targetId: entityId };
+  }
+  return player;
+}
+
+function isMoving(input: MoveInput | undefined): boolean {
+  return input !== undefined && (input.dx !== 0 || input.dy !== 0);
+}
+
+function moveAndCancelCast(player: PlayerEntity, input: MoveInput | undefined, tick: number): PlayerAbilityResult {
+  if (player.health <= 0 || !input) return { player, events: [] };
+  const result = isMoving(input) ? cancelPlayerCast(player, 'moving', tick) : { player, events: [] };
+  return { player: movePlayer(result.player, input), events: result.events };
+}
+
+function processPlayerInput(player: PlayerEntity, state: EncounterState, input: PlayerInputs | undefined): PlayerAbilityResult {
+  if (!input) return { player, events: [] };
+  const selected = selectTargets(player, input.targets, state);
+  const moved = moveAndCancelCast(selected, input.move, state.tick);
+  if (!input.cast) return moved;
+  const cast = usePlayerAbility(moved.player, input.cast.abilityId, state.entities, isMoving(input.move), state.tick);
+  return { player: cast.player, events: [...moved.events, ...cast.events] };
+}
+
+function applyPlayerResult(state: EncounterState, result: PlayerAbilityResult): CombatResult {
+  const entities = result.player === state.entities[result.player.id]
+    ? state.entities : { ...state.entities, [result.player.id]: result.player };
+  return resolveCombatEffects({ ...state, entities }, result.events);
+}
+
+function runPlayerPhase(state: EncounterState, phase: PlayerPhase): CombatResult {
+  const result: CombatResult = { state, events: [] };
+  for (const id of Object.keys(state.entities).sort()) {
+    const player = result.state.entities[id];
+    if (player.type !== 'player') continue;
+    const applied = applyPlayerResult(result.state, phase(player, result.state));
+    result.state = applied.state;
+    result.events.push(...applied.events);
+  }
+  return result;
+}
+
+export function step(state: EncounterState, inputs: readonly Input[], dtMs: number): CombatResult {
   if (dtMs !== COMBAT_RULES.tickDurationMs) {
     throw new Error(`Cada paso debe durar ${COMBAT_RULES.tickDurationMs} ms.`);
   }
-
-  const tick = state.tick + 1;
-  const events: CombatEvent[] = [];
-  const entities = { ...state.entities };
-  const players = Object.values(state.entities)
-    .filter((entity) => entity.type === 'player')
-    .sort((left, right) => compareIds(left.id, right.id));
-
-  // All timers and completed casts run before any input can move a target.
-  for (const player of players) {
-    const result = advancePlayerAbilities(player, entities, tick);
-    entities[player.id] = result.player;
-    events.push(...result.events);
-  }
-
+  // Completed casts must affect later validations before any input moves a target.
+  const advanced = runPlayerPhase({ ...state, tick: state.tick + 1 }, (player, current) =>
+    advancePlayerAbilities(player, current.entities, current.tick));
   const grouped = groupInputs(inputs);
-  for (const { id } of players) {
-    const input = grouped.get(id);
-    let player = entities[id];
-    if (!input || player.type !== 'player') continue;
-    const moving = input.move !== undefined && (input.move.dx !== 0 || input.move.dy !== 0);
-    for (const target of input.targets) {
-      if (target.entityId === null || Object.hasOwn(entities, target.entityId)) {
-        if (target.entityId !== player.targetId) player = { ...player, targetId: target.entityId };
-      }
-    }
-    if (player.health > 0) {
-      if (moving) {
-        const result = cancelPlayerCast(player, 'moving', tick);
-        player = result.player;
-        events.push(...result.events);
-      }
-      if (input.move) player = movePlayer(player, input.move);
-    }
-    if (input.cast) {
-      const result = usePlayerAbility(player, input.cast.abilityId, entities, moving, tick);
-      player = result.player;
-      events.push(...result.events);
-    }
-    entities[id] = player;
-  }
-
-  return { state: { ...state, entities, tick }, events };
+  const processed = runPlayerPhase(advanced.state, (player, current) => processPlayerInput(player, current, grouped.get(player.id)));
+  return { state: processed.state, events: [...advanced.events, ...processed.events] };
 }

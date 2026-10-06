@@ -8,14 +8,16 @@
 | T1.1 Tipos y datos | `4831429` | 0 | — |
 | T1.2 RNG, reloj y movimiento | `1ecd209` | 0 | — |
 | T1.3 Habilidades | `bcbe8ad` | 0 | Primer intento matado por falta de memoria del sistema; relanzado sin cambios |
+| T1.4 Daño, curación, muerte y Vuelo | (pendiente) | 0 | Se detuvo una vez: su `npm ci` borró `node_modules` y la sandbox no tiene red. Venegas reinstaló y se reanudó |
 
-Siguiente: **T1.4** (no lanzada).
+Siguiente: **T1.5** (no lanzada).
 
 ## Configuración de Codex
 
 - `~/.codex/config.toml` traía `model = "gpt-5.2"`, que falla con cuenta de ChatGPT (HTTP 400).
 - Se delega con `--model gpt-6-astra --effort xhigh`.
 - PowerShell bloquea `npm.ps1`: usar `npm.cmd`.
+- La sandbox de Codex no tiene red: prohibirle `npm ci` y `npm install` en cada prompt.
 
 ## Decisiones tomadas fuera del SPEC (ya implementadas)
 
@@ -31,6 +33,15 @@ Siguiente: **T1.4** (no lanzada).
 - Habilidad `ally` sin objetivo → `invalid_target` (no hay auto-objetivo propio).
 - Un casteo que falla al resolverse emite `castCancelled` con motivo `invalid_target` u `out_of_range`.
 - El maná se calcula en unidades enteras de 1/20 para evitar deriva.
+
+**T1.4**
+- Las cantidades se calculan con `BigInt` sobre puntos base y se redondea una sola vez al final.
+- Los efectos se aplican al momento de `abilityResolved`, dentro del mismo tick; un objetivo que muere antes invalida las acciones posteriores del tick.
+- El crítico consume una tirada del RNG por objetivo, aunque `critChance` sea 0.
+- `target` hacia una entidad muerta se ignora.
+- Al morir, el casteo en curso se borra **sin** emitir `castCancelled`.
+- El recorte al muro se movió a `movement.ts` y lo comparten el movimiento y Vuelo.
+- Codex agregó un Gherkin en `packages/core/tests/features/` por su cuenta.
 
 ## Decisiones de Venegas (2026-10-06)
 
