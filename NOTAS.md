@@ -8,9 +8,11 @@
 | T1.1 Tipos y datos | `4831429` | 0 | — |
 | T1.2 RNG, reloj y movimiento | `1ecd209` | 0 | — |
 | T1.3 Habilidades | `bcbe8ad` | 0 | Primer intento matado por falta de memoria del sistema; relanzado sin cambios |
-| T1.4 Daño, curación, muerte y Vuelo | (pendiente) | 0 | Se detuvo una vez: su `npm ci` borró `node_modules` y la sandbox no tiene red. Venegas reinstaló y se reanudó |
+| T1.4 Daño, curación, muerte y Vuelo | `072e443` | 0 | Se detuvo una vez: su `npm ci` borró `node_modules` y la sandbox no tiene red. Venegas reinstaló y se reanudó |
 
-Siguiente: **T1.5** (no lanzada).
+| T1.5 Amenaza | (pendiente) | 0 | — |
+
+Siguiente: **T1.6** (no lanzada).
 
 ## Configuración de Codex
 
@@ -43,6 +45,13 @@ Siguiente: **T1.5** (no lanzada).
 - El recorte al muro se movió a `movement.ts` y lo comparten el movimiento y Vuelo.
 - Codex agregó un Gherkin en `packages/core/tests/features/` por su cuenta.
 
+**T1.5**
+- Orden del tick: al inicio bajan los temporizadores de Provocar; al final del tick, tras todos los jugadores, se reevalúa el objetivo de cada enemigo (una sola vez).
+- La amenaza es decimal (la curación se reparte sin redondear). Los umbrales se comparan en bps.
+- Un objetivo actual con amenaza igual al máximo se conserva (histéresis).
+- Provocar toma como "máxima actual" toda la tabla, **incluidas las entradas de jugadores muertos** (las entradas no se borran al morir; esos jugadores solo no pueden ser objetivo). Pendiente de confirmar.
+- La amenaza se acumula antes del pull; T1.7 decide qué pasa con ella.
+
 ## Decisiones de Venegas (2026-10-06)
 
 - **Vuelo:** entra en T1.4. Detalle en SPEC §5.3 (v0.3).
@@ -51,7 +60,8 @@ Siguiente: **T1.5** (no lanzada).
 
 ## Decisiones pendientes (de Venegas)
 
-1. **`.gitattributes`** con `* text=auto eol=lf`, para quitar los avisos LF→CRLF (`core.autocrlf=true` contra `.editorconfig` en LF).
+1. **Provocar con muertos en la tabla:** ¿la "máxima actual" de Provocar debe ignorar a los jugadores muertos? Propuesta: sí (filtrar vivos); es un cambio de 1 línea en `threat.ts`.
+2. **`.gitattributes`** con `* text=auto eol=lf`, para quitar los avisos LF→CRLF (`core.autocrlf=true` contra `.editorconfig` en LF).
 
 ## Recordatorios para los próximos prompts
 

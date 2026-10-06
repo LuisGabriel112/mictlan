@@ -1,5 +1,6 @@
 import { applyDamage, applyHealing, calculateDamage, calculateHealing, rollCritical } from './combat.js';
 import { CLASSES } from './data/classes.js';
+import { applyThreatEvent } from './threat.js';
 import type { Ability, AbilityEffect, CombatEvent, EncounterState, Entity, PlayerEntity } from './types.js';
 
 type DirectEffect = Extract<AbilityEffect, { type: 'damage' | 'areaDamage' | 'heal' | 'areaHeal' }>;
@@ -39,7 +40,8 @@ function resolveTargetEffect(state: EncounterState, event: ResolvedEvent, target
       ...attribution, amount: calculateHealing(effect.baseHealing, target.health, target.maxHealth, roll.critical).amount,
     });
   const entities = result.entity === target ? state.entities : { ...state.entities, [target.id]: result.entity };
-  return { state: { ...state, entities, rngState: roll.rngState }, events: result.events };
+  const threatened = result.events.reduce(applyThreatEvent, { ...state, entities, rngState: roll.rngState });
+  return { state: threatened, events: result.events };
 }
 
 function livingSource(state: EncounterState, sourceId: string): PlayerEntity | undefined {
@@ -66,6 +68,7 @@ export function resolveCombatEffects(state: EncounterState, abilityEvents: reado
   for (const event of abilityEvents) {
     events.push(event);
     if (event.type !== 'abilityResolved') continue;
+    state = applyThreatEvent(state, event);
     const result = resolveDirectAbility(state, event);
     state = result.state;
     events.push(...result.events);

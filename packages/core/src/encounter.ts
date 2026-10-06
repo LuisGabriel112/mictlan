@@ -5,6 +5,7 @@ import { BOSS } from './data/boss.js';
 import { CLASSES, COMBAT_RULES, PARTY_RULES } from './data/classes.js';
 import { createRngState } from './rng.js';
 import { displace, normalize } from './movement.js';
+import { advanceThreatTimers, updateEnemyTargets } from './threat.js';
 import type {
   EncounterConfig,
   EncounterState,
@@ -199,10 +200,13 @@ export function step(state: EncounterState, inputs: readonly Input[], dtMs: numb
   if (dtMs !== COMBAT_RULES.tickDurationMs) {
     throw new Error(`Cada paso debe durar ${COMBAT_RULES.tickDurationMs} ms.`);
   }
+  // Decrement existing forces first so a newly resolved Taunt retains its full duration.
+  const timed = advanceThreatTimers({ ...state, tick: state.tick + 1 });
   // Completed casts must affect later validations before any input moves a target.
-  const advanced = runPlayerPhase({ ...state, tick: state.tick + 1 }, (player, current) =>
+  const advanced = runPlayerPhase(timed, (player, current) =>
     advancePlayerAbilities(player, current.entities, current.tick));
   const grouped = groupInputs(inputs);
   const processed = runPlayerPhase(advanced.state, (player, current) => processPlayerInput(player, current, grouped.get(player.id)));
-  return { state: processed.state, events: [...advanced.events, ...processed.events] };
+  // One final selection prevents intermediate threat and positions from changing hysteresis.
+  return { state: updateEnemyTargets(processed.state), events: [...advanced.events, ...processed.events] };
 }

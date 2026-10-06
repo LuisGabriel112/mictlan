@@ -65,7 +65,7 @@
   - Vuelo durante un casteo de Flecha emite `castCancelled`, la Flecha no hace daño y Vuelo activa su CD de 12 s (240 ticks).
 - **Verificación:** `npm run check`
 
-### [ ] T1.5 Amenaza
+### [x] T1.5 Amenaza
 - **Archivos:** `src/threat.ts` y sus tests.
 - **Hacer:** todo SPEC §4: tablas por enemigo, ×3 del Jaguar, amenaza plana, amenaza por curación efectiva, umbrales de 110 % y 130 %, empate por id y Provocar.
 - **Criterios:**

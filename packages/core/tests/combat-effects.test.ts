@@ -77,7 +77,7 @@ test('Roar includes body-adjusted boundary enemies, excludes dead and distant en
     ['add', 25], [BOSS.id, 25],
   ]);
   for (const id of ['outside', 'dead', 'p2', 'p3']) expect(result.state.entities[id]).toBe(state.entities[id]);
-  expect(result.state.entities[BOSS.id]).toMatchObject({ threat: {}, health: 23975 });
+  expect(result.state.entities[BOSS.id]).toMatchObject({ threat: { p1: 125 }, health: 23975 });
 });
 
 test('Offering includes self and living boundary allies but excludes enemies, dead and distant allies', () => {
@@ -91,7 +91,8 @@ test('Offering includes self and living boundary allies but excludes enemies, de
     ['p1', 150], ['p2', 150],
   ]);
   expect(result.state.entities.p2).toMatchObject({ health: 250, mana: 850 });
-  for (const id of ['dead', 'p3', BOSS.id]) expect(result.state.entities[id]).toBe(state.entities[id]);
+  for (const id of ['dead', 'p3']) expect(result.state.entities[id]).toBe(state.entities[id]);
+  expect(result.state.entities[BOSS.id]).toMatchObject({ health: 24000, threat: { p2: 150 } });
 });
 
 test.each([0, -1])('C4: a player at %s health ignores targeting, movement and casting', (health) => {
@@ -152,7 +153,7 @@ test('area resolution uses stable id order independently of entity insertion and
   expect(combatTick(state, inputs).state.rngState).toBe(expectedRng);
 });
 
-test.each(['copal', 'obsidianShield', 'taunt', 'warCry'] satisfies PlayerAbilityId[])(
+test.each(['copal', 'obsidianShield', 'warCry'] satisfies PlayerAbilityId[])(
   '%s keeps its future-task effect inactive', (abilityId) => {
     const state = combatEncounter();
     const playerId = abilityId === 'copal' ? 'p2' : abilityId === 'warCry' ? 'p3' : 'p1';
