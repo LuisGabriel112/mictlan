@@ -10,7 +10,7 @@
 | T1.3 Habilidades | `bcbe8ad` | 0 | Primer intento matado por falta de memoria del sistema; relanzado sin cambios |
 | T1.4 Daño, curación, muerte y Vuelo | `072e443` | 0 | Se detuvo una vez: su `npm ci` borró `node_modules` y la sandbox no tiene red. Venegas reinstaló y se reanudó |
 
-| T1.5 Amenaza | (pendiente) | 0 | — |
+| T1.5 Amenaza | `c426820` | 0 | — |
 
 Siguiente: **T1.6** (no lanzada).
 
@@ -49,7 +49,7 @@ Siguiente: **T1.6** (no lanzada).
 - Orden del tick: al inicio bajan los temporizadores de Provocar; al final del tick, tras todos los jugadores, se reevalúa el objetivo de cada enemigo (una sola vez).
 - La amenaza es decimal (la curación se reparte sin redondear). Los umbrales se comparan en bps.
 - Un objetivo actual con amenaza igual al máximo se conserva (histéresis).
-- Provocar toma como "máxima actual" toda la tabla, **incluidas las entradas de jugadores muertos** (las entradas no se borran al morir; esos jugadores solo no pueden ser objetivo). Pendiente de confirmar.
+- Provocar toma como "máxima actual" toda la tabla, **incluidas las entradas de jugadores muertos**. Se corrige en T1.6 (ver abajo).
 - La amenaza se acumula antes del pull; T1.7 decide qué pasa con ella.
 
 ## Decisiones de Venegas (2026-10-06)
@@ -58,10 +58,51 @@ Siguiente: **T1.6** (no lanzada).
 - **Modo dev con 1–2 jugadores:** `devMode` en `EncounterConfig`, con valores de 3 jugadores. Se implementa en T2.1. SPEC §6 y §7 (v0.3).
 - **Orden:** se sigue el PLAN tal cual (sin corte vertical).
 
+## Decisiones de Claude (delegadas por Venegas, 2026-10-06)
+
+- **Provocar ignora a los jugadores muertos** al calcular la "máxima actual". Motivo: un muerto no genera amenaza (SPEC §3) y no debería inflar la del tanque. Se corrige dentro de T1.6.
+- **Se mantiene el orden del PLAN** (sin corte vertical). Motivo: el esquema sincronizado de T2.3 incluye auras, zonas, fase y radio seguro; hacer el servidor antes del motor obligaría a rehacerlo. El simulador (T1.13) es el primer punto para ver un combate completo.
+- **`.gitattributes`** con `* text=auto eol=lf`, agregado por Claude (configuración, no es tarea del plan).
+
 ## Decisiones pendientes (de Venegas)
 
-1. **Provocar con muertos en la tabla:** ¿la "máxima actual" de Provocar debe ignorar a los jugadores muertos? Propuesta: sí (filtrar vivos); es un cambio de 1 línea en `threat.ts`.
-2. **`.gitattributes`** con `* text=auto eol=lf`, para quitar los avisos LF→CRLF (`core.autocrlf=true` contra `.editorconfig` en LF).
+Ninguna.
+
+## Prompt listo para T1.6
+
+Lanzar con `/codex:rescue --fresh --model gpt-6-astra --effort xhigh` y este texto:
+
+```
+Tarea T1.6 — Auras.
+
+Lee AGENTS.md, SPEC.md (v0.3: §3 y las filas de Copal y Escudo de obsidiana en §5) y la tarea T1.6 de PLAN.md. Implementa SOLO T1.6, más la corrección de Provocar de abajo.
+
+IMPORTANTE: las dependencias ya están instaladas. NO ejecutes `npm ci` ni `npm install`: borran node_modules y tu sandbox no tiene red. Usa npm.cmd (Windows PowerShell). No hagas commit.
+
+Alcance:
+- packages/core/src/auras.ts (nuevo) y sus tests. Puedes tocar combat-effects.ts y encounter.ts solo para conectar las auras.
+- Usa los datos que ya existen en data/classes.ts (efecto applyAura de Copal y de Escudo, tipos AuraDefinition y Aura). Nada de números sueltos.
+- Copal: cura 20 cada 1.0 s durante 10 s (10 ticks de curación, el primero 1 s después de aplicarlo). Recargarlo reinicia duración y ritmo, sin acumular. Cada tick de Copal puede criticar (fuente jugador) y genera amenaza por curación efectiva como cualquier curación (threat.ts ya lo hace con eventos healing).
+- Escudo de obsidiana: −50 % de daño recibido durante 6 s exactos (120 ticks). Pasa su modificador a calculateDamage.
+- Decide y documenta en qué punto del tick avanzan las auras (propuesta: junto a los demás timers, al inicio del tick).
+- Las auras desaparecen al morir la unidad.
+- Los eventos de curación de Copal llevan sourceId (el sanador) y abilityId 'copal'.
+
+Corrección de T1.5 (incluida en esta tarea):
+- threat.ts, tauntEnemy: la "máxima actual" debe considerar solo jugadores vivos. Actualiza el test "taunt maximum includes existing dead-player entries…" para que pruebe lo contrario.
+
+Criterios (un test por punto):
+1. Copal cura 200 en total en 10 s, en 10 ticks de 20.
+2. Recargar Copal reinicia la duración y el ritmo sin acumular.
+3. El Escudo expira a los 6 s exactos.
+4. Golpe del Descarnado (400) al Jaguar con Escudo real (aplicado con la habilidad) hace 140.
+5. Provocar ignora la amenaza de jugadores muertos.
+
+Reglas existentes: step no muta el estado y reutiliza por referencia las entidades sin cambios. Tests con critChance: 0 salvo que pruebes el crítico.
+
+Si algo del SPEC es ambiguo, detente y reporta una propuesta. No inventes.
+Termina con npm.cmd run check en verde y el reporte del formato de AGENTS.md.
+```
 
 ## Recordatorios para los próximos prompts
 
