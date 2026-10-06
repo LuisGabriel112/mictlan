@@ -41,7 +41,7 @@
   - Las posiciones iniciales coinciden con SPEC §6.
 - **Verificación:** `npm run check`
 
-### [ ] T1.3 Habilidades: validación, GCD, cooldowns, casteos y recursos
+### [x] T1.3 Habilidades: validación, GCD, cooldowns, casteos y recursos
 - **Archivos:** `src/abilities.ts` y sus tests.
 - **Hacer:** la validación en el orden de SPEC §3 (7 pasos, con motivos de rechazo), GCD de 1.0 s, cooldowns, casteos (no empezar en movimiento, cancelar al moverse, cobro y CD al resolver), maná con su regeneración y habilidades off-GCD. Al resolverse, una habilidad **solo emite** el evento `abilityResolved`; los efectos llegan en T1.4.
 - **Criterios (un test por punto):**

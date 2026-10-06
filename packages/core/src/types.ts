@@ -248,7 +248,12 @@ export type AbilityRejectionReason =
   | 'moving'
   | 'not_casting';
 
-export type CastCancellationReason = 'moving' | 'flight' | 'interrupted';
+export type CastCancellationReason =
+  | 'moving'
+  | 'flight'
+  | 'interrupted'
+  | 'invalid_target'
+  | 'out_of_range';
 
 export type CombatEvent = { tick: number } & (
   | {

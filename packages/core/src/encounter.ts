@@ -1,3 +1,4 @@
+import { advancePlayerAbilities, cancelPlayerCast, usePlayerAbility } from './abilities.js';
 import { BOSS } from './data/boss.js';
 import { CLASSES, COMBAT_RULES, PARTY_RULES } from './data/classes.js';
 import { createRngState } from './rng.js';
@@ -14,6 +15,24 @@ import type {
 } from './types.js';
 
 type MoveInput = Extract<Input, { type: 'move' }>;
+
+interface PlayerInputs {
+  targets: Extract<Input, { type: 'target' }>[];
+  move?: MoveInput;
+  cast?: Extract<Input, { type: 'cast' }>;
+}
+
+function groupInputs(inputs: readonly Input[]): Map<string, PlayerInputs> {
+  const grouped = new Map<string, PlayerInputs>();
+  for (const input of inputs) {
+    const player = grouped.get(input.playerId) ?? { targets: [] };
+    if (input.type === 'target') player.targets.push(input);
+    if (input.type === 'move') player.move = input;
+    if (input.type === 'cast' && player.cast === undefined) player.cast = input;
+    grouped.set(input.playerId, player);
+  }
+  return grouped;
+}
 
 function compareIds(left: string, right: string): number {
   return left < right ? -1 : left > right ? 1 : 0;
@@ -152,19 +171,46 @@ export function step(
     throw new Error(`Cada paso debe durar ${COMBAT_RULES.tickDurationMs} ms.`);
   }
 
-  // Stable sorting preserves arrival order for each player's moves.
-  const orderedInputs = [...inputs]
-    .sort((left, right) => compareIds(left.playerId, right.playerId));
-  const lastMoves = new Map<string, MoveInput>();
-  for (const input of orderedInputs) {
-    if (input.type === 'move') lastMoves.set(input.playerId, input);
-  }
-
+  const tick = state.tick + 1;
+  const events: CombatEvent[] = [];
   const entities = { ...state.entities };
-  for (const [playerId, input] of lastMoves) {
-    const entity = entities[playerId];
-    if (entity?.type === 'player') entities[playerId] = movePlayer(entity, input);
+  const players = Object.values(state.entities)
+    .filter((entity) => entity.type === 'player')
+    .sort((left, right) => compareIds(left.id, right.id));
+
+  // All timers and completed casts run before any input can move a target.
+  for (const player of players) {
+    const result = advancePlayerAbilities(player, entities, tick);
+    entities[player.id] = result.player;
+    events.push(...result.events);
   }
 
-  return { state: { ...state, entities, tick: state.tick + 1 }, events: [] };
+  const grouped = groupInputs(inputs);
+  for (const { id } of players) {
+    const input = grouped.get(id);
+    let player = entities[id];
+    if (!input || player.type !== 'player') continue;
+    const moving = input.move !== undefined && (input.move.dx !== 0 || input.move.dy !== 0);
+    for (const target of input.targets) {
+      if (target.entityId === null || Object.hasOwn(entities, target.entityId)) {
+        if (target.entityId !== player.targetId) player = { ...player, targetId: target.entityId };
+      }
+    }
+    if (player.health > 0) {
+      if (moving) {
+        const result = cancelPlayerCast(player, 'moving', tick);
+        player = result.player;
+        events.push(...result.events);
+      }
+      if (input.move) player = movePlayer(player, input.move);
+    }
+    if (input.cast) {
+      const result = usePlayerAbility(player, input.cast.abilityId, entities, moving, tick);
+      player = result.player;
+      events.push(...result.events);
+    }
+    entities[id] = player;
+  }
+
+  return { state: { ...state, entities, tick }, events };
 }
