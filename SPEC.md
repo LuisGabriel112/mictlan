@@ -1,4 +1,4 @@
-# MICTLÁN — Especificación del MVP (v0.3)
+# MICTLÁN — Especificación del MVP (v0.4)
 
 > Nombre de trabajo. Raid cooperativo en navegador, 3–5 jugadores contra un jefe inspirado en la mitología mexica.
 > Todos los números son **valores iniciales**: se ajustan con el simulador (tareas T1.12–T1.13) y con playtests.
@@ -250,3 +250,36 @@ Entidades (id, tipo, clase, x, y, vida, vida máx., recurso, objetivo, casteo ac
 ## 9. Dirección de arte (después del MVP)
 
 Estética de códice y Día de Muertos: paleta de ocres, negro obsidiana y turquesa. **Todo el arte debe ser propio** o con licencia de uso libre (por ejemplo, CC0).
+
+---
+
+## 10. Aclaraciones de implementación (v0.4)
+
+Estas reglas no cambian ningún número; cierran huecos que el texto anterior dejaba abiertos.
+
+**Habilidades del jefe sin casteo** (Viento, Llamado de los xolos)
+- Emiten solo `abilityResolved`, no `castStarted`.
+
+**Viento de obsidiana**
+- Los objetivos se eligen con el RNG, sin repetir, entre los jugadores vivos ordenados por id.
+- Un jugador está "dentro" de un círculo si la distancia entre su **centro** y el centro del círculo es ≤ 4 m (no se suma su radio de cuerpo).
+- El daño usa la fórmula de "Daño recibido": aplican armadura, Escudo y enfurecer.
+- Un círculo ya marcado explota aunque el jefe cambie de fase o muera antes de que termine el aviso.
+
+**Lamento de los muertos e interrupción**
+- El daño usa la fórmula de "Daño recibido": aplican armadura, Escudo y enfurecer.
+- Interrumpir emite `castCancelled` con motivo `interrupted`. El siguiente Lamento se cuenta desde que empezó el interrumpido.
+- Grito de guerra revisa "el objetivo castea algo interrumpible" justo después del paso 6 de la validación (§3). Si falla, se rechaza con `not_casting` sin activar su cooldown.
+- Los casteos de jugadores **no** son interrumpibles.
+
+**Xolos**
+- Aparecen con el centro sobre el muro (a 20 m de (0,0)).
+- "Jugador vivo más cercano" se mide desde la posición de aparición del xolo; empate por id menor.
+- Sus ids son deterministas y únicos dentro del encuentro.
+
+**Radio seguro y fin del encuentro**
+- Radio seguro con `phaseElapsedTicks = k` en fase 3: `20 − 8 × min(k, 200) / 200` m. Con k = 100 vale 16 m.
+- Un jugador está fuera si la distancia de su centro a (0,0) es mayor que el radio seguro.
+- El daño de la arena tiene `sourceId: 'environment'` y `abilityId: 'unsafeGround'`, y no genera amenaza.
+- Al terminar (`victory` o `defeat`) se emite `encounterEnded` una sola vez. Después, `step` solo avanza `tick`: nadie actúa y no hay más eventos. La vuelta al lobby es del servidor (T2.4).
+- El evento `death` incluye `sourceId` y `abilityId` del golpe letal.

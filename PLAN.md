@@ -106,18 +106,18 @@
 - **Verificación:** `npm run check`
 
 ### [ ] T1.9 Viento de obsidiana e interrupción
-- **Archivos:** `src/mechanics/wind.ts`, `src/mechanics/interrupt.ts` y sus tests.
-- **Hacer:** Viento (círculos de 4 m de radio fijos, aviso de 2 s, daño acumulable) y Lamento interrumpible con Grito de guerra (incluido el rechazo `not_casting`).
+- **Archivos:** `src/mechanics/wind.ts`, `src/mechanics/interrupt.ts` y sus tests; ajustes en `boss.ts` y `abilities.ts`.
+- **Hacer:** Viento (círculos de 4 m de radio fijos, aviso de 2 s, daño acumulable), daño del Lamento, y Lamento interrumpible con Grito de guerra (incluido el rechazo `not_casting`). Aplicar SPEC §10 (Viento, Lamento e interrupción). Las habilidades del jefe sin casteo dejan de emitir `castStarted`. Los casteos de jugador pasan a `interruptible: false`.
 - **Criterios:**
   - Un jugador que sale del círculo antes de 2 s no recibe daño; uno dentro de 2 círculos recibe 400.
   - Con 2 jugadores vivos se marcan 2 círculos.
-  - Interrumpir el Lamento cancela sus 250 de daño.
+  - El Lamento sin interrumpir hace 250 a cada jugador vivo (175 al Jaguar); interrumpirlo cancela ese daño.
   - Grito sobre un objetivo que no castea se rechaza y no gasta el CD.
 - **Verificación:** `npm run check`
 
 ### [ ] T1.10 Xolos
 - **Archivos:** `src/mechanics/xolos.ts` y sus tests.
-- **Hacer:** Llamado de los xolos (2 en ángulos opuestos del muro, cada 40 s solo en fase 2), vida según jugadores, IA de T1.7 y su tabla de amenaza propia con 1 de amenaza inicial al Tícitl.
+- **Hacer:** Llamado de los xolos (2 en ángulos opuestos del muro, cada 40 s solo en fase 2), vida según jugadores, IA de T1.7 y su tabla de amenaza propia con 1 de amenaza inicial al Tícitl. Aplicar SPEC §10 (Xolos).
 - **Criterios:**
   - Al entrar a fase 2 aparecen 2 xolos en el muro, opuestos entre sí.
   - Los xolos van primero por el Tícitl; si está muerto, por el jugador vivo más cercano.
@@ -127,11 +127,13 @@
 
 ### [ ] T1.11 Arena de fase 3 y fin del encuentro
 - **Archivos:** `src/mechanics/arena.ts` y sus tests.
-- **Hacer:** reducción lineal del radio seguro (20 → 12 m en 10 s), daño de 5 por tick fuera del radio seguro, y las condiciones de victoria y derrota.
+- **Hacer:** reducción lineal del radio seguro (20 → 12 m en 10 s), daño de 5 por tick fuera del radio seguro, y las condiciones de victoria y derrota. Aplicar SPEC §10 (Radio seguro y fin del encuentro), incluido el golpe letal en el evento `death` (`combat.ts`).
 - **Criterios:**
   - A los 5 s de entrar a fase 3 el radio seguro es 16 m.
   - Fuera del radio seguro se reciben 100/s, sin armadura ni Escudo.
   - El estado pasa a `victory` o `defeat` según corresponda; si ambas ocurren en el mismo tick, `victory`.
+  - Después del fin, `step` no produce eventos ni cambia nada salvo `tick`.
+  - El evento `death` trae el `abilityId` del golpe letal.
 - **Verificación:** `npm run check`
 
 ### [ ] T1.12 Simulador: bots y runner
