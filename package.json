@@ -1,0 +1,24 @@
+{
+  "name": "mictlan",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "workspaces": [
+    "packages/core",
+    "apps/server",
+    "apps/client"
+  ],
+  "scripts": {
+    "test": "npm run test --workspace @mictlan/core",
+    "typecheck": "npm run typecheck --workspace @mictlan/core",
+    "lint": "eslint . --max-warnings 0",
+    "check": "npm run typecheck && npm run lint && npm run test"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.0",
+    "@types/node": "^24.0.0",
+    "eslint": "^10.0.0",
+    "typescript": "^5.0.0",
+    "typescript-eslint": "^8.0.0"
+  }
+}

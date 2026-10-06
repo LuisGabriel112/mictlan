@@ -11,7 +11,7 @@
 
 ## Fase 0 — Base del proyecto
 
-### [ ] T0.1 Monorepo
+### [x] T0.1 Monorepo
 - **Archivos:** `package.json` raíz, `tsconfig.base.json`, `packages/core/*`, `apps/server/`, `apps/client/` (vacías salvo `package.json`), `.gitignore`, `.editorconfig`, configuración de ESLint.
 - **Hacer:** npm workspaces, TypeScript `strict`, Vitest en `packages/core`, y los scripts raíz `test`, `typecheck`, `lint` y `check` (= typecheck + lint + test). ESLint con `no-restricted-globals` / `no-restricted-syntax` que prohíbe `Date`, `Math.random`, `setTimeout`, `setInterval`, `fetch`, `window` y `document` **solo** en `packages/core/src`.
 - **Criterios:**
