@@ -100,7 +100,7 @@
 - **Hacer:** cambio de fase por % de vida con enteros, reinicio de temporizadores con la tabla de SPEC §6 y enfurecer a los 480 s del pull.
 - **Criterios:**
   - Con el jefe al 66 % sigue en fase 1; al 65 % entra a fase 2. Al 30 % entra a fase 3.
-  - El primer Golpe del Descarnado empieza a los 10 s de cada fase.
+  - El primer Golpe del Descarnado queda disponible a los 10 s de cada fase. En fases 1 y 2 empieza ahí; en fase 3 se encola tras el primer Lamento (empieza a los 8 s y dura 3 s) y empieza a los 11 s.
   - Un casteo en curso al cambiar de fase termina normalmente.
   - Enfurecer multiplica ×5 el daño del jefe y no el de los xolos.
 - **Verificación:** `npm run check`
