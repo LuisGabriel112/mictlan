@@ -1,0 +1,47 @@
+# NOTAS — Bitácora del flujo Claude + Codex
+
+## Estado al 2026-10-05
+
+| Tarea | Commit | Rebotes | Notas |
+|---|---|---|---|
+| T0.1 Monorepo | `5cceb36` | 1 | Test frágil (apps vacías), tipos de Node en core/src, tests en dos carpetas, `check` con pre/post hooks |
+| T1.1 Tipos y datos | `4831429` | 0 | — |
+| T1.2 RNG, reloj y movimiento | `1ecd209` | 0 | — |
+| T1.3 Habilidades | `bcbe8ad` | 0 | Primer intento matado por falta de memoria del sistema; relanzado sin cambios |
+
+Siguiente: **T1.4** (no lanzada).
+
+## Configuración de Codex
+
+- `~/.codex/config.toml` traía `model = "gpt-5.2"`, que falla con cuenta de ChatGPT (HTTP 400).
+- Se delega con `--model gpt-6-astra --effort xhigh`.
+- PowerShell bloquea `npm.ps1`: usar `npm.cmd`.
+
+## Decisiones tomadas fuera del SPEC (ya implementadas)
+
+**T1.2**
+- Los jugadores aparecen ordenados por id (comparación de strings con `<`, no `localeCompare`).
+- El muro recorta el **centro** del jugador a 20 m (no se resta el radio de cuerpo).
+- El estado del RNG (mulberry32) vive en `EncounterState.rngState`.
+- `createEncounter` exige 3–5 jugadores.
+
+**T1.3**
+- Orden de un tick: (a) bajan GCD, cooldowns y casteo, regenera maná y se resuelven los casteos que llegan a 0; (b) por jugador en orden de id: `target` → último `move` → `cast`.
+- Con varios `cast` en el mismo tick vale el **primero**.
+- Habilidad `ally` sin objetivo → `invalid_target` (no hay auto-objetivo propio).
+- Un casteo que falla al resolverse emite `castCancelled` con motivo `invalid_target` u `out_of_range`.
+- El maná se calcula en unidades enteras de 1/20 para evitar deriva.
+
+## Decisiones pendientes (de Venegas)
+
+1. **Vuelo:** ninguna tarea implementa su desplazamiento. Propuesta: agregarlo a T1.4 (desplazar 8 m, recortar al muro y cancelar el casteo propio).
+2. **`.gitattributes`** con `* text=auto eol=lf`, para quitar los avisos LF→CRLF (`core.autocrlf=true` contra `.editorconfig` en LF).
+3. **Modo dev con 1–2 jugadores (T2.1):** el SPEC solo da la vida del jefe y del xolo para 3/4/5. Propuesta: usar los valores de 3 jugadores. Requiere cambiar el SPEC.
+4. **Orden:** seguir el PLAN o hacer un corte vertical (T1.4 → T2.1–T2.3 → T3.1) para tener algo jugable en unas 5 tareas.
+
+## Recordatorios para los próximos prompts
+
+- **Todas:** `step` reutiliza por referencia las entidades sin cambios; está prohibido mutar el estado.
+- **T1.5:** los números de amenaza de SPEC §4 (curación ×0.5, umbrales de 110 % y 130 %) deben ir en `data/`; todavía no están.
+- **T1.9:** los casteos de jugador se crean con `interruptible: true` (`abilities.ts`); cambiar a `false`.
+- **T2.2:** un `move` con `NaN` o `Infinity` deja la posición en `NaN`; el servidor debe validarlo.
