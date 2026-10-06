@@ -24,7 +24,7 @@
 
 ## Fase 1 — Motor de combate (`packages/core`, sin red ni gráficos)
 
-### [ ] T1.1 Tipos y datos
+### [x] T1.1 Tipos y datos
 - **Archivos:** `src/types.ts`, `src/data/classes.ts`, `src/data/boss.ts`.
 - **Hacer:** tipos `Entity`, `Ability` (con tipo de objetivo `self | ally | enemy | none`), `Aura`, `EncounterConfig`, `EncounterState`, `Input`, `CombatEvent` (los eventos de daño y curación llevan `sourceId` y `abilityId`). Cargar como datos las 3 clases, el jefe (vida por número de jugadores, tabla de temporizadores por fase) y el xolo con los números exactos de SPEC §3, §5 y §6. Tiempos en ticks; armadura y modificadores en puntos base.
 - **Criterios:** un test verifica valores clave contra el SPEC: vida de cada clase, costo de Gran remedio, CD de Escudo (18 s = 360 ticks), regeneración de maná, vida del jefe para 3/4/5 jugadores, vida del xolo para 3 y 5, y la tabla de temporizadores de fase 3.
