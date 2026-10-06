@@ -30,7 +30,7 @@
 - **Criterios:** un test verifica valores clave contra el SPEC: vida de cada clase, costo de Gran remedio, CD de Escudo (18 s = 360 ticks), regeneración de maná, vida del jefe para 3/4/5 jugadores, vida del xolo para 3 y 5, y la tabla de temporizadores de fase 3.
 - **Verificación:** `npm run check`
 
-### [ ] T1.2 RNG con semilla, reloj y movimiento
+### [x] T1.2 RNG con semilla, reloj y movimiento
 - **Archivos:** `src/rng.ts`, `src/encounter.ts`.
 - **Hacer:** RNG determinista (por ejemplo, mulberry32). `createEncounter(config, seed)` con las posiciones de aparición de SPEC §6. `step(state, inputs, dtMs)` avanza exactamente un tick y no muta el estado recibido. Por ahora solo procesa `move` (7 m/s, recortado al muro de 20 m) y la orientación.
 - **Criterios:**

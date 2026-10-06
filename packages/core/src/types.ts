@@ -214,6 +214,8 @@ export interface DangerZone extends Position {
 
 export interface EncounterState {
   config: EncounterConfig;
+  // Unsigned 32-bit RNG state; advancing randomness must return a new state.
+  rngState: number;
   entities: Record<string, Entity>;
   zones: DangerZone[];
   status: EncounterStatus;
