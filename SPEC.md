@@ -1,4 +1,4 @@
-# MICTLÁN — Especificación del MVP (v0.2)
+# MICTLÁN — Especificación del MVP (v0.3)
 
 > Nombre de trabajo. Raid cooperativo en navegador, 3–5 jugadores contra un jefe inspirado en la mitología mexica.
 > Todos los números son **valores iniciales**: se ajustan con el simulador (tareas T1.12–T1.13) y con playtests.
@@ -138,11 +138,20 @@ Teclas: `1` a `4` para habilidades, `Tab` cicla enemigos, clic selecciona, `F1`�
 | 3 | Grito de guerra | Instantánea, off-GCD, 30 m | `enemy` | CD 15 s | Interrumpe el casteo interrumpible del objetivo. Si el objetivo no está casteando algo interrumpible, se rechaza con motivo `not_casting` y no gasta el CD |
 | 4 | Vuelo | Instantánea, off-GCD | `none` | CD 12 s | Desplaza 8 m en la dirección de movimiento (o hacia donde mira si está quieto). Se recorta al muro de la arena (no al radio seguro). Cancela el casteo propio |
 
+**Detalle de Vuelo**
+- "Dirección de movimiento" = el `move` de ese tick si es distinto de (0,0); si no, la orientación actual.
+- El desplazamiento se aplica en el paso `cast` del tick, después del `move` de ese mismo tick (se suman ambos).
+- Es instantáneo: el jugador queda en el destino en ese tick, sin estados intermedios.
+- Recortar al muro funciona igual que en el movimiento normal: el **centro** del jugador queda a ≤ 20 m de (0,0).
+- Si el jugador estaba casteando, el casteo se cancela (sin costo ni cooldown) antes del desplazamiento.
+- No cambia la orientación por sí mismo: la orientación solo cambia con `move`.
+
 ---
 
 ## 6. El jefe: Mictlantecuhtli, Señor del Mictlán
 
 - **Vida según número de jugadores:** 3 → 24 000, 4 → 36 000, 5 → 50 000. **Armadura:** 0. **Radio de cuerpo:** 1.5 m.
+- **Modo dev (1–2 jugadores):** solo para pruebas. El jefe y los xolos usan los valores de 3 jugadores. Ver §7.
 - **Auto-ataque:** 60 de daño cada 2.0 s a su objetivo, si está a ≤ 4 m. Si no, camina hacia él a 5 m/s.
 - **Enfurecer:** a los 480 s del pull, todo el daño del jefe ×5 (auto-ataque, Golpe, Lamento y Viento). No afecta a los xolos ni al daño por salir del radio seguro.
 
@@ -205,7 +214,9 @@ mictlan/
 - **Monorepo** con npm workspaces y TypeScript estricto. Tests con Vitest.
 - **El servidor es la autoridad:** el cliente nunca decide daño, vida ni posiciones finales.
 - **API central de core:**
-  - `createEncounter(config, seed) → EncounterState`, con `config = { players: [{ id, classId }], critChance? }`.
+  - `createEncounter(config, seed) → EncounterState`, con `config = { players: [{ id, classId }], critChance?, devMode? }`.
+  - Sin `devMode`, `createEncounter` exige de 3 a 5 jugadores. Con `devMode: true` acepta de 1 a 5; con 1 o 2 jugadores, el jefe y los xolos usan los valores de 3 (§6). Core no valida la composición de clases: eso lo hace el lobby (§5).
+  - El servidor activa `devMode` solo si `MICTLAN_DEV_MIN_PLAYERS` < 3.
   - `step(state, inputs, dtMs) → { state, events }` avanza **exactamente un tick**: `dtMs` debe ser 50, si no lanza error. Es pura: no muta el estado recibido.
   - Las entradas de un tick se procesan ordenadas por id de jugador. Como máximo un `cast` por jugador y tick; si llegan varios `move`, vale el último.
   - Los `events` (daño, curación, inicio/fin/cancelación de casteo, rechazo con motivo, muerte, cambio de fase…) los usan el log de combate, el texto flotante y el simulador. Todo evento de daño o curación incluye `sourceId` y `abilityId`.

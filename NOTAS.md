@@ -32,12 +32,15 @@ Siguiente: **T1.4** (no lanzada).
 - Un casteo que falla al resolverse emite `castCancelled` con motivo `invalid_target` u `out_of_range`.
 - El maná se calcula en unidades enteras de 1/20 para evitar deriva.
 
+## Decisiones de Venegas (2026-10-06)
+
+- **Vuelo:** entra en T1.4. Detalle en SPEC §5.3 (v0.3).
+- **Modo dev con 1–2 jugadores:** `devMode` en `EncounterConfig`, con valores de 3 jugadores. Se implementa en T2.1. SPEC §6 y §7 (v0.3).
+- **Orden:** se sigue el PLAN tal cual (sin corte vertical).
+
 ## Decisiones pendientes (de Venegas)
 
-1. **Vuelo:** ninguna tarea implementa su desplazamiento. Propuesta: agregarlo a T1.4 (desplazar 8 m, recortar al muro y cancelar el casteo propio).
-2. **`.gitattributes`** con `* text=auto eol=lf`, para quitar los avisos LF→CRLF (`core.autocrlf=true` contra `.editorconfig` en LF).
-3. **Modo dev con 1–2 jugadores (T2.1):** el SPEC solo da la vida del jefe y del xolo para 3/4/5. Propuesta: usar los valores de 3 jugadores. Requiere cambiar el SPEC.
-4. **Orden:** seguir el PLAN o hacer un corte vertical (T1.4 → T2.1–T2.3 → T3.1) para tener algo jugable en unas 5 tareas.
+1. **`.gitattributes`** con `* text=auto eol=lf`, para quitar los avisos LF→CRLF (`core.autocrlf=true` contra `.editorconfig` en LF).
 
 ## Recordatorios para los próximos prompts
 

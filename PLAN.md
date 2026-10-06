@@ -52,14 +52,17 @@
   - El alcance se mide restando el radio de cuerpo del objetivo.
 - **Verificación:** `npm run check`
 
-### [ ] T1.4 Daño, curación, mitigación y muerte
-- **Archivos:** `src/combat.ts` y sus tests.
-- **Hacer:** las fórmulas de SPEC §3 como funciones puras (crítico con RNG, armadura, lista de modificadores, redondeo hacia abajo, mínimo 1), tope de curación y curación efectiva, muerte. Conectar `abilityResolved` a los efectos de daño y curación directa de las clases (no Copal ni Escudo, que llegan en T1.6).
+### [ ] T1.4 Daño, curación, mitigación, muerte y Vuelo
+- **Archivos:** `src/combat.ts`, `src/abilities.ts` (solo para Vuelo) y sus tests.
+- **Hacer:** las fórmulas de SPEC §3 como funciones puras (crítico con RNG, armadura, lista de modificadores, redondeo hacia abajo, mínimo 1), tope de curación y curación efectiva, muerte. Conectar `abilityResolved` a los efectos de daño y curación directa de las clases (no Copal ni Escudo, que llegan en T1.6). Implementar el desplazamiento de Vuelo según SPEC §5.3 "Detalle de Vuelo".
 - **Criterios:**
   - Golpe del Descarnado (400) al Jaguar sin modificadores hace 280; con un modificador de 0.5 pasado a la función hace 140.
   - Con `critChance: 1` la Flecha hace 210.
   - La sobrecuración no pasa de la vida máxima y la curación efectiva la excluye.
   - Una unidad muerta no actúa ni puede ser objetivo.
+  - Vuelo quieto desplaza 8 m hacia la orientación; con `move` en el mismo tick desplaza 8 m en esa dirección, además del movimiento del tick.
+  - Vuelo cerca del muro deja el centro del jugador en 20 m exactos.
+  - Vuelo durante un casteo de Flecha emite `castCancelled`, la Flecha no hace daño y Vuelo activa su CD de 12 s (240 ticks).
 - **Verificación:** `npm run check`
 
 ### [ ] T1.5 Amenaza
@@ -164,11 +167,12 @@
 ## Fase 2 — Servidor (`apps/server`)
 
 ### [ ] T2.1 Sala de Colyseus y lobby
-- **Hacer:** sala `raid` con código de 4 letras, de 3 a 5 jugadores, mensajes `ready {classId}` con validación de la composición (SPEC §5) e inicio cuando todos están listos. Estado del lobby sincronizado. Variable de entorno `MICTLAN_DEV_MIN_PLAYERS` (por defecto 3) para pruebas con menos jugadores; también relaja la composición.
+- **Hacer:** sala `raid` con código de 4 letras, de 3 a 5 jugadores, mensajes `ready {classId}` con validación de la composición (SPEC §5) e inicio cuando todos están listos. Estado del lobby sincronizado. Variable de entorno `MICTLAN_DEV_MIN_PLAYERS` (por defecto 3) para pruebas con menos jugadores; también relaja la composición. En core, agregar `devMode?` a `EncounterConfig` según SPEC §7 (con 1–2 jugadores, el jefe y los xolos usan los valores de 3).
 - **Criterios:**
   - Un test de integración (cliente de Colyseus en Node) une 3 clientes, los marca listos y la sala pasa a `combat`.
   - Un segundo Jaguar recibe rechazo al marcarse listo.
   - Con `MICTLAN_DEV_MIN_PLAYERS=1` un solo cliente puede iniciar.
+  - En core: sin `devMode`, `createEncounter` con 2 jugadores lanza error; con `devMode: true`, 1 jugador funciona y el jefe tiene 24 000 de vida.
   - No hay APIs inventadas: todo lo usado existe en los tipos de la versión instalada.
 - **Verificación:** `npm run check`
 
