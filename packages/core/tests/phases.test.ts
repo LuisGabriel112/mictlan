@@ -84,7 +84,7 @@ test('phase entry runs after enemy actions and new phase abilities start on the 
   initial.entities.boss.health = 15600;
   const entered = combatTick(initial);
   expect(entered.events.map((event) => 'abilityId' in event ? event.abilityId : event.type)).toEqual([
-    'obsidianWind', 'obsidianWind', 'phaseChanged',
+    'obsidianWind', 'phaseChanged',
   ]);
   expect(entered.state.phaseElapsedTicks).toBe(0);
   expect(entered.state.bossAbilityTimers).toEqual({
@@ -140,7 +140,7 @@ test('C2: phase 3 Lament starts at 160, queues Strike at 200 and releases it at 
   expect(waiting.state.entities.boss.cast?.remainingTicks).toBe(1);
   const strike = combatTick(waiting.state);
   expect(strike.state.phaseElapsedTicks).toBe(220);
-  expect(strike.events.map(({ type }) => type)).toEqual(['castFinished', 'abilityResolved', 'castStarted']);
+  expect(strike.events.map(({ type }) => type)).toEqual(['castFinished', 'abilityResolved', 'damage', 'damage', 'damage', 'castStarted']);
   expect(strike.events.at(-1)).toMatchObject({ abilityId: 'flayedStrike', durationTicks: 50, tick: initial.tick + 220 });
   expect(strike.state.bossAbilityTimers.flayedStrike).toBe(BOSS_PHASES[3].timers.flayedStrike.intervalTicks);
   expect(strike.state.bossAbilityQueue).toEqual([]);

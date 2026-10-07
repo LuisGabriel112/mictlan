@@ -183,9 +183,12 @@ describe('T1.3 timers and resolution', () => {
   test.each(['warCry'] satisfies PlayerAbilityId[])(
     'off-GCD %s works during both GCD and an active cast', (abilityId) => {
       const started = tick(scenario(), [target(BOSS.id, 'p3'), cast('obsidianArrow', 'p3')]);
+      started.state.entities[BOSS.id].cast = { abilityId: 'lamentOfTheDead', targetId: null,
+        durationTicks: 60, remainingTicks: 60, interruptible: true };
       const result = tick(started.state, [cast(abilityId, 'p3')]);
       expect(result.events).toEqual([
         { type: 'abilityResolved', tick: 2, sourceId: 'p3', abilityId, targetId: BOSS.id },
+        { type: 'castCancelled', tick: 2, sourceId: BOSS.id, abilityId: 'lamentOfTheDead', reason: 'interrupted' },
       ]);
       expect(player(result.state, 'p3')).toMatchObject({
         gcdRemainingTicks: 19, cast: { abilityId: 'obsidianArrow', remainingTicks: 39 },

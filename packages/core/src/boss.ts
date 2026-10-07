@@ -2,6 +2,7 @@ import { replaceCombatEntity, resolveDamageEffect } from './combat-effects.js';
 import type { CombatResult } from './combat-effects.js';
 import { BOSS, BOSS_ABILITIES, BOSS_PHASES } from './data/boss.js';
 import { createPhaseAbilityTimers } from './phases.js';
+import { createWindZones } from './mechanics/wind.js';
 import type { BossAbilityId, CombatEvent, EncounterState, EnemyEntity, PhaseTimers } from './types.js';
 
 function livingBoss(state: EncounterState): EnemyEntity | undefined {
@@ -26,6 +27,18 @@ export function advanceBossEncounter(state: EncounterState): EncounterState {
 }
 
 function resolveBossAbility(state: EncounterState, event: Extract<CombatEvent, { type: 'abilityResolved' | 'castFinished' }>): CombatResult {
+  if (event.abilityId === 'obsidianWind') return { state: createWindZones(state, event.sourceId), events: [event] };
+  if (event.abilityId === 'lamentOfTheDead') {
+    const events: CombatEvent[] = [event];
+    for (const id of Object.keys(state.entities).sort()) {
+      const player = state.entities[id];
+      if (player.type !== 'player' || player.health <= 0) continue;
+      const result = resolveDamageEffect(state, event, player, BOSS_ABILITIES.lamentOfTheDead.effect.baseDamage);
+      state = result.state;
+      events.push(...result.events);
+    }
+    return { state, events };
+  }
   const target = event.targetId === null ? undefined : state.entities[event.targetId];
   if (event.abilityId !== 'flayedStrike' || !target || target.health <= 0) return { state, events: [event] };
   const result = resolveDamageEffect(state, event, target, BOSS_ABILITIES.flayedStrike.effect.baseDamage);
@@ -62,8 +75,7 @@ function startBossAbility(state: EncounterState, boss: EnemyEntity, abilityId: B
   const attribution = { sourceId: boss.id, abilityId, targetId: boss.targetId, tick: state.tick };
   const started: CombatEvent = { type: 'castStarted', ...attribution, durationTicks: ability.castTicks };
   if (ability.castTicks === 0) {
-    const resolved = resolveBossAbility(state, { type: 'abilityResolved', ...attribution });
-    return { state: resolved.state, events: [started, ...resolved.events] };
+    return resolveBossAbility(state, { type: 'abilityResolved', ...attribution });
   }
   const cast = { abilityId, targetId: boss.targetId, durationTicks: ability.castTicks,
     remainingTicks: ability.castTicks, interruptible: ability.interruptible };

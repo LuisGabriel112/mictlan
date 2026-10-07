@@ -156,13 +156,13 @@ test('area resolution uses stable id order independently of entity insertion and
 });
 
 test.each(['warCry'] satisfies PlayerAbilityId[])(
-  '%s keeps its future-task effect inactive', (abilityId) => {
+  '%s without an interruptible cast leaves the target and RNG unchanged', (abilityId) => {
     const state = combatEncounter();
     const playerId = 'p3';
     combatPlayer(state, playerId).targetId = BOSS.id;
     const result = combatTick(state, [combatCast(abilityId, playerId)]);
     expect(result.events).toHaveLength(1);
-    expect(result.events[0].type).toBe('abilityResolved');
+    expect(result.events[0]).toMatchObject({ type: 'abilityRejected', reason: 'not_casting' });
     expect(result.state.rngState).toBe(state.rngState);
     expect(result.state.entities[BOSS.id]).toBe(state.entities[BOSS.id]);
     expect(result.state.entities.p1.auras).toEqual([]);

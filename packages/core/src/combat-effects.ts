@@ -2,6 +2,7 @@ import { applyDamage, applyHealing, calculateDamage, calculateHealing, rollCriti
 import { advanceEntityAuras, applyAura, clearDeadAuras, damageTakenModifiers } from './auras.js';
 import type { HealingAura } from './auras.js';
 import { CLASSES } from './data/classes.js';
+import { interruptCast } from './mechanics/interrupt.js';
 import { enrageDamageModifiers } from './phases.js';
 import { applyThreatEvent } from './threat.js';
 import type { Ability, AbilityEffect, CombatEvent, EncounterState, Entity, PlayerEntity } from './types.js';
@@ -78,6 +79,7 @@ function resolveAbilityEffects(state: EncounterState, event: ResolvedEvent): Com
   const source = livingSource(state, event.sourceId);
   if (!source) return { state, events: [] };
   const ability = CLASSES[source.classId].abilities.find(({ id }) => id === event.abilityId);
+  if (ability?.effect.type === 'interrupt') return interruptCast(state, event.targetId);
   if (!ability || !isTargetEffect(ability.effect)) return { state, events: [] };
   const events: CombatEvent[] = [];
   for (const target of effectTargets(state, source, ability, event.targetId)) {

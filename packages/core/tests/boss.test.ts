@@ -118,14 +118,14 @@ test('C4: due Lament queues once, starts at Strike completion and resets from it
   expect(advanceBossAbilities(released.state).state.bossAbilityTimers.lamentOfTheDead).toBe(499);
 });
 
-test('Lament emits completion and resolution with no raid damage', () => {
+test('Lament emits completion and resolution before raid damage', () => {
   const initial = enemyEncounter();
   initial.bossAbilityTimers = { lamentOfTheDead: 0 };
   const started = advanceBossAbilities(initial);
   expect(started.state.entities.boss.cast).toMatchObject({ remainingTicks: 60, interruptible: true });
   const completed = repeatBoss(started.state, 60);
-  expect(completed.events.map(({ type }) => type)).toEqual(['castFinished', 'abilityResolved']);
-  expect(completed.state.entities.p1).toBe(initial.entities.p1);
+  expect(completed.events.map(({ type }) => type)).toEqual(['castFinished', 'abilityResolved', 'damage', 'damage', 'damage']);
+  expect(completed.state.entities.p1.health).toBe(initial.entities.p1.health - 175);
 });
 
 test('queued Lament next starts exactly 500 ticks after its delayed start', () => {
@@ -140,21 +140,20 @@ test('queued Lament next starts exactly 500 ticks after its delayed start', () =
   expect(advanceBossAbilities(waiting.state).events[0]).toMatchObject({ type: 'castStarted', abilityId: 'lamentOfTheDead' });
 });
 
-test('Wind and Call execute during Strike without replacing it or creating effects', () => {
+test('Wind and Call resolve without castStarted during Strike and Wind creates zones', () => {
   const initial = enemyEncounter();
   initial.phase = 2;
   initial.bossAbilityTimers = { flayedStrike: 1, obsidianWind: 2, callOfTheXolos: 2 };
   const started = advanceBossAbilities(initial);
   const result = advanceBossAbilities(started.state);
   expect(result.events.map((event) => 'abilityId' in event && [event.type, event.abilityId])).toEqual([
-    ['castStarted', 'obsidianWind'], ['abilityResolved', 'obsidianWind'],
-    ['castStarted', 'callOfTheXolos'], ['abilityResolved', 'callOfTheXolos'],
+    ['abilityResolved', 'obsidianWind'], ['abilityResolved', 'callOfTheXolos'],
   ]);
   expect(result.state.entities.boss.cast).toMatchObject({ abilityId: 'flayedStrike', remainingTicks: 49 });
   expect(result.state.bossAbilityTimers).toMatchObject({ obsidianWind: 240, callOfTheXolos: 800 });
-  expect(result.state.zones).toBe(initial.zones);
+  expect(result.state.zones).toHaveLength(3);
   expect(Object.keys(result.state.entities)).toEqual(Object.keys(initial.entities));
-  expect(result.state.rngState).toBe(initial.rngState);
+  expect(result.state.rngState).not.toBe(initial.rngState);
 });
 
 test('existing queue precedes newly due casts and simultaneous deadlines follow phase table order', () => {

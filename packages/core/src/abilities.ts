@@ -1,5 +1,6 @@
 import { CLASSES, COMBAT_RULES } from './data/classes.js';
 import { displace } from './movement.js';
+import { hasInterruptibleCast } from './mechanics/interrupt.js';
 import type {
   Ability,
   AbilityRejectionReason,
@@ -67,6 +68,8 @@ function validateAbility(
   if (manaUnits(player.mana) < manaUnits(ability.manaCost)) return 'insufficient_mana';
   const targetRejection = validateTarget(player, ability, player.targetId, entities);
   if (targetRejection !== null) return targetRejection;
+  if (ability.effect.type === 'interrupt'
+    && !hasInterruptibleCast(player.targetId === null ? undefined : entities[player.targetId])) return 'not_casting';
   if (ability.castTicks > 0 && moving) return 'moving';
   return null;
 }
@@ -150,7 +153,7 @@ function startPlayerAbility(player: PlayerEntity, ability: Ability, tick: number
   return {
     player: {
       ...started,
-      cast: { abilityId, targetId, durationTicks: ability.castTicks, remainingTicks: ability.castTicks, interruptible: true },
+      cast: { abilityId, targetId, durationTicks: ability.castTicks, remainingTicks: ability.castTicks, interruptible: false },
     },
     events: [{ type: 'castStarted', tick, sourceId: player.id, abilityId, targetId, durationTicks: ability.castTicks }],
   };

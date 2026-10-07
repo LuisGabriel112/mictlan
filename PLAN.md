@@ -105,7 +105,7 @@
   - Enfurecer multiplica ×5 el daño del jefe y no el de los xolos.
 - **Verificación:** `npm run check`
 
-### [ ] T1.9 Viento de obsidiana e interrupción
+### [x] T1.9 Viento de obsidiana e interrupción
 - **Archivos:** `src/mechanics/wind.ts`, `src/mechanics/interrupt.ts` y sus tests; ajustes en `boss.ts` y `abilities.ts`.
 - **Hacer:** Viento (círculos de 4 m de radio fijos, aviso de 2 s, daño acumulable), daño del Lamento, y Lamento interrumpible con Grito de guerra (incluido el rechazo `not_casting`). Aplicar SPEC §10 (Viento, Lamento e interrupción). Las habilidades del jefe sin casteo dejan de emitir `castStarted`. Los casteos de jugador pasan a `interruptible: false`.
 - **Criterios:**

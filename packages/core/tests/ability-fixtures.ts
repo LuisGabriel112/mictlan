@@ -30,6 +30,5 @@ export function advance(state: EncounterState, ticks: number): EncounterState {
 }
 
 export function activeCast(remainingTicks = 10): CastState {
-  return { abilityId: 'remedy', targetId: 'p1', durationTicks: 30, remainingTicks, interruptible: true };
+  return { abilityId: 'remedy', targetId: 'p1', durationTicks: 30, remainingTicks, interruptible: false };
 }
-

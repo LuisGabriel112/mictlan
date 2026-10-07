@@ -7,6 +7,7 @@ import { BOSS } from './data/boss.js';
 import { CLASSES, COMBAT_RULES, PARTY_RULES } from './data/classes.js';
 import { createRngState } from './rng.js';
 import { displace, normalize } from './movement.js';
+import { advanceWindZones } from './mechanics/wind.js';
 import { advanceBossEnrage, updateBossPhase } from './phases.js';
 import { advanceThreatTimers, updateEnemyTargets } from './threat.js';
 import type {
@@ -227,9 +228,13 @@ export function step(state: EncounterState, inputs: readonly Input[], dtMs: numb
   const processed = runPlayerPhase(advanced.state, (player, current) => processPlayerInput(player, current, grouped.get(player.id)));
   const attacked = runEntityPhase(processed.state, advanceJaguarAutoAttack);
   const enraged = advanceBossEnrage(advanceBossEncounter(attacked.state));
+  // Existing zones count down and explode after player movement/abilities and enrage,
+  // before enemy actions create new zones. A mark at t explodes at t + warningTicks,
+  // independently of the boss's phase or death.
+  const zones = advanceWindZones(enraged.state);
   // One final selection prevents intermediate threat and positions from changing hysteresis.
-  const enemies = runEntityPhase(updateEnemyTargets(enraged.state), advanceEnemyActions);
+  const enemies = runEntityPhase(updateEnemyTargets(zones.state), advanceEnemyActions);
   const phased = updateBossPhase(enemies.state);
   return { state: phased.state, events: [...timed.events, ...advanced.events, ...processed.events,
-    ...attacked.events, ...enraged.events, ...enemies.events, ...phased.events] };
+    ...attacked.events, ...enraged.events, ...zones.events, ...enemies.events, ...phased.events] };
 }

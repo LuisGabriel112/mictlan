@@ -31,6 +31,8 @@ function copalEvents(events: readonly CombatEvent[]): CombatEvent[] {
 
 test('C1: Copal heals 200 over ten seconds in ten pulses of 20 starting after one second', () => {
   const initial = combatEncounter();
+  // Keep boss ability scheduling idle to isolate Copal's healing totals.
+  initial.bossActive = true;
   initial.entities.p1.health = 900;
   const applied = castCopal(initial);
   expect(applied.events.map(({ type }) => type)).toEqual(['abilityResolved']);
@@ -48,6 +50,8 @@ test('C1: Copal heals 200 over ten seconds in ten pulses of 20 starting after on
 
 test('C2: refreshing Copal resets duration and pulse rhythm without stacking', () => {
   const initial = combatEncounter();
+  // Keep boss ability scheduling idle to isolate Copal's healing totals.
+  initial.bossActive = true;
   initial.entities.p1.health = 800;
   const first = advanceTicks(castCopal(initial).state, 30);
   expect(first.events).toHaveLength(1);
