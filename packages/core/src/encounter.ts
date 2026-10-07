@@ -4,7 +4,8 @@ import type { CombatResult } from './combat-effects.js';
 import { advanceBossAbilities, advanceBossEncounter } from './boss.js';
 import { advanceEnemy, advanceJaguarAutoAttack } from './enemy.js';
 import { BOSS } from './data/boss.js';
-import { CLASSES, COMBAT_RULES, PARTY_RULES } from './data/classes.js';
+import { CLASSES, COMBAT_RULES } from './data/classes.js';
+import { scaledPlayerCount, validatePartySize } from './party.js';
 import { createRngState } from './rng.js';
 import { displace, normalize } from './movement.js';
 import { advanceWindZones } from './mechanics/wind.js';
@@ -45,40 +46,21 @@ function compareIds(left: string, right: string): number {
   return left < right ? -1 : left > right ? 1 : 0;
 }
 
-function isPlayerCount(count: number): count is PlayerCount {
-  return count >= PARTY_RULES.minPlayers && count <= PARTY_RULES.maxPlayers;
-}
-
-function createPlayer(
-  player: EncounterConfig['players'][number],
-  index: number,
-  playerCount: PlayerCount,
-): PlayerEntity {
+function createPlayer(player: EncounterConfig['players'][number], index: number, playerCount: number): PlayerEntity {
   const definition = CLASSES[player.classId];
-  const x = BOSS.playerSpawn.centerX
-    + (index - (playerCount - 1) / 2) * BOSS.playerSpawn.spacingMeters;
+  const x = BOSS.playerSpawn.centerX + (index - (playerCount - 1) / 2) * BOSS.playerSpawn.spacingMeters;
   const y = BOSS.playerSpawn.y;
 
   return {
-    id: player.id,
-    type: 'player',
-    classId: player.classId,
-    x,
-    y,
-    health: definition.maxHealth,
-    maxHealth: definition.maxHealth,
+    id: player.id, type: 'player', classId: player.classId, x, y,
+    health: definition.maxHealth, maxHealth: definition.maxHealth,
     armorBps: definition.armorBps,
     bodyRadiusMeters: COMBAT_RULES.playerBodyRadiusMeters,
     speedMetersPerSecond: COMBAT_RULES.playerSpeedMetersPerSecond,
-    mana: definition.maxMana,
-    maxMana: definition.maxMana,
+    mana: definition.maxMana, maxMana: definition.maxMana,
     facing: normalize(BOSS.spawn.x - x, BOSS.spawn.y - y),
-    targetId: null,
-    cast: null,
-    auras: [],
-    autoAttackRemainingTicks: 0,
-    gcdRemainingTicks: 0,
-    cooldowns: {},
+    targetId: null, cast: null, auras: [],
+    autoAttackRemainingTicks: 0, gcdRemainingTicks: 0, cooldowns: {},
   };
 }
 
@@ -86,56 +68,36 @@ function createBoss(playerCount: PlayerCount): EnemyEntity {
   const maxHealth = BOSS.maxHealthByPlayerCount[playerCount];
 
   return {
-    id: BOSS.id,
-    type: 'boss',
-    classId: null,
-    ...BOSS.spawn,
-    health: maxHealth,
-    maxHealth,
+    id: BOSS.id, type: 'boss', classId: null, ...BOSS.spawn,
+    health: maxHealth, maxHealth,
     armorBps: BOSS.armorBps,
     bodyRadiusMeters: BOSS.bodyRadiusMeters,
     speedMetersPerSecond: BOSS.speedMetersPerSecond,
-    targetId: null,
-    cast: null,
-    auras: [],
-    autoAttackRemainingTicks: 0,
-    threat: {},
-    forcedTargetId: null,
-    forcedTargetRemainingTicks: 0,
+    targetId: null, cast: null, auras: [], autoAttackRemainingTicks: 0,
+    threat: {}, forcedTargetId: null, forcedTargetRemainingTicks: 0,
   };
 }
 
-export function createEncounter(config: EncounterConfig, seed: number): EncounterState {
-  const playerCount = config.players.length;
-  if (!isPlayerCount(playerCount)) {
-    throw new Error(
-      `El encuentro requiere entre ${PARTY_RULES.minPlayers} y ${PARTY_RULES.maxPlayers} jugadores.`,
-    );
-  }
+function createEncounterEntities(players: EncounterConfig['players']): Record<string, Entity> {
+  const entities: Entity[] = [
+    createBoss(scaledPlayerCount(players.length)),
+    ...players.map((player, index) => createPlayer(player, index, players.length)),
+  ];
+  return Object.fromEntries(entities.map((entity) => [entity.id, entity]));
+}
 
+export function createEncounter(config: EncounterConfig, seed: number): EncounterState {
+  validatePartySize(config);
   const players = config.players.map((player) => ({ ...player }))
     .sort((left, right) => compareIds(left.id, right.id));
-  const entities: Entity[] = [
-    createBoss(playerCount),
-    ...players.map((player, index) => createPlayer(player, index, playerCount)),
-  ];
-
   return {
     config: { ...config, players },
     rngState: createRngState(seed),
-    entities: Object.fromEntries(entities.map((entity) => [entity.id, entity])),
-    zones: [],
-    status: 'combat',
-    tick: 0,
-    elapsedTicks: 0,
-    phase: 1,
-    phaseElapsedTicks: 0,
+    entities: createEncounterEntities(players),
+    zones: [], status: 'combat', tick: 0, elapsedTicks: 0, phase: 1, phaseElapsedTicks: 0,
     safeRadiusMeters: COMBAT_RULES.arena.initialSafeRadiusMeters,
     critChance: config.critChance ?? COMBAT_RULES.defaultCritChance,
-    bossActive: false,
-    enraged: false,
-    bossAbilityTimers: {},
-    bossAbilityQueue: [],
+    bossActive: false, enraged: false, bossAbilityTimers: {}, bossAbilityQueue: [],
   };
 }
 

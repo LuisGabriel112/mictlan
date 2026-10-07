@@ -18,8 +18,9 @@
 | T1.11 Arena y fin del encuentro | `c50f946` | 1 | Codex detectó una contradicción en SPEC §10 (Viento tras la muerte del jefe contra encuentro congelado); se corrigió el SPEC. El `--resume` falló por tareas fantasma del plugin y se terminó con `--fresh` |
 | T1.12 Simulador: bots y runner | `aa7a367` | 0 | `--effort high`; sin problemas |
 | T1.13 Simulador: reporte y CLI | `e541b30` | 0 | **Implementada por Claude** a pedido de Venegas (Codex con 4 % de cuota). Sin revisión independiente |
+| T2.1 Sala de Colyseus y lobby | (pendiente) | 0 | `xhigh`, 27 min. Verificó cada API de Colyseus en los `.d.ts`. Su sandbox no pudo correr `npm run dev` (ENOMEM en tsx); Claude lo corrió fuera y responde HTTP 200 |
 
-Siguiente: **T2.1** (Fase 2, servidor). Checkpoint A hecho el 2026-10-06 (ver sección). Prompts de T2.1–T2.4 listos en `PROMPTS.md`.
+Siguiente: **T2.2** (bucle de combate y entradas). Checkpoint A hecho el 2026-10-06 (ver sección). Prompts de T2.1–T2.4 listos en `PROMPTS.md`.
 
 ## Configuración de Codex
 

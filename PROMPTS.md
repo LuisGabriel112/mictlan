@@ -8,46 +8,6 @@ Claude borra de aquí cada prompt cuando su tarea queda aprobada.
 
 ---
 
-## T2.1 — Sala de Colyseus y lobby
-
-```
-Tarea T2.1 — Sala de Colyseus y lobby.
-
-Lee AGENTS.md, SPEC.md (§5 composición, §7 completo, §8 lobby), la tarea T2.1 de PLAN.md y NOTAS.md (decisiones de T1.2 y Configuración). Implementa SOLO T2.1.
-
-IMPORTANTE: NO ejecutes `npm ci` ni `npm install`: tu sandbox no tiene red. Las dependencias ya están instaladas (ver apps/server/package.json). Si te falta alguna, detente y pídela. Usa npm.cmd (Windows PowerShell). No hagas commit.
-
-REGLA CRÍTICA DE AGENTS.md: Colyseus 0.18 y @colyseus/schema 5 cambiaron mucho respecto a versiones anteriores. Usa SOLO APIs que existan en los tipos instalados (lee node_modules/@colyseus/core, @colyseus/schema, @colyseus/ws-transport y @colyseus/sdk: sus .d.ts y README). No escribas código de memoria de 0.14/0.15/0.16. En el reporte, lista las APIs de Colyseus que usaste y el archivo .d.ts donde comprobaste cada una.
-
-Parte A — core (packages/core):
-1. `EncounterConfig.devMode?: boolean`. Sin devMode, createEncounter exige 3–5 jugadores (como hoy). Con devMode: true acepta 1–5; con 1 o 2 jugadores, la vida del jefe y la de los xolos usan los valores de 3 jugadores (SPEC §7). Corrige también mechanics/xolos.ts, que hoy indexa por `players.length` sin acotar. Nada de números sueltos: la regla "valores de 3" sale de PARTY_RULES.minPlayers.
-2. Añade a packages/core/package.json `"exports": { ".": "./src/index.ts" }` para que el servidor importe `@mictlan/core` (lo consumen tsx y vitest; no hay build de core). Comprueba que typecheck lo resuelve.
-
-Parte B — servidor (apps/server):
-3. Estructura: src/index.ts (arranca el servidor HTTP+WS en el puerto PORT, por defecto 2567), src/rooms/RaidRoom.ts, src/schema/ (estado del lobby), src/lobby.ts (reglas puras de composición, testeables sin red). tsconfig.json propio que extienda tsconfig.base.json con types node (y lo que exija @colyseus/schema 5 según sus tipos). Dependencia "@mictlan/core": "*" en apps/server/package.json (workspace; no requiere red).
-4. Scripts: en apps/server, "typecheck", "test" (vitest run) y "dev" (tsx src/index.ts). En el package.json raíz, "test" y "typecheck" deben correr core y server (p. ej. `--workspaces --if-present`), de modo que `npm run check` cubra ambos. `lint` ya cubre todo el repo; asegúrate de que el servidor pase sin desactivar reglas.
-5. Sala `raid`:
-   - Código de sala de 4 letras mayúsculas A–Z, único entre las salas activas, que sirve para unirse (el cliente se une por ese código). Investiga en los tipos instalados cómo fijar el roomId o cómo resolver un código a una sala; documenta la elección.
-   - maxClients 5. El id de jugador en core será el sessionId.
-   - Estado del lobby sincronizado (schema): status ('lobby' | 'combat' | 'victory' | 'defeat'), código y jugadores { id, classId (vacío si no eligió), ready }.
-   - Mensaje `ready { classId }`: valida que classId sea 'jaguar' | 'healer' | 'eagle' y la composición de SPEC §5 contando a los jugadores ya listos: como máximo 1 Jaguar, 1 Tícitl y 3 Águilas. Si se rechaza, envía solo a ese cliente un mensaje `rejected { reason }` con reason 'invalid_class' | 'composition' y no lo marca listo. Payload mal formado → 'invalid_class', sin excepciones.
-   - Inicio: cuando todos los conectados están listos, hay entre minPlayers y 5, y la composición está completa (exactamente 1 Jaguar, 1 Tícitl y al menos 1 Águila): status pasa a 'combat' y se crea el encuentro con createEncounter (semilla aleatoria del servidor; aquí sí se permite Math.random porque no es core). En T2.1 no hay bucle de combate todavía: solo se crea y se guarda el estado.
-   - MICTLAN_DEV_MIN_PLAYERS (entero 1–3, por defecto 3; valor inválido → 3). Si es < 3: minPlayers baja a ese valor, la composición se relaja (sigue prohibiendo duplicar Jaguar o Tícitl, pero no exige tenerlos) y createEncounter recibe devMode: true.
-6. Tests de integración con vitest: levantan el servidor en proceso en un puerto libre y se conectan con el cliente de @colyseus/sdk; cierran todo al terminar. Lógica pura de composición con tests unitarios aparte.
-
-Criterios (un test por punto):
-1. Integración: 3 clientes se unen por el código, se marcan listos (Jaguar, Tícitl, Águila) y el estado sincronizado pasa a 'combat'.
-2. Un segundo Jaguar recibe `rejected { reason: 'composition' }` y no queda listo.
-3. Con MICTLAN_DEV_MIN_PLAYERS=1 un solo cliente puede iniciar.
-4. Core: sin devMode, createEncounter con 2 jugadores lanza error; con devMode: true, 1 jugador funciona y el jefe tiene 24 000 de vida; los xolos invocados con 2 jugadores en devMode tienen 300.
-5. El código de sala tiene 4 letras A–Z y dos salas simultáneas tienen códigos distintos.
-
-Si algo del SPEC es ambiguo, detente y reporta una propuesta. No inventes.
-Termina con npm.cmd run check en verde y el reporte del formato de AGENTS.md.
-```
-
----
-
 ## T2.2 — Bucle de combate y entradas
 
 ```

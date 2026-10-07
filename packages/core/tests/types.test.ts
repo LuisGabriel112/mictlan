@@ -15,10 +15,11 @@ test('Ability supports exactly the four SPEC target types', () => {
   expectTypeOf<Ability['targetType']>().toEqualTypeOf<'self' | 'ally' | 'enemy' | 'none'>();
 });
 
-test('EncounterConfig contains player ids/classes and optional critChance', () => {
+test('EncounterConfig contains player ids/classes and optional critChance/devMode', () => {
   expectTypeOf<EncounterConfig>().toEqualTypeOf<{
     players: readonly { readonly id: string; readonly classId: ClassId }[];
     critChance?: number;
+    devMode?: boolean;
   }>();
 });
 

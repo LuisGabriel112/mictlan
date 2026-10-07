@@ -168,7 +168,7 @@
 
 ## Fase 2 — Servidor (`apps/server`)
 
-### [ ] T2.1 Sala de Colyseus y lobby
+### [x] T2.1 Sala de Colyseus y lobby
 - **Hacer:** sala `raid` con código de 4 letras, de 3 a 5 jugadores, mensajes `ready {classId}` con validación de la composición (SPEC §5) e inicio cuando todos están listos. Estado del lobby sincronizado. Variable de entorno `MICTLAN_DEV_MIN_PLAYERS` (por defecto 3) para pruebas con menos jugadores; también relaja la composición. En core, agregar `devMode?` a `EncounterConfig` según SPEC §7 (con 1–2 jugadores, el jefe y los xolos usan los valores de 3).
 - **Criterios:**
   - Un test de integración (cliente de Colyseus en Node) une 3 clientes, los marca listos y la sala pasa a `combat`.

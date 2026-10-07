@@ -73,6 +73,7 @@ describe('complete SPEC §3, §5 and §6 data', () => {
       },
     });
     expect(PARTY_RULES).toEqual({
+      devMinPlayers: 1,
       minPlayers: 3,
       maxPlayers: 5,
       composition: {

@@ -21,6 +21,7 @@ export const COMBAT_RULES = {
 } as const;
 
 export const PARTY_RULES = {
+  devMinPlayers: 1,
   minPlayers: 3,
   maxPlayers: 5,
   composition: {

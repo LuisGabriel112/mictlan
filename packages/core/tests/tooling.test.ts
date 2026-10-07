@@ -10,14 +10,14 @@ const eslint = new ESLint({ cwd: rootDirectory });
 
 test('resolves the three installed workspaces', () => {
   const workspaces = [
-    { name: 'core', directory: join('packages', 'core') },
-    { name: 'server', directory: join('apps', 'server') },
-    { name: 'client', directory: join('apps', 'client') },
+    { name: 'core', directory: join('packages', 'core'), entry: '', target: join('src', 'index.ts') },
+    { name: 'server', directory: join('apps', 'server'), entry: '/package.json', target: 'package.json' },
+    { name: 'client', directory: join('apps', 'client'), entry: '/package.json', target: 'package.json' },
   ];
 
-  for (const { name, directory } of workspaces) {
-    expect(realpathSync(require.resolve(`@mictlan/${name}/package.json`))).toBe(
-      realpathSync(join(rootDirectory, directory, 'package.json')),
+  for (const { name, directory, entry, target } of workspaces) {
+    expect(realpathSync(require.resolve(`@mictlan/${name}${entry}`))).toBe(
+      realpathSync(join(rootDirectory, directory, target)),
     );
   }
 });

@@ -9,8 +9,8 @@
     "apps/client"
   ],
   "scripts": {
-    "test": "npm run test --workspace @mictlan/core",
-    "typecheck": "npm run typecheck --workspace @mictlan/core",
+    "test": "npm run test --workspaces --if-present",
+    "typecheck": "npm run typecheck --workspaces --if-present",
     "lint": "eslint . --max-warnings 0",
     "sim": "npm run sim --workspace @mictlan/core --",
     "check": "npm run typecheck && npm run lint && npm run test"

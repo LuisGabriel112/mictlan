@@ -201,6 +201,7 @@ export type Entity = PlayerEntity | EnemyEntity;
 export interface EncounterConfig {
   players: readonly { readonly id: string; readonly classId: ClassId }[];
   critChance?: number;
+  devMode?: boolean;
 }
 
 export interface DangerZone extends Position {
