@@ -19,7 +19,7 @@
 | T1.12 Simulador: bots y runner | `aa7a367` | 0 | `--effort high`; sin problemas |
 | T1.13 Simulador: reporte y CLI | `e541b30` | 0 | **Implementada por Claude** a pedido de Venegas (Codex con 4 % de cuota). Sin revisión independiente |
 
-Siguiente: **Checkpoint A** (revisar el reporte del simulador y proponer ajustes al SPEC). Después, Fase 2 (servidor).
+Siguiente: **T2.1** (Fase 2, servidor). Checkpoint A hecho el 2026-10-06 (ver sección). Falta preparar los prompts de la Fase 2 en `PROMPTS.md`.
 
 ## Configuración de Codex
 
@@ -135,6 +135,19 @@ Siguiente: **Checkpoint A** (revisar el reporte del simulador y proponer ajustes
 - PLAN: T1.9 incluye `interruptible: false` para jugadores y quitar `castStarted` a las habilidades del jefe sin casteo. T1.11 incluye el golpe letal en `death`.
 - T1.13: no hay `tsx`; el simulador se compila con `tsc` y se corre con `node` (sin dependencias nuevas).
 - Estimación de balance (antes del simulador): con 3 jugadores, ~105 DPS contra 24 000 de vida ≈ 3.8 min; con 5, ~265 DPS contra 50 000 ≈ 3.1 min. Quedan algo por debajo de la meta de 4–7 min; se ajusta en el Checkpoint A.
+
+## Checkpoint A (2026-10-06, Claude; Venegas delegó la decisión)
+
+Unas 1 500 peleas simuladas: bots perfectos y un modelo "humano" desechable (fuera del repo) que pierde acciones, no esquiva algunos Viento y falla interrupciones. La duración y el escalado son fiables; la dificultad es solo orientativa.
+
+| Jugadores | Duración (bots) antes → después | Victorias, grupo promedio | Victorias, grupo flojo |
+|---|---|---|---|
+| 3 | 5:25 → 5:25 | 100 % | 98 % |
+| 4 | 4:36 → 5:09 | 100 % | 66–78 % |
+| 5 | 4:25 → 4:56 | 98 % | 30–38 % |
+
+- **Aplicado (SPEC v0.5):** vida del jefe con 4 jugadores 36 000 → 40 000 y con 5, 50 000 → 56 000, para igualar la duración entre tamaños de grupo.
+- **Para el Checkpoint B (no aplicado):** con buen juego nadie muere y el enfurecer nunca llega. Los grupos de 5 son mucho más frágiles ante errores (daño a todos con un solo sanador). Los xolos casi no pesan. Candidato medido: Viento 200 → 250 y Lamento 250 → 300 (grupo promedio: 96 / 74 / 68 % de victorias). Un paquete más agresivo (auto-ataque 80, xolos 40) se pasa: el grupo promedio de 5 baja al 16 %.
 
 ## Decisiones pendientes (de Venegas)
 

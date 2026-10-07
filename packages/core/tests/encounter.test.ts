@@ -86,8 +86,8 @@ describe('T1.2 encounter creation', () => {
 
   test.each([
     { count: 3, health: 24000 },
-    { count: 4, health: 36000 },
-    { count: 5, health: 50000 },
+    { count: 4, health: 40000 },
+    { count: 5, health: 56000 },
   ])('creates an inactive boss with $health health for $count players', ({ count, health }) => {
     const state = createEncounter(createConfig(count), 42);
     expect(state.entities[BOSS.id]).toMatchObject({

@@ -1,4 +1,4 @@
-# MICTLÁN — Especificación del MVP (v0.4)
+# MICTLÁN — Especificación del MVP (v0.5)
 
 > Nombre de trabajo. Raid cooperativo en navegador, 3–5 jugadores contra un jefe inspirado en la mitología mexica.
 > Todos los números son **valores iniciales**: se ajustan con el simulador (tareas T1.12–T1.13) y con playtests.
@@ -150,7 +150,7 @@ Teclas: `1` a `4` para habilidades, `Tab` cicla enemigos, clic selecciona, `F1`�
 
 ## 6. El jefe: Mictlantecuhtli, Señor del Mictlán
 
-- **Vida según número de jugadores:** 3 → 24 000, 4 → 36 000, 5 → 50 000. **Armadura:** 0. **Radio de cuerpo:** 1.5 m.
+- **Vida según número de jugadores:** 3 → 24 000, 4 → 40 000, 5 → 56 000. **Armadura:** 0. **Radio de cuerpo:** 1.5 m.
 - **Modo dev (1–2 jugadores):** solo para pruebas. El jefe y los xolos usan los valores de 3 jugadores. Ver §7.
 - **Auto-ataque:** 60 de daño cada 2.0 s a su objetivo, si está a ≤ 4 m. Si no, camina hacia él a 5 m/s.
 - **Enfurecer:** a los 480 s del pull, todo el daño del jefe ×5 (auto-ataque, Golpe, Lamento y Viento). No afecta a los xolos ni al daño por salir del radio seguro.

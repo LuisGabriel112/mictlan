@@ -33,8 +33,8 @@ describe('T1.1 acceptance values from SPEC', () => {
     expect(CLASSES.healer.maxMana).toBe(1000);
   });
 
-  test('boss health is 24000, 36000 and 50000 for 3, 4 and 5 players', () => {
-    expect(BOSS.maxHealthByPlayerCount).toEqual({ 3: 24000, 4: 36000, 5: 50000 });
+  test('boss health is 24000, 40000 and 56000 for 3, 4 and 5 players', () => {
+    expect(BOSS.maxHealthByPlayerCount).toEqual({ 3: 24000, 4: 40000, 5: 56000 });
   });
 
   test('xolo health is 300 for 3 players and 600 for 5 players', () => {
