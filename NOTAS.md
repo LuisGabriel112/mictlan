@@ -19,8 +19,9 @@
 | T1.12 Simulador: bots y runner | `aa7a367` | 0 | `--effort high`; sin problemas |
 | T1.13 Simulador: reporte y CLI | `e541b30` | 0 | **Implementada por Claude** a pedido de Venegas (Codex con 4 % de cuota). Sin revisión independiente |
 | T2.1 Sala de Colyseus y lobby | `bf89574` | 0 | `xhigh`, 27 min. Verificó cada API de Colyseus en los `.d.ts`. Su sandbox no pudo correr `npm run dev` (ENOMEM en tsx); Claude lo corrió fuera y responde HTTP 200 |
+| T2.2 Bucle de combate y entradas | (pendiente) | 0 | **Implementada por Claude** a pedido de Venegas (Codex con 25 % de cuota). Sin revisión independiente. 11/11 mutaciones detectadas |
 
-Siguiente: **T2.2** (bucle de combate y entradas). Checkpoint A hecho el 2026-10-06 (ver sección). Prompts de T2.1–T2.4 listos en `PROMPTS.md`.
+Siguiente: **T2.3** (estado sincronizado y eventos). Checkpoint A hecho el 2026-10-06 (ver sección). Prompts de T2.1–T2.4 listos en `PROMPTS.md`.
 
 ## Configuración de Codex
 
@@ -116,6 +117,14 @@ Siguiente: **T2.2** (bucle de combate y entradas). Checkpoint A hecho el 2026-10
 - DPS/HPS por jugador de cada clase: total de la clase / (tiempo de combate × jugadores de esa clase), sumado sobre todos los intentos. HPS usa curación efectiva.
 - Muertes: solo de jugadores, agrupadas por el `abilityId` del evento `death`.
 - Cambios de objetivo del jefe: ticks en que pasa de un jugador a otro (la primera adquisición no cuenta). Lo calcula el runner (`bossTargetChanges`).
+
+**T2.2**
+- El bucle usa `setTimestep` de Colyseus (cada 50 ms, con el delta medido) y un acumulador propio y puro (`combat-clock.ts`): un `step` por cada 50 ms acumulados, máximo 5 por llamada; si se alcanzan 5, el sobrante se descarta.
+- `CombatSession` encapsula encuentro, cola de entradas y reloj; la sala solo la conecta. `RaidRoom.encounter` ahora es un getter del estado de la sesión.
+- Entradas: `move` exige números con longitud finita y se normaliza (0,0 se respeta); `target` acepta string o null; `cast` acepta solo ids de habilidades de jugador (core ignora las de otra clase). Máximo 16 entradas por jugador por tick; las que sobran se descartan.
+- Solo se aceptan entradas de jugadores del encuentro y mientras `status` sea `combat`.
+- Al terminar (victory/defeat) el bucle se detiene y el `status` del lobby refleja el resultado; el regreso al lobby es T2.4.
+- `critChance` se inyecta solo en tests, por un tercer parámetro de `createRaidServer`; el servidor real usa el valor por defecto de core.
 
 ## Decisiones de Venegas (2026-10-06)
 

@@ -25,7 +25,8 @@ test('C1: three clients join by code and synchronize combat with a complete part
   const encounter = server.room(jaguar.roomId).encounter;
   expect(encounter?.config.players.map(({ id }) => id).sort()).toEqual(server.clients.map((client) => client.sessionId).sort());
   expect(encounter?.config.devMode).toBe(false);
-  expect(encounter?.tick).toBe(0);
+  // Since T2.2 the combat loop starts immediately, so the tick may already have advanced.
+  expect(encounter?.status).toBe('combat');
 });
 
 test('C2: second jaguar receives a private composition rejection and stays unready', async () => {

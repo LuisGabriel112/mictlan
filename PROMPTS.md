@@ -8,37 +8,6 @@ Claude borra de aquí cada prompt cuando su tarea queda aprobada.
 
 ---
 
-## T2.2 — Bucle de combate y entradas
-
-```
-Tarea T2.2 — Bucle de combate y entradas.
-
-Lee AGENTS.md, SPEC.md (§3 y §7, sobre todo "Mensajes cliente → servidor"), la tarea T2.2 de PLAN.md, NOTAS.md (orden del tick de T1.3 y T1.7; recordatorio de T2.2) y el código de T2.1 en apps/server. Implementa SOLO T2.2.
-
-IMPORTANTE: NO ejecutes `npm ci` ni `npm install`. Usa npm.cmd. No hagas commit. Usa solo APIs de Colyseus que existan en los tipos instalados y lístalas en el reporte con su .d.ts.
-
-1. Bucle: al pasar a 'combat', usa el mecanismo de simulación de la sala que exista en los tipos instalados (p. ej. un intervalo de simulación) con un acumulador de tiempo: por cada 50 ms acumulados llama exactamente una vez a step(state, inputs, 50). Limita los pasos por llamada (p. ej. 5) para no entrar en espiral si el proceso se atrasa, y descarta el sobrante. El bucle se detiene cuando core devuelve status 'victory' o 'defeat' (el regreso al lobby es T2.4).
-2. Entradas: los mensajes `move`, `target` y `cast` se encolan por jugador y se consumen en el siguiente step (todas las de ese intervalo). Solo se aceptan en 'combat' y de jugadores del encuentro.
-3. Validación (nada debe lanzar excepción ni tumbar la sala):
-   - move { dx, dy }: números finitos (descarta NaN e Infinity: hoy core deja la posición en NaN). Si la longitud es 0 → (0,0); si no, se normaliza a longitud 1.
-   - target { entityId }: string o null; si no, se ignora. (Core ya ignora ids inexistentes.)
-   - cast { abilityId }: string; si no es un PlayerAbilityId válido, se ignora.
-   - Payload que no es objeto → se ignora.
-   - Sin rate limit por ahora, pero como máximo se guardan N entradas por jugador por tick (elige N razonable y documéntalo) para que un cliente no infle la memoria.
-4. Prueba determinista: permite inyectar en la sala (solo en tests, p. ej. por opciones de creación que el servidor real no use) la semilla y critChance, para que el test de la Flecha pueda usar critChance 0.
-
-Criterios (un test por punto):
-1. Integración: en una sala dev de 1 Águila, el cliente selecciona al jefe, se coloca a ≤ 30 m y castea Flecha; tras 2 s la vida del jefe baja exactamente 140 con critChance 0.
-2. Mensajes inválidos (payload mal formado, entidad inexistente, abilityId desconocido, NaN/Infinity, vector sin normalizar) no tumban la sala: se ignoran o se normalizan, y la partida sigue avanzando.
-3. Un move de longitud 3 mueve exactamente lo mismo que uno de longitud 1 en la misma dirección.
-4. El bucle avanza un tick por cada 50 ms: tras ~1 s de simulación el tick del encuentro está en 20 ± 2.
-
-Si algo es ambiguo, detente y reporta una propuesta. No inventes.
-Termina con npm.cmd run check en verde y el reporte del formato de AGENTS.md.
-```
-
----
-
 ## T2.3 — Estado sincronizado y eventos
 
 ```

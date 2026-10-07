@@ -1,7 +1,7 @@
 import { matchMaker } from '@colyseus/core';
 import { Client, type Room } from '@colyseus/sdk';
 import { expect, vi } from 'vitest';
-import { createRaidServer } from '../src/server.js';
+import { createRaidServer, type RaidServerOptions } from '../src/server.js';
 import { RaidRoom } from '../src/rooms/RaidRoom.js';
 import type { LobbyState } from '../src/schema/LobbyState.js';
 
@@ -12,8 +12,8 @@ export class IntegrationServer {
   readonly clients: LobbyConnection[] = [];
   private endpoint = '';
 
-  constructor(minimum?: string) {
-    this.hosted = createRaidServer({ MICTLAN_DEV_MIN_PLAYERS: minimum }, () => 0);
+  constructor(minimum?: string, options: RaidServerOptions = {}) {
+    this.hosted = createRaidServer({ MICTLAN_DEV_MIN_PLAYERS: minimum }, () => 0, options);
   }
 
   async start(): Promise<void> {

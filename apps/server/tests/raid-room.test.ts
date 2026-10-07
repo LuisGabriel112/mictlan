@@ -1,15 +1,16 @@
 import { expect, test, vi } from 'vitest';
-import { createEncounter } from '@mictlan/core';
+import { createEncounter, step } from '@mictlan/core';
 import { RaidRoom, createRaidRoom } from '../src/rooms/RaidRoom.js';
 import { LobbyState, LobbyPlayerState } from '../src/schema/LobbyState.js';
 
 function roomFixture(minPlayers = 3) {
   const dependencies = {
     minPlayers, codes: { reserve: vi.fn(() => 'ABCD'), release: vi.fn() },
-    createEncounter: vi.fn(createEncounter), nextSeed: vi.fn(() => 42),
+    createEncounter: vi.fn(createEncounter), nextSeed: vi.fn(() => 42), step,
   };
   const room = new RaidRoom(dependencies);
   vi.spyOn(room, 'lock').mockResolvedValue();
+  vi.spyOn(room, 'setTimestep').mockImplementation(() => undefined);
   return { room, dependencies };
 }
 

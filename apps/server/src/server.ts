@@ -1,7 +1,7 @@
 import { createServer } from 'node:http';
 import { Server } from '@colyseus/core';
 import { WebSocketTransport } from '@colyseus/ws-transport';
-import { createEncounter } from '@mictlan/core';
+import { createEncounter, step } from '@mictlan/core';
 import { parseMinimumPlayers } from './lobby.js';
 import { RoomCodePool } from './room-codes.js';
 import { createRaidRoom } from './rooms/RaidRoom.js';
@@ -9,7 +9,13 @@ import { createRaidRoom } from './rooms/RaidRoom.js';
 const DEFAULT_PORT = 2567;
 const SEED_RANGE = 2 ** 32;
 
-export function createRaidServer(environment: NodeJS.ProcessEnv = process.env, random: () => number = Math.random) {
+export interface RaidServerOptions {
+  critChance?: number;
+}
+
+export function createRaidServer(
+  environment: NodeJS.ProcessEnv = process.env, random: () => number = Math.random, options: RaidServerOptions = {},
+) {
   const httpServer = createServer();
   const gameServer = new Server({
     transport: new WebSocketTransport({ server: httpServer }),
@@ -18,7 +24,7 @@ export function createRaidServer(environment: NodeJS.ProcessEnv = process.env, r
   const room = createRaidRoom({
     minPlayers: parseMinimumPlayers(environment.MICTLAN_DEV_MIN_PLAYERS),
     codes: new RoomCodePool(random), createEncounter,
-    nextSeed: () => Math.floor(random() * SEED_RANGE),
+    nextSeed: () => Math.floor(random() * SEED_RANGE), step, critChance: options.critChance,
   });
   gameServer.define('raid', room);
   return { gameServer, httpServer };

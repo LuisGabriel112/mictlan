@@ -178,7 +178,7 @@
   - No hay APIs inventadas: todo lo usado existe en los tipos de la versión instalada.
 - **Verificación:** `npm run check`
 
-### [ ] T2.2 Bucle de combate y entradas
+### [x] T2.2 Bucle de combate y entradas
 - **Hacer:** correr `step()` de core a 20 Hz (acumulador de tiempo, un `step` por tick), y traducir y validar los mensajes `move`, `target` y `cast` a `inputs`.
 - **Criterios:**
   - Un test de integración: un cliente castea Flecha y la vida del jefe baja 140 (o 210 con crítico).
