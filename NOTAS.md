@@ -13,8 +13,9 @@
 | T1.6 Auras | `70aaafe` | 0 | Incluye la corrección de Provocar con muertos |
 | T1.7 IA de enemigo y jefe | `0d2199b` | 0 | Incluye el auto-ataque del Jaguar, que no estaba en ninguna tarea |
 | T1.8 Fases y enfurecer | `1350afa` | 0 | Intento en la PC del trabajo sin commit; luego límite de uso de Codex (se esperó al reinicio de cuota). El proceso de Codex murió durante su `npm run check` final, sin reporte; Claude revisó lo escrito directamente |
+| T1.9 Viento e interrupción | `a38ec0f` | 0 | Primera tarea con `--effort high` (para ahorrar cuota); sin problemas |
 
-Siguiente: **T1.9**, con su prompt de `PROMPTS.md`.
+Siguiente: **T1.10**, con su prompt de `PROMPTS.md`.
 
 ## Configuración de Codex
 
@@ -74,6 +75,13 @@ Siguiente: **T1.9**, con su prompt de `PROMPTS.md`.
 - El enfurecer se activa tras `advanceBossEncounter` y antes de las acciones de los enemigos, así que el daño del jefe en el tick 9600 ya sale enfurecido.
 - Nuevo evento `enraged` con `sourceId` del jefe.
 - El enfurecer es un modificador más dentro de `calculateDamage` (un solo floor junto con armadura y Escudo).
+
+**T1.9**
+- Las zonas bajan y explotan después de inputs, auto-ataque del Jaguar y enfurecer, y antes de las acciones de los enemigos. Una zona marcada en el tick t explota en t + 40; el movimiento de ese mismo tick ya cuenta para esquivarla.
+- La selección de objetivos del Viento consume una tirada del RNG por zona, sobre los jugadores vivos ordenados por id.
+- El daño del Viento sigue atribuido al jefe aunque haya muerto (y lleva enfurecer si estaba activo).
+- Grito valida `not_casting` justo después del paso 6 (objetivo) y antes del 7.
+- Para aislar Copal, los tests de auras ponen `bossActive = true` con temporizadores vacíos (si no, la curación provoca el pull y el Viento contamina los totales).
 
 ## Decisiones de Venegas (2026-10-06)
 

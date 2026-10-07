@@ -6,38 +6,6 @@ Claude borra de aquí cada prompt cuando su tarea queda aprobada.
 
 ---
 
-## T1.9 — Viento de obsidiana e interrupción
-
-```
-Tarea T1.9 — Viento de obsidiana e interrupción.
-
-Lee AGENTS.md, SPEC.md (§3 "Validación", §5.3 Grito de guerra, §6 Viento y Lamento, y §10 "Aclaraciones": Viento, Lamento e interrupción, habilidades sin casteo), la tarea T1.9 de PLAN.md y NOTAS.md (secciones T1.7 y T1.8). Implementa SOLO T1.9.
-
-IMPORTANTE: NO ejecutes `npm ci` ni `npm install`: borran node_modules y tu sandbox no tiene red. Usa npm.cmd (Windows PowerShell). No hagas commit.
-
-Alcance: packages/core/src/mechanics/wind.ts y packages/core/src/mechanics/interrupt.ts (nuevos) y sus tests. Puedes tocar boss.ts, abilities.ts, encounter.ts y combat-effects.ts solo para conectarlos. Usa los datos de BOSS_ABILITIES (obsidianWind, lamentOfTheDead), el tipo DangerZone y EncounterState.zones. Nada de números sueltos.
-
-1. Viento: al resolverse, elige con el RNG del estado, sin repetir, hasta maxTargets jugadores vivos (ordenados por id antes de elegir). Crea una DangerZone fija en la posición de cada uno, con id determinista. Tras warningTicks, cada zona hace baseDamage a cada jugador vivo cuyo centro esté a ≤ radiusMeters del centro de la zona, y desaparece. Las zonas superpuestas suman daño. El daño pasa por la fórmula normal (armadura, Escudo y enfurecer). Una zona marcada explota aunque el jefe cambie de fase o muera. Decide y documenta en qué paso del tick bajan y explotan las zonas.
-2. Lamento: al resolverse, baseDamage a cada jugador vivo, con la fórmula normal.
-3. Grito de guerra: tras el paso 6 de la validación, si el objetivo no castea algo con interruptible = true, se rechaza con `not_casting` y no activa su cooldown. Si sí, cancela el casteo del objetivo con `castCancelled` motivo `interrupted` (sin efecto) y Grito activa su cooldown.
-4. Los casteos de jugador se crean con interruptible: false (hoy abilities.ts usa true).
-5. Las habilidades del jefe con castTicks 0 (Viento, Llamado de los xolos) dejan de emitir castStarted; solo emiten abilityResolved. Ajusta los tests de T1.7 que lo esperaban.
-
-Reglas existentes: step no muta el estado y reutiliza por referencia las entidades sin cambios. Tests con critChance: 0.
-
-Criterios (un test por punto):
-1. Un jugador que sale del círculo antes de 2 s no recibe daño; uno dentro de 2 círculos recibe 400.
-2. Con 2 jugadores vivos se marcan 2 círculos; con 5 vivos, 3.
-3. El Lamento sin interrumpir hace 250 a cada jugador vivo (175 al Jaguar); interrumpirlo con Grito cancela ese daño y emite castCancelled con motivo interrupted.
-4. Grito sobre un objetivo que no castea (o que castea el Golpe, no interrumpible) se rechaza con not_casting y no gasta el CD.
-5. La misma semilla elige los mismos jugadores para el Viento.
-
-Si algo del SPEC es ambiguo, detente y reporta una propuesta. No inventes.
-Termina con npm.cmd run check en verde y el reporte del formato de AGENTS.md.
-```
-
----
-
 ## T1.10 — Xolos
 
 ```
