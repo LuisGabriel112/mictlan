@@ -17,8 +17,9 @@
 | T1.10 Xolos | `ac1ac9f` | 0 | `--effort high`; sin problemas |
 | T1.11 Arena y fin del encuentro | `c50f946` | 1 | Codex detectó una contradicción en SPEC §10 (Viento tras la muerte del jefe contra encuentro congelado); se corrigió el SPEC. El `--resume` falló por tareas fantasma del plugin y se terminó con `--fresh` |
 | T1.12 Simulador: bots y runner | `aa7a367` | 0 | `--effort high`; sin problemas |
+| T1.13 Simulador: reporte y CLI | `e541b30` | 0 | **Implementada por Claude** a pedido de Venegas (Codex con 4 % de cuota). Sin revisión independiente |
 
-Siguiente: **T1.13**, con su prompt de `PROMPTS.md`.
+Siguiente: **Checkpoint A** (revisar el reporte del simulador y proponer ajustes al SPEC). Después, Fase 2 (servidor).
 
 ## Configuración de Codex
 
@@ -107,6 +108,13 @@ Siguiente: **T1.13**, con su prompt de `PROMPTS.md`.
 - Solo el tanque se acerca antes del pull; los demás esperan sin actuar hasta que el jefe está activo.
 - Al estar exactamente en el centro de una zona, el bot escapa hacia el centro de la arena.
 - `sim/` queda cubierto por typecheck vía `tsconfig.test.json`.
+
+**T1.13** (Claude)
+- `npm run sim` compila `src/` y `sim/` con `tsconfig.sim.json` a `packages/core/dist/` (ya ignorado) y lo corre con `node`. Sin dependencias nuevas.
+- Semillas 1..runs. Duración = `elapsedTicks` (desde el pull).
+- DPS/HPS por jugador de cada clase: total de la clase / (tiempo de combate × jugadores de esa clase), sumado sobre todos los intentos. HPS usa curación efectiva.
+- Muertes: solo de jugadores, agrupadas por el `abilityId` del evento `death`.
+- Cambios de objetivo del jefe: ticks en que pasa de un jugador a otro (la primera adquisición no cuenta). Lo calcula el runner (`bossTargetChanges`).
 
 ## Decisiones de Venegas (2026-10-06)
 
