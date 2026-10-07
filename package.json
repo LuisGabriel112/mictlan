@@ -12,6 +12,7 @@
     "test": "npm run test --workspace @mictlan/core",
     "typecheck": "npm run typecheck --workspace @mictlan/core",
     "lint": "eslint . --max-warnings 0",
+    "sim": "npm run sim --workspace @mictlan/core --",
     "check": "npm run typecheck && npm run lint && npm run test"
   },
   "devDependencies": {

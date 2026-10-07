@@ -151,7 +151,7 @@
   - Un test verifica que el bot esquiva un círculo de Viento.
 - **Verificación:** `npm run check`
 
-### [ ] T1.13 Simulador: reporte y CLI
+### [x] T1.13 Simulador: reporte y CLI
 - **Archivos:** `packages/core/sim/run.ts`, `packages/core/sim/report.ts`, script `npm run sim`.
 - **Hacer:** CLI con `--players` y `--runs`. Imprime por número de jugadores:
   - % de victorias

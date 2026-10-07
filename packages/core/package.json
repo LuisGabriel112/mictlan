@@ -5,7 +5,8 @@
   "type": "module",
   "scripts": {
     "test": "vitest run",
-    "typecheck": "tsc --project tsconfig.json && tsc --project tsconfig.test.json"
+    "typecheck": "tsc --project tsconfig.json && tsc --project tsconfig.test.json",
+    "sim": "tsc --project tsconfig.sim.json && node dist/sim/run.js"
   },
   "devDependencies": {
     "vitest": "^4.0.0"
