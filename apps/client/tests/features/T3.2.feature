@@ -10,8 +10,10 @@ Feature: T3.2 target selection and action bar
       | F1         | ally 1              | yes       |
       | F5         | ally 5              | yes       |
       | Shift+3    | ally 3              | yes       |
-      | 2          | cast slot 2         | no        |
-      | KeyW       | none                | no        |
+      | Q          | cast slot 1         | no        |
+      | R          | cast slot 4         | no        |
+      | 2          | none                | no        |
+      | KeyA       | none                | no        |
 
   Scenario: Tab cycles living enemies from nearest to farthest
     Given living enemies boss at 10 m and xolo-1 at 4 m and a dead xolo-2 at 1 m

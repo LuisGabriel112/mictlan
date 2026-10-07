@@ -28,11 +28,14 @@ En modo dev no se puede repetir Jaguar ni Tícitl; Águilas, las que quieras.
 
 | Tecla | Acción |
 |---|---|
-| W A S D | Moverse (se puede castear solo estando quieto) |
+| Clic derecho | Caminar hasta ese punto (como en LoL) |
+| S | Detenerse |
 | Tab | Siguiente enemigo, del más cercano al más lejano |
 | Clic | Seleccionar la unidad bajo el puntero |
 | F1–F5 o Shift+1–5 | Seleccionar aliado (1 = tú, luego los demás) |
-| 1–4 | Habilidades de tu clase |
+| Q W E R | Habilidades de tu clase (los números no castean) |
+
+Pedir una habilidad con tiempo de casteo (Flecha, Remedio…) te detiene y la lanza.
 
 La barra de acción muestra la recarga y por qué una habilidad no está disponible
 (GCD, sin maná, lejos, sin objetivo). Si el servidor rechaza una habilidad, aparece el motivo.

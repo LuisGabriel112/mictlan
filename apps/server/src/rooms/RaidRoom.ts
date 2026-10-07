@@ -19,7 +19,7 @@ export interface RaidDependencies {
   initialBossHealth?: number;
 }
 
-const COMBAT_MESSAGES = ['move', 'target', 'cast'] as const;
+const COMBAT_MESSAGES = ['move', 'moveTo', 'stop', 'target', 'cast'] as const;
 
 type LobbyClient = Pick<Client, 'sessionId' | 'send'>;
 

@@ -23,9 +23,9 @@ async function startEagle(critChance?: number) {
   return fixture;
 }
 
-test('onCreate registers move, target and cast handlers', () => {
+test('onCreate registers move, moveTo, stop, target and cast handlers', () => {
   const { handlers } = combatRoom();
-  expect([...handlers.keys()].sort()).toEqual(['cast', 'move', 'ready', 'target']);
+  expect([...handlers.keys()].sort()).toEqual(['cast', 'move', 'moveTo', 'ready', 'stop', 'target']);
 });
 
 test('combat inputs before the encounter starts are ignored without errors', () => {

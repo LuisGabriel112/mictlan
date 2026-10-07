@@ -220,6 +220,11 @@
 - **Criterios (manual):** el sanador puede curar a cualquiera haciendo clic en los marcos de grupo, y se distingue el Lamento (interrumpible) del Golpe.
 - **Verificación:** `npm run dev` y prueba manual
 
+### [x] T3.7 Movimiento con clic derecho
+- **Hacer:** reemplazar WASD por clic derecho (destino) y S (parar), como en LoL. El servidor recibe `moveTo`/`stop` y mueve hacia el destino cada tick; pedir un casteo con tiempo de casteo detiene el movimiento. Marca del destino en el suelo.
+- **Criterios:** clic derecho lleva al jugador al punto; S lo detiene; castear Flecha mientras camina la lanza sin rechazo por movimiento.
+- **Verificación:** `npm run check` y prueba manual
+
 ### [ ] T3.4 Lectura del combate
 - **Hacer:** dibujo de las zonas de peligro, texto flotante, log de combate (con el nombre de la habilidad en español) y temporizador del encuentro.
 - **Criterios (manual):** un jugador nuevo entiende qué lo mató leyendo el log.

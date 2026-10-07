@@ -25,6 +25,7 @@
 | T3.1 Escena base | `bbdecd0` | 0 | **Implementada por Claude** (Codex sin créditos). Verificada por Claude en Chrome con 2 pestañas; falta que Venegas confirme la fluidez |
 | T3.2 Objetivo y barra de acción | `bbdecd0` | 0 | **Implementada por Claude**. Verificado en Chrome: Tab, clic, 2 (Disparo veloz: −70 al jefe), F5 bloqueado, barra en gris al morir |
 | T3.3 Marcos y barras de casteo | `f3445f7` | 0 | **Implementada por Claude**. Verificado en Chrome: marcos propio/objetivo/grupo, clic en marco de grupo, F1, barra del jefe con borde turquesa en el Lamento. La barra de casteo propia no se pudo capturar (ventana oculta) |
+| T3.7 Movimiento con clic derecho | (pendiente) | 0 | Pedida por Venegas e **implementada por Claude**. Verificada en Chrome: clic derecho, llegada, y Flecha lanzada a media caminata (−140 al jefe) |
 
 Siguiente: **T3.4** (lectura del combate). Prompts de T3.4–T3.6 listos en `PROMPTS.md` para Codex (con `--wait`). **Ya es jugable**: `npm.cmd run dev` y abrir `http://localhost:5173/?dev=1&class=eagle` (ver apps/client/README.md). Antes de T3.1 hay que instalar Vite, Phaser y @colyseus/sdk en apps/client (Codex no tiene red). Checkpoint A hecho el 2026-10-06 (ver sección). Prompts de T2.1–T2.4 listos en `PROMPTS.md`.
 
@@ -160,6 +161,13 @@ Siguiente: **T3.4** (lectura del combate). Prompts de T3.4–T3.6 listos en `PRO
 - Barras de casteo: la propia sobre la barra de acción y la del jefe arriba al centro. Borde turquesa grueso si es interrumpible y gris fino si no.
 - Vida mostrada sin negativos; vida en rojo bajo 35 %.
 - Los textos de vida de T3.2 se reemplazaron por los marcos.
+
+**T3.7 (decidido por Venegas: sin WASD, castear detiene, Claude implementa)**
+- El servidor guarda órdenes de movimiento por jugador (`MovementOrders`): dirección sostenida (`move`) o destino (`moveTo`), y `stop`. Cada tick convierte el destino en un `move` hacia él; al quedar a menos de 0.35 m lo olvida. Destinos fuera del muro se recortan al muro.
+- Pedir una habilidad con `castTicks > 0` llama a `stop` antes del siguiente tick: el casteo empieza en vez de rechazarse por `moving`. Vuelo y demás instantáneas no detienen.
+- Cliente: clic derecho = `moveTo` y marca turquesa; S = `stop`; se desactiva el menú contextual del navegador sobre el juego. Se borró `move-input.ts` (WASD).
+- `move` sigue existiendo en el protocolo (tests y bots del simulador).
+- Teclas de habilidades: **Q W E R** (pedido de Venegas); los números ya no castean. F1–F5 y Shift+1–5 siguen seleccionando aliados.
 
 ## Decisiones de Venegas (2026-10-06)
 

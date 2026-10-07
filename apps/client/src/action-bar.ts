@@ -1,4 +1,5 @@
 import { CLASSES, COMBAT_RULES, type Ability } from '@mictlan/core';
+import { ABILITY_KEYS } from './keyboard';
 import { centerDistance, entityRadius, isLiving, type EntitySnapshot, type RoomSnapshot } from './snapshot';
 
 export type SlotState = 'ready' | 'cooldown' | 'gcd' | 'casting' | 'no_mana' | 'no_target' | 'out_of_range' | 'dead';
@@ -8,6 +9,7 @@ export interface ActionSlot {
   key: string;
   abilityId: Ability['id'];
   name: string;
+  hasCastTime: boolean;
   state: SlotState;
   cooldownSeconds: number;
 }
@@ -37,7 +39,7 @@ function slotState(snapshot: RoomSnapshot, self: EntitySnapshot, ability: Abilit
 function slotFor(snapshot: RoomSnapshot, self: EntitySnapshot, ability: Ability, index: number): ActionSlot {
   const cooldownTicks = self.cooldowns[ability.id]?.remainingTicks ?? 0;
   return {
-    slot: index + 1, key: String(index + 1), abilityId: ability.id, name: ability.name,
+    slot: index + 1, key: ABILITY_KEYS[index], abilityId: ability.id, name: ability.name, hasCastTime: ability.castTicks > 0,
     state: slotState(snapshot, self, ability, cooldownTicks),
     cooldownSeconds: cooldownTicks / COMBAT_RULES.ticksPerSecond,
   };

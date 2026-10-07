@@ -1,4 +1,4 @@
-# MICTLÁN — Especificación del MVP (v0.6)
+# MICTLÁN — Especificación del MVP (v0.7)
 
 > Nombre de trabajo. Raid cooperativo en navegador, 3–5 jugadores contra un jefe inspirado en la mitología mexica.
 > Todos los números son **valores iniciales**: se ajustan con el simulador (tareas T1.12–T1.13) y con playtests.
@@ -105,7 +105,7 @@ Cuentas y login, persistencia, botín, niveles y talentos, más de un jefe, chat
 
 **Composición obligatoria:** exactamente 1 Guerrero Jaguar, 1 Tícitl y el resto Guerreros Águila (de 1 a 3).
 
-Teclas: `1` a `4` para habilidades, `Tab` cicla enemigos, clic selecciona, `F1`–`F5` (o `Shift+1`–`Shift+5`) seleccionan aliados. El cliente debe bloquear la acción por defecto del navegador para `Tab` y `F1`–`F5`.
+Teclas: `Q` `W` `E` `R` para habilidades (los números no castean; decisión de Venegas, v0.7), `Tab` cicla enemigos, clic selecciona, `F1`–`F5` (o `Shift+1`–`Shift+5`) seleccionan aliados. El cliente debe bloquear la acción por defecto del navegador para `Tab` y `F1`–`F5`.
 
 ### 5.1 Guerrero Jaguar — Tanque
 - **Vida:** 1200. **Armadura:** 30 %. **Amenaza:** ×3.
@@ -225,7 +225,9 @@ mictlan/
 ### Mensajes cliente → servidor
 | Mensaje | Payload |
 |---|---|
-| `move` | `{ dx, dy }` vector normalizado o (0,0). El servidor lo valida y lo normaliza |
+| `moveTo` | `{ x, y }` destino en metros. El servidor mueve al jugador hacia él cada tick hasta llegar (a menos de un paso) y recorta destinos fuera del muro. Es lo que usa el cliente (clic derecho) |
+| `stop` | `{}` cancela el destino y cualquier dirección sostenida |
+| `move` | `{ dx, dy }` dirección sostenida (vector normalizado o (0,0)). Se conserva para pruebas y bots; el cliente ya no lo usa |
 | `target` | `{ entityId }` |
 | `cast` | `{ abilityId }` (usa el objetivo actual) |
 | `ready` | `{ classId }` en el lobby. Se rechaza si rompe la composición obligatoria (§5) |
@@ -239,7 +241,7 @@ Entidades (id, tipo, clase, x, y, vida, vida máx., recurso, objetivo, casteo ac
 
 - Marco propio (vida y recurso) y marco del objetivo, con su barra de casteo.
 - Marcos de grupo (hasta 5), clicables.
-- Barra de acción 1–4 con cooldown visible y estado "sin recurso" o "fuera de alcance".
+- Barra de acción Q/W/E/R con cooldown visible y estado "sin recurso" o "fuera de alcance".
 - Barra de casteo propia y del jefe. Si el casteo es interrumpible, se marca con un borde distinto.
 - Zonas de peligro como círculos rojos translúcidos que se llenan durante el aviso. El radio seguro se dibuja como un círculo.
 - Texto flotante de daño y curación. Log de combate en una esquina.
@@ -288,3 +290,9 @@ Estas reglas no cambian ningún número; cierran huecos que el texto anterior de
 - `move { dx, dy }` es una dirección sostenida: el servidor la repite en cada tick hasta recibir otra, o `(0,0)` para detenerse. El cliente solo envía `move` cuando cambia la dirección de las teclas, y suelta todo si la ventana pierde el foco.
 - Las demás entradas (`target`, `cast`) se consumen en el siguiente tick, como antes.
 - El estado sincronizado incluye, por jugador, `gcdRemainingTicks` y los cooldowns en curso (`cooldowns`, solo los mayores que 0), para que la barra de acción muestre la disponibilidad.
+
+**Movimiento con clic derecho (v0.7, T3.7)**
+- El cliente se mueve como en LoL: clic derecho en la arena = `moveTo` a ese punto; tecla S = `stop`. No hay WASD.
+- Un `moveTo` reemplaza al destino anterior y a cualquier `move` sostenido; un `move` olvida el destino.
+- El jugador se detiene a menos de un paso (0.35 m) del destino; morir o desconectarse olvida el destino.
+- Pedir una habilidad con tiempo de casteo detiene el movimiento antes del tick, así el casteo empieza en vez de rechazarse por `moving`. Las instantáneas (incluido Vuelo) no lo detienen.

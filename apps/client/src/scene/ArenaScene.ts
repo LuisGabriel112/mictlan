@@ -1,15 +1,15 @@
 import * as Phaser from 'phaser';
 import type { CombatEvent } from '@mictlan/core';
 import { actionSlots } from '../action-bar';
+import { DestinationMarker } from '../click-move';
 import { groupFrameAt } from '../frames';
 import { latestRejection, rejectionText } from '../hud-text';
 import { PositionHistory, type Positions } from '../interpolation';
 import { keyAction, type KeyAction } from '../keyboard';
-import { MoveSender, NO_KEYS_HELD, applyMoveKey, moveVector, type HeldKeys } from '../move-input';
 import type { RoomSnapshot } from '../snapshot';
 import { allyAt, entityAtPoint, nextEnemyTarget } from '../targeting';
 import { screenToWorld, PIXELS_PER_METER } from '../world-view';
-import { drawArena, drawEntities, drawZones } from './arena-renderer';
+import { drawArena, drawDestination, drawEntities, drawZones } from './arena-renderer';
 import { Hud } from './hud';
 
 export interface ArenaRoom {
@@ -27,10 +27,9 @@ const ARENA_DIAMETER_METERS = 2 * (20 + VIEW_MARGIN_METERS);
 export class ArenaScene extends Phaser.Scene {
   private snapshot?: RoomSnapshot;
   private readonly history = new PositionHistory();
-  private readonly moveSender = new MoveSender();
+  private readonly destination = new DestinationMarker();
   private world!: Phaser.GameObjects.Graphics;
   private hud!: Hud;
-  private heldKeys: HeldKeys = NO_KEYS_HELD;
 
   constructor(private readonly room: ArenaRoom) {
     super('arena');
@@ -53,6 +52,8 @@ export class ArenaScene extends Phaser.Scene {
     this.world.clear();
     drawArena(this.world, this.snapshot);
     drawZones(this.world, this.snapshot);
+    const marker = this.destination.position;
+    if (marker && this.destination.visibleAt(this.snapshot.entities[this.room.sessionId])) drawDestination(this.world, marker);
     drawEntities(this.world, this.snapshot, positions, this.room.sessionId);
     this.hud.update(this.snapshot, this.room.sessionId, time);
   }
@@ -60,20 +61,11 @@ export class ArenaScene extends Phaser.Scene {
   private listen(): void {
     this.room.onStateChange((state) => this.receiveState(state.toJSON() as RoomSnapshot));
     this.room.onMessage('events', (events) => this.receiveEvents(events));
-    // Window events (not the render loop) drive input, so a hidden or paused tab still releases keys.
-    const listeners = {
-      keydown: (event: KeyboardEvent) => this.handleKey(event),
-      keyup: (event: KeyboardEvent) => this.updateMove(applyMoveKey(this.heldKeys, event.code, false)),
-      blur: () => this.updateMove(NO_KEYS_HELD),
-    };
-    window.addEventListener('keydown', listeners.keydown);
-    window.addEventListener('keyup', listeners.keyup);
-    window.addEventListener('blur', listeners.blur);
-    this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
-      window.removeEventListener('keydown', listeners.keydown);
-      window.removeEventListener('keyup', listeners.keyup);
-      window.removeEventListener('blur', listeners.blur);
-    });
+    const onKeyDown = (event: KeyboardEvent) => this.handleKey(event);
+    window.addEventListener('keydown', onKeyDown);
+    this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => window.removeEventListener('keydown', onKeyDown));
+    // Right click moves (T3.7), so the browser menu must not open over the arena.
+    this.input.mouse?.disableContextMenu();
     this.input.on('pointerdown', (pointer: Phaser.Input.Pointer) => this.handleClick(pointer));
   }
 
@@ -89,16 +81,9 @@ export class ArenaScene extends Phaser.Scene {
     if (reason) this.hud.showFlash(rejectionText(reason), this.time.now);
   }
 
-  private updateMove(keys: HeldKeys): void {
-    this.heldKeys = keys;
-    const message = this.moveSender.update(moveVector(keys));
-    if (message) this.room.send('move', message);
-  }
-
   private handleKey(event: KeyboardEvent): void {
     const { action, preventDefault } = keyAction(event);
     if (preventDefault) event.preventDefault();
-    this.updateMove(applyMoveKey(this.heldKeys, event.code, true));
     if (action && this.snapshot && !event.repeat) this.perform(action, this.snapshot);
   }
 
@@ -108,18 +93,39 @@ export class ArenaScene extends Phaser.Scene {
       this.selectTarget(nextEnemyTarget(snapshot, selfId, snapshot.entities[selfId]?.targetId ?? ''));
     } else if (action.type === 'ally') {
       this.selectTarget(allyAt(snapshot, selfId, action.index));
+    } else if (action.type === 'stop') {
+      this.stopWalking();
     } else {
-      const slot = actionSlots(snapshot, selfId)[action.slot - 1];
-      if (slot) this.room.send('cast', { abilityId: slot.abilityId });
+      this.cast(snapshot, action.slot);
     }
+  }
+
+  private cast(snapshot: RoomSnapshot, slotNumber: number): void {
+    const slot = actionSlots(snapshot, this.room.sessionId)[slotNumber - 1];
+    if (!slot) return;
+    // The server stops the walk for cast-time abilities, so the marker goes too.
+    if (slot.hasCastTime) this.destination.clear();
+    this.room.send('cast', { abilityId: slot.abilityId });
+  }
+
+  private stopWalking(): void {
+    this.destination.clear();
+    this.room.send('stop', {});
   }
 
   private handleClick(pointer: Phaser.Input.Pointer): void {
     if (!this.snapshot) return;
+    if (pointer.rightButtonDown()) return this.walkTo(pointer);
     // Group frames live in screen space and take priority over the world under them.
     const framed = groupFrameAt(this.snapshot, this.room.sessionId, { x: pointer.x, y: pointer.y });
     const point = this.cameras.main.getWorldPoint(pointer.x, pointer.y);
     this.selectTarget(framed ?? entityAtPoint(this.snapshot, screenToWorld(point)));
+  }
+
+  private walkTo(pointer: Phaser.Input.Pointer): void {
+    const destination = screenToWorld(this.cameras.main.getWorldPoint(pointer.x, pointer.y));
+    this.destination.set(destination);
+    this.room.send('moveTo', destination);
   }
 
   private selectTarget(entityId: string | undefined): void {

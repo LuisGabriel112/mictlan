@@ -15,9 +15,10 @@ function states(snapshot: ReturnType<typeof room>, selfId = 'p1') {
 test('an eagle in range has its four abilities ready', () => {
   const slots = actionSlots(room([eagleAt(-15), boss]), 'p1');
   expect(slots.map(({ abilityId }) => abilityId)).toEqual(['obsidianArrow', 'quickShot', 'warCry', 'flight']);
-  expect(slots.map(({ key }) => key)).toEqual(['1', '2', '3', '4']);
+  expect(slots.map(({ key }) => key)).toEqual(['Q', 'W', 'E', 'R']);
   expect(slots.map(({ state }) => state)).toEqual(['ready', 'ready', 'ready', 'ready']);
   expect(slots[0].name).toBe('Flecha de obsidiana');
+  expect(slots.map(({ hasCastTime }) => hasCastTime)).toEqual([true, false, false, false]);
 });
 
 test('range subtracts the target body radius', () => {

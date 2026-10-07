@@ -7,7 +7,7 @@ import { PIXELS_PER_METER, worldToScreen } from '../world-view';
 
 type Graphics = Phaser.GameObjects.Graphics;
 
-const COLORS = { wall: 0xd9c08c, safeRadius: 0xff4444, zone: 0xff2222, self: 0xffffff, target: 0xffe066,
+const COLORS = { destination: 0x2ec4b6, wall: 0xd9c08c, safeRadius: 0xff4444, zone: 0xff2222, self: 0xffffff, target: 0xffe066,
   healthBack: 0x222222, healthFill: 0x4cd964 } as const;
 const WIND_WARNING_TICKS = BOSS_ABILITIES.obsidianWind.effect.warningTicks;
 const HEALTH_BAR = { heightPx: 4, gapPx: 6 } as const;
@@ -49,6 +49,14 @@ function drawEntity(graphics: Graphics, entity: EntitySnapshot, position: { x: n
 interface Marks {
   selfId: string;
   targetId: string;
+}
+
+export function drawDestination(graphics: Graphics, destination: { x: number; y: number }): void {
+  const center = worldToScreen(destination);
+  const arm = 0.4 * PIXELS_PER_METER;
+  graphics.lineStyle(2, COLORS.destination, 1).strokeCircle(center.x, center.y, arm);
+  graphics.lineBetween(center.x - arm, center.y, center.x + arm, center.y);
+  graphics.lineBetween(center.x, center.y - arm, center.x, center.y + arm);
 }
 
 export function drawEntities(graphics: Graphics, snapshot: RoomSnapshot, positions: Positions, selfId: string): void {

@@ -7,6 +7,10 @@ export const INPUT_RULES = {
 
 type InputParser = (playerId: string, payload: Record<string, unknown>) => Input | undefined;
 
+const CAST_TIME_ABILITY_IDS: ReadonlySet<string> = new Set(
+  Object.values(CLASSES).flatMap((definition) => definition.abilities.filter(({ castTicks }) => castTicks > 0).map(({ id }) => id)),
+);
+
 const PLAYER_ABILITY_IDS: ReadonlySet<string> = new Set(
   Object.values(CLASSES).flatMap((definition) => definition.abilities.map(({ id }) => id)),
 );
@@ -61,4 +65,15 @@ export class InputQueue {
     this.countsByPlayer.clear();
     return drained;
   }
+}
+
+export function isCastTimeAbility(abilityId: PlayerAbilityId): boolean {
+  return CAST_TIME_ABILITY_IDS.has(abilityId);
+}
+
+export function parseDestination(payload: unknown): { x: number; y: number } | undefined {
+  if (!isRecord(payload)) return undefined;
+  const { x, y } = payload;
+  if (typeof x !== 'number' || typeof y !== 'number' || !Number.isFinite(x) || !Number.isFinite(y)) return undefined;
+  return { x, y };
 }
