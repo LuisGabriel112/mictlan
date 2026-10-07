@@ -136,7 +136,7 @@
   - El evento `death` trae el `abilityId` del golpe letal.
 - **Verificación:** `npm run check`
 
-### [ ] T1.12 Simulador: bots y runner
+### [x] T1.12 Simulador: bots y runner
 - **Archivos:** `packages/core/sim/bots.ts`, `packages/core/sim/runner.ts` y sus tests.
 - **Hacer:** bots simples por clase que generan `inputs`:
   - **Tanque:** provoca, usa Escudo ante el Golpe y Rugido ante los xolos.
