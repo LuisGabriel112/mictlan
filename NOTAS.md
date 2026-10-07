@@ -22,8 +22,8 @@
 | T2.2 Bucle de combate y entradas | `8fcdca6` | 0 | **Implementada por Claude** a pedido de Venegas (Codex con 25 % de cuota). Sin revisión independiente. 11/11 mutaciones detectadas |
 | T2.3 Estado sincronizado y eventos | `6048c75` | 0 | `xhigh`, 10 min |
 | T2.4 Fin de encuentro y reinicio | `ecd357f` | 1 | Primer intento abortado a los 30 s (forwarder en segundo plano); relanzado con `--wait`, 20 min. Claude recortó de README el reporte de tarea que Codex pegó ahí |
-| T3.1 Escena base | (pendiente) | 0 | **Implementada por Claude** (Codex sin créditos). Verificada por Claude en Chrome con 2 pestañas; falta que Venegas confirme la fluidez |
-| T3.2 Objetivo y barra de acción | (pendiente) | 0 | **Implementada por Claude**. Verificado en Chrome: Tab, clic, 2 (Disparo veloz: −70 al jefe), F5 bloqueado, barra en gris al morir |
+| T3.1 Escena base | `bbdecd0` | 0 | **Implementada por Claude** (Codex sin créditos). Verificada por Claude en Chrome con 2 pestañas; falta que Venegas confirme la fluidez |
+| T3.2 Objetivo y barra de acción | `bbdecd0` | 0 | **Implementada por Claude**. Verificado en Chrome: Tab, clic, 2 (Disparo veloz: −70 al jefe), F5 bloqueado, barra en gris al morir |
 
 Siguiente: **T3.3** (marcos de unidad y barras de casteo). **Ya es jugable**: `npm.cmd run dev` y abrir `http://localhost:5173/?dev=1&class=eagle` (ver apps/client/README.md). Antes de T3.1 hay que instalar Vite, Phaser y @colyseus/sdk en apps/client (Codex no tiene red). Checkpoint A hecho el 2026-10-06 (ver sección). Prompts de T2.1–T2.4 listos en `PROMPTS.md`.
 
