@@ -56,7 +56,7 @@ test('each loop callback steps the encounter and routes inputs to it', async () 
 
 test('the loop stops and the lobby status mirrors the outcome when combat ends', async () => {
   const { room, timestep, dependencies } = await startEagle(0);
-  const ended = { ...room.encounter!, status: 'defeat' as const };
+  const ended = { ...room.encounter!, tick: room.encounter!.tick + 1, status: 'defeat' as const };
   dependencies.step.mockReturnValueOnce({ state: ended, events: [] });
   timestep.mock.calls[0][0]?.(50);
   expect(room.state.status).toBe('defeat');

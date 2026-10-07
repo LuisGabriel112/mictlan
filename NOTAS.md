@@ -20,8 +20,9 @@
 | T1.13 Simulador: reporte y CLI | `e541b30` | 0 | **Implementada por Claude** a pedido de Venegas (Codex con 4 % de cuota). Sin revisión independiente |
 | T2.1 Sala de Colyseus y lobby | `bf89574` | 0 | `xhigh`, 27 min. Verificó cada API de Colyseus en los `.d.ts`. Su sandbox no pudo correr `npm run dev` (ENOMEM en tsx); Claude lo corrió fuera y responde HTTP 200 |
 | T2.2 Bucle de combate y entradas | `8fcdca6` | 0 | **Implementada por Claude** a pedido de Venegas (Codex con 25 % de cuota). Sin revisión independiente. 11/11 mutaciones detectadas |
+| T2.3 Estado sincronizado y eventos | (pendiente) | 0 | `xhigh`, 10 min |
 
-Siguiente: **T2.3** (estado sincronizado y eventos). Checkpoint A hecho el 2026-10-06 (ver sección). Prompts de T2.1–T2.4 listos en `PROMPTS.md`.
+Siguiente: **T2.4** (fin de encuentro y reinicio). Antes de T3.1 hay que instalar Vite, Phaser y @colyseus/sdk en apps/client (Codex no tiene red). Checkpoint A hecho el 2026-10-06 (ver sección). Prompts de T2.1–T2.4 listos en `PROMPTS.md`.
 
 ## Configuración de Codex
 
@@ -125,6 +126,12 @@ Siguiente: **T2.3** (estado sincronizado y eventos). Checkpoint A hecho el 2026-
 - Solo se aceptan entradas de jugadores del encuentro y mientras `status` sea `combat`.
 - Al terminar (victory/defeat) el bucle se detiene y el `status` del lobby refleja el resultado; el regreso al lobby es T2.4.
 - `critChance` se inyecta solo en tests, por un tercer parámetro de `createRaidServer`; el servidor real usa el valor por defecto de core.
+
+**T2.3**
+- El estado de combate vive en el mismo `LobbyState` (entities, zones, phase, safeRadiusMeters, elapsedTicks, tick); `status` sale del encuentro.
+- Ausencias: `classId` y `targetId` vacíos (`''`), maná 0/0 para quien no es sanador, `cast` opcional (`undefined` sin casteo). Documentado en apps/server/README.md.
+- Volcado incremental (`schema/projection.ts`): solo asigna campos que cambiaron y crea o borra entradas de mapas. Se vuelca al iniciar y tras cada `advance` que avanzó el tick.
+- Eventos: un mensaje `events` por `advance` con eventos (puede juntar varios ticks si el bucle se atrasó).
 
 ## Decisiones de Venegas (2026-10-06)
 

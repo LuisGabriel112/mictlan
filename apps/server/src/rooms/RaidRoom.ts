@@ -5,6 +5,7 @@ import { CombatSession, type CoreStep } from '../combat-session.js';
 import { canStartEncounter, encounterConfig, validateReady } from '../lobby.js';
 import type { RoomCodePool } from '../room-codes.js';
 import { LobbyPlayerState, LobbyState } from '../schema/LobbyState.js';
+import { syncEncounter } from '../schema/sync.js';
 
 export interface RaidDependencies {
   minPlayers: number;
@@ -76,7 +77,7 @@ export class RaidRoom extends Room<{ state: LobbyState }> {
     if (!canStartEncounter(players, this.dependencies.minPlayers)) return;
     const encounter = this.dependencies.createEncounter(this.combatConfig(players), this.dependencies.nextSeed());
     this.session = new CombatSession(encounter, this.dependencies.step);
-    this.state.status = 'combat';
+    syncEncounter(this.state, encounter);
     this.setTimestep((deltaMs) => this.advanceCombat(deltaMs), COMBAT_LOOP_RULES.tickMs);
     await this.lock();
   }
@@ -89,9 +90,11 @@ export class RaidRoom extends Room<{ state: LobbyState }> {
 
   private advanceCombat(deltaMs: number): void {
     if (!this.session) return;
-    this.session.advance(deltaMs);
+    const previousTick = this.session.state.tick;
+    const events = this.session.advance(deltaMs);
+    if (this.session.state.tick !== previousTick) syncEncounter(this.state, this.session.state);
+    if (events.length > 0) this.broadcast('events', events);
     if (!this.session.finished) return;
-    this.state.status = this.session.state.status;
     this.setTimestep();
   }
 }

@@ -8,31 +8,6 @@ Claude borra de aquí cada prompt cuando su tarea queda aprobada.
 
 ---
 
-## T2.3 — Estado sincronizado y eventos
-
-```
-Tarea T2.3 — Estado sincronizado y eventos.
-
-Lee AGENTS.md, SPEC.md (§7 "Estado sincronizado" y §8), la tarea T2.3 de PLAN.md, NOTAS.md y el código de T2.1–T2.2. Implementa SOLO T2.3.
-
-IMPORTANTE: NO ejecutes `npm ci` ni `npm install`. Usa npm.cmd. No hagas commit. Usa solo APIs de @colyseus/schema 5 y @colyseus/core 0.18 que existan en los tipos instalados y lístalas en el reporte con su .d.ts.
-
-1. Esquema: extiende el estado sincronizado con todo SPEC §7: entidades (id, type, classId, x, y, health, maxHealth, mana/maxMana, targetId, casteo actual { abilityId, targetId, durationTicks, remainingTicks, interruptible }, auras { id, sourceId, remainingTicks }), zonas activas (id, x, y, radiusMeters, remainingTicks), phase, safeRadiusMeters, elapsedTicks/tick del encuentro y status de la sala. Identificadores en inglés.
-2. Sincronización: tras cada step, vuelca el EncounterState de core al esquema. Haz el volcado incremental (actualiza solo lo que cambió; crea y borra entidades, auras y zonas según aparezcan y desaparezcan, p. ej. xolos y zonas de Viento) para no reenviar todo cada tick. El estado de core sigue siendo la fuente de verdad; el esquema es solo una vista.
-3. Eventos: los CombatEvent de cada step se difunden a todos los clientes en un solo mensaje por tick (`events`, con el array), solo si hay eventos.
-
-Criterios (un test por punto):
-1. Integración: el cliente ve cambiar la vida, la posición, el casteo con su remainingTicks bajando y las auras (p. ej. Copal o Escudo) de una entidad.
-2. Los eventos de daño llegan al cliente con sourceId y abilityId.
-3. Cuando aparece una zona de Viento o un xolo, el cliente los ve aparecer en el estado, y desaparecer cuando terminan o mueren (si core los retira; los cadáveres de xolos siguen con health ≤ 0).
-4. Un tick sin cambios en una entidad no modifica sus campos en el esquema (comprueba que el volcado es incremental, p. ej. contando cambios recibidos).
-
-Si algo es ambiguo, detente y reporta una propuesta. No inventes.
-Termina con npm.cmd run check en verde y el reporte del formato de AGENTS.md.
-```
-
----
-
 ## T2.4 — Fin de encuentro y reinicio
 
 ```

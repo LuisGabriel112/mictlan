@@ -185,7 +185,7 @@
   - Un mensaje inválido (payload mal formado, entidad inexistente, vector sin normalizar) no tumba el servidor y se ignora o normaliza.
 - **Verificación:** `npm run check`
 
-### [ ] T2.3 Estado sincronizado y eventos
+### [x] T2.3 Estado sincronizado y eventos
 - **Hacer:** esquema de Colyseus con todo el estado de SPEC §7 (entidades, auras, zonas, fase, radio seguro, tiempo y estado de la sala) y difusión de los eventos de combate a los clientes.
 - **Criterios:**
   - Un test de integración ve cambiar la vida, la posición, el casteo con su progreso y las auras en el cliente.

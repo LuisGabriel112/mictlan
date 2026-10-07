@@ -73,3 +73,84 @@ La prueba adicional de `npm.cmd run dev --workspace @mictlan/server` en esta
 sandbox abortó dentro de tsx (`os.userInfo`, `uv_os_get_passwd: ENOMEM`), antes de
 importar el proyecto. Requiere repetir ese comando en el entorno local de
 Venegas. Las pruebas de integración verifican el arranque HTTP+WS real con Vitest.
+
+## T2.3 — Estado sincronizado y eventos
+
+`LobbyState` conserva `code`, `players` y `status` y añade `entities`, `zones`,
+`phase`, `safeRadiusMeters`, `elapsedTicks` y `tick`. Las entidades y zonas son
+mapas por `id`; las auras de cada entidad son un mapa por `definition.id`, igual
+que la identidad usada por core para refrescarlas. `CombatState.ts` define los
+esquemas mediante `schema({...})` y `t.*`, sin decoradores.
+
+| Valor de core | Representación sincronizada |
+| --- | --- |
+| `classId: null` de enemigos | `classId: ''` |
+| `targetId: null`, también dentro de un casteo | `targetId: ''` |
+| Enemigos sin maná y jugadores no sanadores | `mana: 0`, `maxMana: 0` |
+| Maná de sanadores | Valor decimal de core, sin redondeo |
+| `cast: null` | Referencia opcional `cast: undefined`, también al eliminarse en el cliente |
+| Lobby sin encuentro | Mapas vacíos, fase, radio y relojes en `0` |
+
+Un casteo presente contiene `abilityId`, `targetId`, `durationTicks`,
+`remainingTicks` e `interruptible`. Cada aura expone `id`, `sourceId` y
+`remainingTicks`. Cada zona expone `id`, `x`, `y`, `radiusMeters` y
+`remainingTicks`. Las posiciones y radios siguen en metros; los dos relojes son
+ticks de core: `tick` cuenta desde la creación y `elapsedTicks` desde el pull.
+
+`syncEncounter(view, encounter)` es un adaptador sin red que solo lee core.
+`projection.ts` compara los campos antes de asignarlos y reconcilia colecciones
+con fábricas inyectadas, conservando las instancias existentes. Se eliminan
+entradas solo cuando dejan de existir en core: un cadáver de xolo permanece si
+core lo conserva. No se filtran entidades por vida ni se recalculan reglas.
+
+La sala vuelca el estado al iniciar, antes del primer timestep, y una vez tras
+cada `advance` cuyo `tick` cambió. Core incrementa `tick` en cada step; una
+fracción de tick no causa volcado. Se sincroniza también el último step del
+encuentro antes de detener el bucle. El mock terminal de `combat-room.test.ts`
+ahora respeta ese incremento, como el step real.
+
+Cada `advance` con eventos llama una sola vez a `broadcast('events', events)`;
+el payload es el array completo, en el orden producido por core, sin envoltorio
+ni filtrado. Un array vacío no se difunde. Los parches de estado conservan la
+cadencia propia de Colyseus; no hay una garantía adicional de orden entre el
+mensaje de eventos y el parche del estado.
+
+### APIs instaladas utilizadas por T2.3
+
+Versiones verificadas: `@colyseus/schema` 5.0.36 y `@colyseus/core` 0.18.18.
+Rutas relativas a `node_modules/`:
+
+| API | Declaración `.d.ts` |
+| --- | --- |
+| `schema`, constructor con propiedades iniciales, `SchemaType` | `@colyseus/schema/build/annotations.d.ts`: 156, 161, 185 |
+| `t.string<T>`, `t.number<T>`, `t.boolean`, `t.map`, `t.ref` | `@colyseus/schema/build/types/builder.d.ts`: 212, 222, 245, 261–288 |
+| `FieldBuilder.default`, `FieldBuilder.optional` | `@colyseus/schema/build/types/builder.d.ts`: 89, 182 |
+| `MapSchema.get`, `set`, `delete`, `keys`; tests: `has`, `size` | `@colyseus/schema/build/types/custom/MapSchema.d.ts`: 77–78, 96, 105, 108, 110 |
+| `Schema.toJSON` (solo para observar asignaciones en tests) | `@colyseus/schema/build/Schema.d.ts`: 144 |
+| `Room.setTimestep` (conexión existente), `Room.broadcast` | `@colyseus/core/build/Room.d.ts`: 518, 690 |
+| SDK `Room.onMessage<CombatEvent[]>`, `send` (integración) | `@colyseus/sdk/build/Room.d.ts`: 100–107 |
+
+### Verificación T2.3
+
+Los escenarios revisables están en `tests/features/T2.3.feature`. Las pruebas
+se escribieron y fallaron antes de implementar el volcado y la difusión.
+`schema-projection.test.ts`, `schema-sync.test.ts` y `schema-room.test.ts`
+prueban cada función de sincronización y la conexión con la sala, con reloj,
+step y broadcast inyectados o sustituidos. `schema.integration.test.ts` verifica
+C1 y C2 con dos clientes reales. C3 y C4 se verifican sin red en
+`schema-sync.test.ts`, incluyendo cero asignaciones y cero escrituras de mapa
+cuando solo avanza el reloj.
+
+El profiler V8 con mapas de fuente midió 100 % de líneas ejecutables en los
+cuatro módulos de esquema y `RaidRoom.ts`. ESLint verificó complejidad ≤6,
+anidamiento ≤2, funciones ≤20 líneas y archivos ≤500 líneas en el código de
+T2.3 y sus pruebas. El análisis de duplicación no encontró bloques repetidos de
+50 tokens o más en los 15 módulos revisados. Los artefactos locales de estas
+comprobaciones están ignorados en `coverage/T2.3/`.
+
+Se detectaron 14/14 mutaciones mediante aserciones: comparación de campos,
+identidad de instancias, escrituras redundantes, bajas de mapas, maná, borrado y
+progreso de casteos, identidad de aura, progreso de zona, reloj desde el pull,
+volcado inicial y posterior al step, silencio sin eventos y lote completo.
+`npm.cmd run check` pasó con 456 tests de core y 130 de servidor, sin dependencias
+nuevas. El reinicio y las desconexiones de T2.4 quedan fuera de esta tarea.
