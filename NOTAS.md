@@ -15,8 +15,9 @@
 | T1.8 Fases y enfurecer | `1350afa` | 0 | Intento en la PC del trabajo sin commit; luego límite de uso de Codex (se esperó al reinicio de cuota). El proceso de Codex murió durante su `npm run check` final, sin reporte; Claude revisó lo escrito directamente |
 | T1.9 Viento e interrupción | `a38ec0f` | 0 | Primera tarea con `--effort high` (para ahorrar cuota); sin problemas |
 | T1.10 Xolos | `ac1ac9f` | 0 | `--effort high`; sin problemas |
+| T1.11 Arena y fin del encuentro | `c50f946` | 1 | Codex detectó una contradicción en SPEC §10 (Viento tras la muerte del jefe contra encuentro congelado); se corrigió el SPEC. El `--resume` falló por tareas fantasma del plugin y se terminó con `--fresh` |
 
-Siguiente: **T1.11**, con su prompt de `PROMPTS.md`.
+Siguiente: **T1.12**, con su prompt de `PROMPTS.md`.
 
 ## Configuración de Codex
 
@@ -24,6 +25,7 @@ Siguiente: **T1.11**, con su prompt de `PROMPTS.md`.
 - Se delega con `--model gpt-6-astra --effort xhigh`.
 - PowerShell bloquea `npm.ps1`: usar `npm.cmd`.
 - La sandbox de Codex no tiene red: prohibirle `npm ci` y `npm install` en cada prompt.
+- Si un proceso de Codex muere (memoria, cuota), el plugin deja la tarea como `running` para siempre y bloquea `--resume` (`/codex:cancel` falla porque el PID ya no existe). Solución usada: relanzar con `--fresh` explicando el trabajo a medias. Tareas fantasma actuales: T1.3 (`task-muw6znbj-g1m1rs`) y T1.8 (`task-muxk6sfg-950ogi`) en `%TEMP%\codex-companion\mictlan-*\state.json`.
 
 ## Decisiones tomadas fuera del SPEC (ya implementadas)
 
@@ -89,6 +91,14 @@ Siguiente: **T1.11**, con su prompt de `PROMPTS.md`.
 - Una sola tirada del RNG por Llamado: el primer ángulo; el resto se reparte a 360°/count (con 2, opuestos).
 - La vida escala con el tamaño del grupo configurado, no con los vivos.
 - Los xolos actúan desde el tick siguiente a su aparición.
+
+**T1.11**
+- Orden al final del tick: enemigos → arena → cambio de fase → fin. El daño de arena usa el radio de la fase actual antes de que una entrada de fase reinicie el reloj.
+- El daño de arena se aplica directo con `applyDamage` (sin mitigación, RNG, enfurecer ni amenaza), con `sourceId: 'environment'`.
+- `death` lleva `sourceId` y `abilityId` del golpe letal.
+- Tras `victory` o `defeat`, `step` solo incrementa `tick`.
+- SPEC §10 corregido: si el jefe muere, solo explotan los círculos que vencen en ese tick; los demás quedan congelados.
+- Varios tests viejos que mataban al jefe para probar otra cosa ahora matan a un xolo, para que el encuentro no termine.
 
 ## Decisiones de Venegas (2026-10-06)
 

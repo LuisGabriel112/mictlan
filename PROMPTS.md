@@ -6,37 +6,6 @@ Claude borra de aquí cada prompt cuando su tarea queda aprobada.
 
 ---
 
-## T1.11 — Arena de fase 3 y fin del encuentro
-
-```
-Tarea T1.11 — Arena de fase 3 y fin del encuentro.
-
-Lee AGENTS.md, SPEC.md (§6 "Fase 3" y "Fin del encuentro", y §10 "Radio seguro y fin del encuentro"), la tarea T1.11 de PLAN.md y NOTAS.md (secciones T1.7 y T1.8). Implementa SOLO T1.11.
-
-IMPORTANTE: NO ejecutes `npm ci` ni `npm install`: borran node_modules y tu sandbox no tiene red. Usa npm.cmd (Windows PowerShell). No hagas commit.
-
-Alcance: packages/core/src/mechanics/arena.ts (nuevo) y sus tests. Puedes tocar encounter.ts y combat.ts solo para conectarlo. Usa BOSS.finalPhaseArena, COMBAT_RULES.arena y los campos safeRadiusMeters y status de EncounterState. Nada de números sueltos.
-
-1. Radio seguro en fase 3 con phaseElapsedTicks = k: 20 − 8 × min(k, 200) / 200 m (calcúlalo con los datos, no con estos números). Fuera de fase 3 es el radio del muro.
-2. Cada tick, cada jugador vivo cuyo centro esté a más del radio seguro de (0,0) recibe damagePerTick (5), sin armadura, auras, críticos ni enfurecer. Evento damage con sourceId 'environment' y abilityId 'unsafeGround'. No genera amenaza. Decide y documenta en qué paso del tick se aplica (propuesta: después de que actúan los enemigos).
-3. El evento death incluye sourceId y abilityId del golpe letal (ajusta combat.ts y los tests que comparen ese evento).
-4. Fin: al final de cada tick, si el jefe tiene vida ≤ 0 → status 'victory'; si no, si todos los jugadores están muertos → 'defeat'. Si ambas, 'victory'. Se emite encounterEnded una sola vez (el tipo ya existe). Después del fin, step solo avanza tick: nadie actúa, no cambian entidades y no hay eventos.
-
-Reglas existentes: step no muta el estado y reutiliza por referencia las entidades sin cambios. Tests con critChance: 0.
-
-Criterios (un test por punto):
-1. A los 5 s de entrar a fase 3 el radio seguro es 16 m, y a los 10 s o más, 12 m.
-2. Fuera del radio seguro se reciben 100/s (5 por tick), también el Jaguar y con Escudo activo.
-3. El estado pasa a victory o defeat según corresponda; si ambas ocurren en el mismo tick, victory.
-4. Después del fin, step no produce eventos ni cambia nada salvo tick.
-5. El evento death trae el abilityId del golpe letal.
-
-Si algo del SPEC es ambiguo, detente y reporta una propuesta. No inventes.
-Termina con npm.cmd run check en verde y el reporte del formato de AGENTS.md.
-```
-
----
-
 ## T1.12 — Simulador: bots y runner
 
 ```
