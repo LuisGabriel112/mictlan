@@ -1,5 +1,5 @@
 import { expect, test } from 'vitest';
-import { latestRejection, rejectionText, selfText, slotLabel, statusText, targetText } from '../src/hud-text';
+import { entityName, latestRejection, rejectionText, slotLabel, statusText } from '../src/hud-text';
 import { entity, room } from './fixtures';
 
 test.each([
@@ -30,30 +30,12 @@ test.each([
   expect(slotLabel(slot)).toEqual(label);
 });
 
-test('target text names the entity and shows its health', () => {
-  const snapshot = room([
-    entity({ id: 'p1', targetId: 'boss' }),
-    entity({ id: 'boss', type: 'boss', classId: '', health: 23860, maxHealth: 24000 }),
-    entity({ id: 'x1', type: 'xolo', classId: '', health: 0, maxHealth: 300 }),
-    entity({ id: 'p2', classId: 'healer', health: 650, maxHealth: 700 }),
-  ]);
-  expect(targetText(snapshot, 'p1')).toBe('Objetivo: Mictlantecuhtli, Señor del Mictlán · 23860/24000');
-  expect(targetText({ ...snapshot, entities: { ...snapshot.entities, p1: entity({ id: 'p1', targetId: 'x1' }) } }, 'p1'))
-    .toBe('Objetivo: Xolo espectral · muerto');
-  expect(targetText({ ...snapshot, entities: { ...snapshot.entities, p1: entity({ id: 'p1', targetId: 'p2' }) } }, 'p1'))
-    .toBe('Objetivo: Tícitl · 650/700');
-  expect(targetText({ ...snapshot, entities: { ...snapshot.entities, p1: entity({ id: 'p1', targetId: 'p1' }) } }, 'p1'))
-    .toBe('Objetivo: Guerrero Águila (tú) · 100/100');
-  expect(targetText(room([entity({ id: 'p1' })]), 'p1')).toBe('Sin objetivo');
-  expect(targetText(room([]), 'p1')).toBe('Sin objetivo');
-});
-
-test('self text shows class, health and mana only for casters', () => {
-  expect(selfText(room([entity({ id: 'p1', classId: 'healer', health: 600, maxHealth: 700, mana: 812.6, maxMana: 1000 })]), 'p1'))
-    .toBe('Tícitl · Vida 600/700 · Maná 812/1000');
-  expect(selfText(room([entity({ id: 'p1', classId: 'jaguar', health: 1200, maxHealth: 1200 })]), 'p1'))
-    .toBe('Guerrero Jaguar · Vida 1200/1200');
-  expect(selfText(room([]), 'p1')).toBe('');
+test('entity names come from core data and mark the local player', () => {
+  expect(entityName(entity({ id: 'boss', type: 'boss', classId: '' }), 'p1')).toBe('Mictlantecuhtli, Señor del Mictlán');
+  expect(entityName(entity({ id: 'x1', type: 'xolo', classId: '' }), 'p1')).toBe('Xolo espectral');
+  expect(entityName(entity({ id: 'p2', classId: 'healer' }), 'p1')).toBe('Tícitl');
+  expect(entityName(entity({ id: 'p1' }), 'p1')).toBe('Guerrero Águila (tú)');
+  expect(entityName(entity({ id: 'p3', classId: '' }), 'p1')).toBe('');
 });
 
 test('the latest rejection of the local player is reported, others are ignored', () => {
@@ -66,8 +48,4 @@ test('the latest rejection of the local player is reported, others are ignored',
   expect(latestRejection(events, 'p1')).toBe('out_of_range');
   expect(latestRejection(events, 'p9')).toBeUndefined();
   expect(latestRejection([], 'p1')).toBeUndefined();
-});
-
-test('overkill never shows negative health', () => {
-  expect(selfText(room([entity({ id: 'p1', health: -20, maxHealth: 750 })]), 'p1')).toBe('Guerrero Águila · Vida 0/750');
 });

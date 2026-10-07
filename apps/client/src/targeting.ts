@@ -20,13 +20,17 @@ export function nextEnemyTarget(snapshot: RoomSnapshot, selfId: string, currentI
   return enemies[(currentIndex + 1) % enemies.length].id;
 }
 
-export function allyAt(snapshot: RoomSnapshot, selfId: string, index: number): string | undefined {
+// Party order shared by F1–F5 and the group frames: self first, then the other players by id.
+export function partyOrder(snapshot: RoomSnapshot, selfId: string): string[] {
   const others = Object.values(snapshot.entities)
     .filter((entity) => entity.type === 'player' && entity.id !== selfId)
     .map(({ id }) => id)
     .sort(compareIds);
-  const party = snapshot.entities[selfId] ? [selfId, ...others] : others;
-  return party[index - 1];
+  return snapshot.entities[selfId] ? [selfId, ...others] : others;
+}
+
+export function allyAt(snapshot: RoomSnapshot, selfId: string, index: number): string | undefined {
+  return partyOrder(snapshot, selfId)[index - 1];
 }
 
 export function entityAtPoint(snapshot: RoomSnapshot, point: Point): string | undefined {

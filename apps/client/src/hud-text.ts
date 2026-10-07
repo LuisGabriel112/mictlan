@@ -1,6 +1,6 @@
 import { BOSS, CLASSES, XOLO, type CombatEvent } from '@mictlan/core';
 import type { ActionSlot, SlotState } from './action-bar';
-import { isLiving, type EntitySnapshot, type RoomSnapshot } from './snapshot';
+import type { EntitySnapshot, RoomSnapshot } from './snapshot';
 
 const REJECTION_TEXT: Readonly<Record<string, string>> = {
   gcd: 'Aún no está lista', cooldown: 'En recarga', insufficient_mana: 'Sin maná',
@@ -31,26 +31,11 @@ export function slotLabel({ state, cooldownSeconds }: Pick<ActionSlot, 'state' |
   return SLOT_LABELS[state];
 }
 
-function entityName(entity: EntitySnapshot, selfId: string): string {
+export function entityName(entity: EntitySnapshot, selfId: string): string {
   if (entity.type === 'boss') return BOSS.name;
   if (entity.type === 'xolo') return XOLO.name;
   const name = entity.classId === '' ? '' : CLASSES[entity.classId].name;
   return entity.id === selfId ? `${name} (tú)` : name;
-}
-
-export function targetText(snapshot: RoomSnapshot, selfId: string): string {
-  const target = snapshot.entities[snapshot.entities[selfId]?.targetId ?? ''];
-  if (!target) return 'Sin objetivo';
-  const health = isLiving(target) ? `${target.health}/${target.maxHealth}` : 'muerto';
-  return `Objetivo: ${entityName(target, selfId)} · ${health}`;
-}
-
-export function selfText(snapshot: RoomSnapshot, selfId: string): string {
-  const self = snapshot.entities[selfId];
-  if (!self || self.classId === '') return '';
-  const parts = [CLASSES[self.classId].name, `Vida ${Math.max(0, self.health)}/${self.maxHealth}`];
-  if (self.maxMana > 0) parts.push(`Maná ${Math.floor(self.mana)}/${self.maxMana}`);
-  return parts.join(' · ');
 }
 
 export function latestRejection(events: readonly CombatEvent[], selfId: string): string | undefined {

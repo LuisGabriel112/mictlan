@@ -1,6 +1,7 @@
 import * as Phaser from 'phaser';
 import type { CombatEvent } from '@mictlan/core';
 import { actionSlots } from '../action-bar';
+import { groupFrameAt } from '../frames';
 import { latestRejection, rejectionText } from '../hud-text';
 import { PositionHistory, type Positions } from '../interpolation';
 import { keyAction, type KeyAction } from '../keyboard';
@@ -115,8 +116,10 @@ export class ArenaScene extends Phaser.Scene {
 
   private handleClick(pointer: Phaser.Input.Pointer): void {
     if (!this.snapshot) return;
+    // Group frames live in screen space and take priority over the world under them.
+    const framed = groupFrameAt(this.snapshot, this.room.sessionId, { x: pointer.x, y: pointer.y });
     const point = this.cameras.main.getWorldPoint(pointer.x, pointer.y);
-    this.selectTarget(entityAtPoint(this.snapshot, screenToWorld(point)));
+    this.selectTarget(framed ?? entityAtPoint(this.snapshot, screenToWorld(point)));
   }
 
   private selectTarget(entityId: string | undefined): void {

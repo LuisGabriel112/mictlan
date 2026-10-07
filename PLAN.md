@@ -215,7 +215,7 @@
 - **Criterios (manual):** se puede jugar cualquier clase solo con el teclado, F5 no recarga la página y se ve cuándo cada habilidad está disponible.
 - **Verificación:** `npm run dev` y prueba manual
 
-### [ ] T3.3 Marcos de unidad y barras de casteo
+### [x] T3.3 Marcos de unidad y barras de casteo
 - **Hacer:** marco propio, marco del objetivo, marcos de grupo clicables, barras de casteo propia y del jefe (borde distinto si es interrumpible).
 - **Criterios (manual):** el sanador puede curar a cualquiera haciendo clic en los marcos de grupo, y se distingue el Lamento (interrumpible) del Golpe.
 - **Verificación:** `npm run dev` y prueba manual
