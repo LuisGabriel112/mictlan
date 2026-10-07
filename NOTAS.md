@@ -14,8 +14,9 @@
 | T1.7 IA de enemigo y jefe | `0d2199b` | 0 | Incluye el auto-ataque del Jaguar, que no estaba en ninguna tarea |
 | T1.8 Fases y enfurecer | `1350afa` | 0 | Intento en la PC del trabajo sin commit; luego límite de uso de Codex (se esperó al reinicio de cuota). El proceso de Codex murió durante su `npm run check` final, sin reporte; Claude revisó lo escrito directamente |
 | T1.9 Viento e interrupción | `a38ec0f` | 0 | Primera tarea con `--effort high` (para ahorrar cuota); sin problemas |
+| T1.10 Xolos | `ac1ac9f` | 0 | `--effort high`; sin problemas |
 
-Siguiente: **T1.10**, con su prompt de `PROMPTS.md`.
+Siguiente: **T1.11**, con su prompt de `PROMPTS.md`.
 
 ## Configuración de Codex
 
@@ -82,6 +83,12 @@ Siguiente: **T1.10**, con su prompt de `PROMPTS.md`.
 - El daño del Viento sigue atribuido al jefe aunque haya muerto (y lleva enfurecer si estaba activo).
 - Grito valida `not_casting` justo después del paso 6 (objetivo) y antes del 7.
 - Para aislar Copal, los tests de auras ponen `bossActive = true` con temporizadores vacíos (si no, la curación provoca el pull y el Viento contamina los totales).
+
+**T1.10**
+- Ids `xolo:N`, saltando cualquier id ocupado (incluidos cadáveres y jugadores).
+- Una sola tirada del RNG por Llamado: el primer ángulo; el resto se reparte a 360°/count (con 2, opuestos).
+- La vida escala con el tamaño del grupo configurado, no con los vivos.
+- Los xolos actúan desde el tick siguiente a su aparición.
 
 ## Decisiones de Venegas (2026-10-06)
 

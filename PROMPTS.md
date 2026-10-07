@@ -6,38 +6,6 @@ Claude borra de aquí cada prompt cuando su tarea queda aprobada.
 
 ---
 
-## T1.10 — Xolos
-
-```
-Tarea T1.10 — Xolos.
-
-Lee AGENTS.md, SPEC.md (§4, §6 "Fase 2" y "Llamado de los xolos", y §10 "Xolos"), la tarea T1.10 de PLAN.md y NOTAS.md (secciones T1.5, T1.7 y T1.8). Implementa SOLO T1.10.
-
-IMPORTANTE: NO ejecutes `npm ci` ni `npm install`: borran node_modules y tu sandbox no tiene red. Usa npm.cmd (Windows PowerShell). No hagas commit.
-
-Alcance: packages/core/src/mechanics/xolos.ts (nuevo) y sus tests. Puedes tocar boss.ts y encounter.ts solo para conectarlo. Usa los datos de XOLO y de BOSS_ABILITIES.callOfTheXolos. Reutiliza la IA de enemy.ts y las tablas de threat.ts: no dupliques lógica. Nada de números sueltos.
-
-1. Al resolverse el Llamado (ya está programado solo en fase 2, cada 40 s, el primero al entrar a la fase), aparecen `count` xolos con el centro sobre el muro (20 m de (0,0)): el primero en un ángulo elegido con el RNG del estado y el segundo en el ángulo opuesto.
-2. Vida según el número de jugadores del encuentro (XOLO.maxHealthByPlayerCount), armadura, radio, velocidad y auto-ataque de XOLO. Ids deterministas y únicos dentro del encuentro.
-3. Cada xolo nace con su propia tabla de amenaza: initialThreat (1) para el Tícitl vivo; si no hay Tícitl vivo, para el jugador vivo más cercano a la posición de aparición (empate por id menor). Su objetivo inicial es ese jugador. Después siguen las reglas normales de amenaza (umbrales, Provocar, Rugido, curación repartida entre todos los enemigos vivos).
-4. Los xolos están activos al aparecer (no necesitan pull) y no castean. Los muertos se quedan en entities con vida ≤ 0 y no actúan.
-5. En fase 3 no aparecen nuevos (el temporizador ya desaparece en T1.8) y los vivos siguen actuando.
-
-Reglas existentes: step no muta el estado y reutiliza por referencia las entidades sin cambios. Tests con critChance: 0.
-
-Criterios (un test por punto):
-1. Al entrar a fase 2 aparecen 2 xolos en el muro, opuestos entre sí, con 300 de vida en un encuentro de 3 jugadores y 600 en uno de 5.
-2. Los xolos van primero por el Tícitl; si está muerto, por el jugador vivo más cercano.
-3. Rugido o Provocar les cambian el objetivo al Jaguar.
-4. En fase 3 no aparecen xolos nuevos y los vivos siguen persiguiendo y atacando.
-5. A los 40 s de fase 2 aparece una segunda pareja con ids distintos.
-
-Si algo del SPEC es ambiguo, detente y reporta una propuesta. No inventes.
-Termina con npm.cmd run check en verde y el reporte del formato de AGENTS.md.
-```
-
----
-
 ## T1.11 — Arena de fase 3 y fin del encuentro
 
 ```
