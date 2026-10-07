@@ -300,5 +300,6 @@ export type CombatEvent = { tick: number } & (
   }
   | { type: 'death'; entityId: string }
   | { type: 'phaseChanged'; phase: Phase }
+  | { type: 'enraged'; sourceId: string }
   | { type: 'encounterEnded'; outcome: 'victory' | 'defeat' }
 );

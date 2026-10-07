@@ -2,6 +2,7 @@ import { applyDamage, applyHealing, calculateDamage, calculateHealing, rollCriti
 import { advanceEntityAuras, applyAura, clearDeadAuras, damageTakenModifiers } from './auras.js';
 import type { HealingAura } from './auras.js';
 import { CLASSES } from './data/classes.js';
+import { enrageDamageModifiers } from './phases.js';
 import { applyThreatEvent } from './threat.js';
 import type { Ability, AbilityEffect, CombatEvent, EncounterState, Entity, PlayerEntity } from './types.js';
 
@@ -47,7 +48,8 @@ function applyEntityEffect(state: EncounterState, result: ReturnType<typeof appl
 
 export function resolveDamageEffect(state: EncounterState, event: EffectAttribution, target: Entity, baseDamage: number): CombatResult {
   const roll = rollCritical(state.entities[event.sourceId].type, state.rngState, state.critChance);
-  const amount = calculateDamage(baseDamage, target.armorBps, damageTakenModifiers(target), roll.critical);
+  const modifiers = [...damageTakenModifiers(target), ...enrageDamageModifiers(state, event.sourceId, event.abilityId)];
+  const amount = calculateDamage(baseDamage, target.armorBps, modifiers, roll.critical);
   const attribution = { sourceId: event.sourceId, abilityId: event.abilityId, tick: event.tick };
   const result = applyDamage(target, { ...attribution, amount, critical: roll.critical });
   return applyEntityEffect(state, result, roll.rngState);

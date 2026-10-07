@@ -1,6 +1,7 @@
 import { replaceCombatEntity, resolveDamageEffect } from './combat-effects.js';
 import type { CombatResult } from './combat-effects.js';
 import { BOSS, BOSS_ABILITIES, BOSS_PHASES } from './data/boss.js';
+import { createPhaseAbilityTimers } from './phases.js';
 import type { BossAbilityId, CombatEvent, EncounterState, EnemyEntity, PhaseTimers } from './types.js';
 
 function livingBoss(state: EncounterState): EnemyEntity | undefined {
@@ -19,9 +20,7 @@ function isPulled(state: EncounterState, boss: EnemyEntity): boolean {
 export function advanceBossEncounter(state: EncounterState): EncounterState {
   const boss = livingBoss(state);
   if (!boss || (!state.bossActive && !isPulled(state, boss))) return state;
-  const bossAbilityTimers = state.bossActive ? state.bossAbilityTimers : Object.fromEntries(
-    Object.entries(BOSS_PHASES[1].timers).map(([id, timer]) => [id, timer.firstTicks]),
-  );
+  const bossAbilityTimers = state.bossActive ? state.bossAbilityTimers : createPhaseAbilityTimers(state.phase);
   return { ...state, bossActive: true, elapsedTicks: state.elapsedTicks + 1,
     phaseElapsedTicks: state.phaseElapsedTicks + 1, bossAbilityTimers };
 }

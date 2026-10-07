@@ -7,6 +7,7 @@ import { BOSS } from './data/boss.js';
 import { CLASSES, COMBAT_RULES, PARTY_RULES } from './data/classes.js';
 import { createRngState } from './rng.js';
 import { displace, normalize } from './movement.js';
+import { advanceBossEnrage, updateBossPhase } from './phases.js';
 import { advanceThreatTimers, updateEnemyTargets } from './threat.js';
 import type {
   EncounterConfig,
@@ -225,7 +226,10 @@ export function step(state: EncounterState, inputs: readonly Input[], dtMs: numb
   const grouped = groupInputs(inputs);
   const processed = runPlayerPhase(advanced.state, (player, current) => processPlayerInput(player, current, grouped.get(player.id)));
   const attacked = runEntityPhase(processed.state, advanceJaguarAutoAttack);
+  const enraged = advanceBossEnrage(advanceBossEncounter(attacked.state));
   // One final selection prevents intermediate threat and positions from changing hysteresis.
-  const enemies = runEntityPhase(updateEnemyTargets(advanceBossEncounter(attacked.state)), advanceEnemyActions);
-  return { state: enemies.state, events: [...timed.events, ...advanced.events, ...processed.events, ...attacked.events, ...enemies.events] };
+  const enemies = runEntityPhase(updateEnemyTargets(enraged.state), advanceEnemyActions);
+  const phased = updateBossPhase(enemies.state);
+  return { state: phased.state, events: [...timed.events, ...advanced.events, ...processed.events,
+    ...attacked.events, ...enraged.events, ...enemies.events, ...phased.events] };
 }

@@ -95,7 +95,7 @@
   - Una habilidad que toca durante otro casteo se encola y empieza al terminar ese casteo.
 - **Verificación:** `npm run check`
 
-### [ ] T1.8 Fases y enfurecer
+### [x] T1.8 Fases y enfurecer
 - **Archivos:** `src/phases.ts` y sus tests.
 - **Hacer:** cambio de fase por % de vida con enteros, reinicio de temporizadores con la tabla de SPEC §6 y enfurecer a los 480 s del pull.
 - **Criterios:**
