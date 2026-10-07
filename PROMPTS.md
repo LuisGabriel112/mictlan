@@ -6,36 +6,6 @@ Claude borra de aquí cada prompt cuando su tarea queda aprobada.
 
 ---
 
-## T1.12 — Simulador: bots y runner
-
-```
-Tarea T1.12 — Simulador: bots y runner.
-
-Lee AGENTS.md (sobre todo la excepción de packages/core/sim/), SPEC.md (§3, §5, §6 y §10), la tarea T1.12 de PLAN.md y NOTAS.md. Implementa SOLO T1.12.
-
-IMPORTANTE: NO ejecutes `npm ci` ni `npm install`: borran node_modules y tu sandbox no tiene red. Usa npm.cmd (Windows PowerShell). No hagas commit. Sin dependencias nuevas.
-
-Alcance: packages/core/sim/bots.ts y packages/core/sim/runner.ts (nuevos) y sus tests. sim/ usa la API pública de core (src/index.ts; puedes exportar ahí lo que falte, sin cambiar lógica). src/ nunca importa sim/. Asegura que sim/ quede cubierto por typecheck, lint y vitest (ajusta tsconfig.test.json o crea uno nuevo si hace falta).
-
-1. Bots: funciones puras (estado → inputs del tick), deterministas, sin RNG propio. Composición por número de jugadores: 3 = Jaguar, Tícitl, Águila; 4 = +1 Águila; 5 = +2 Águilas.
-   - Todos: si su centro está en una zona de Viento (o a ≤ 1 m de su borde), se mueven alejándose del centro de la zona y no castean ese tick. Si están fuera del radio seguro o a ≤ 1 m de su borde, se mueven hacia (0,0). No empiezan un casteo mientras se mueven.
-   - Tanque: camina al jefe hasta cuerpo a cuerpo (eso hace el pull), lo selecciona, usa Zarpazo cuando puede, Provocar si el jefe o un xolo apunta a otro, Escudo cuando el jefe empieza el Golpe sobre él, y Rugido si hay xolos vivos a ≤ 8 m.
-   - Sanador: se queda a unos 15 m del jefe. Copal al aliado vivo sin Copal con menos vida; Remedio al de menor % de vida si está bajo 90 %; Gran remedio si alguien está bajo 50 %; Ofrenda si 2 o más aliados están bajo 70 %.
-   - Daño: se queda a unos 15 m del jefe. Prioridad: Grito si el jefe castea Lamento; xolos vivos antes que el jefe; Disparo veloz cuando esté listo; si no, Flecha.
-2. Runner: runEncounter({ players, seed, critChance? }) crea el encuentro, aplica los bots cada tick y devuelve el estado final, todos los eventos y los ticks. Límite de seguridad: 18 000 ticks (15 min); si se alcanza, lanza error (el enfurecer garantiza que nunca debería pasar).
-
-Criterios (un test por punto):
-1. El runner termina siempre en victory o defeat para 3, 4 y 5 jugadores con varias semillas.
-2. Misma semilla da el mismo resultado (estado final y eventos idénticos).
-3. Un test verifica que el bot esquiva un círculo de Viento (no recibe su daño).
-4. Los bots nunca generan casts rechazados con motivo moving.
-
-Si algo del SPEC es ambiguo, detente y reporta una propuesta. No inventes.
-Termina con npm.cmd run check en verde y el reporte del formato de AGENTS.md.
-```
-
----
-
 ## T1.13 — Simulador: reporte y CLI
 
 ```

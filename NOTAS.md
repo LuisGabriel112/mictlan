@@ -16,8 +16,9 @@
 | T1.9 Viento e interrupción | `a38ec0f` | 0 | Primera tarea con `--effort high` (para ahorrar cuota); sin problemas |
 | T1.10 Xolos | `ac1ac9f` | 0 | `--effort high`; sin problemas |
 | T1.11 Arena y fin del encuentro | `c50f946` | 1 | Codex detectó una contradicción en SPEC §10 (Viento tras la muerte del jefe contra encuentro congelado); se corrigió el SPEC. El `--resume` falló por tareas fantasma del plugin y se terminó con `--fresh` |
+| T1.12 Simulador: bots y runner | `aa7a367` | 0 | `--effort high`; sin problemas |
 
-Siguiente: **T1.12**, con su prompt de `PROMPTS.md`.
+Siguiente: **T1.13**, con su prompt de `PROMPTS.md`.
 
 ## Configuración de Codex
 
@@ -99,6 +100,13 @@ Siguiente: **T1.12**, con su prompt de `PROMPTS.md`.
 - Tras `victory` o `defeat`, `step` solo incrementa `tick`.
 - SPEC §10 corregido: si el jefe muere, solo explotan los círculos que vencen en ese tick; los demás quedan congelados.
 - Varios tests viejos que mataban al jefe para probar otra cosa ahora matan a un xolo, para que el encuentro no termine.
+
+**T1.12**
+- Los parámetros de los bots viven en `src/data/simulation.ts` (`SIMULATION_RULES`) y se exportan desde core; no son números de balance del juego.
+- Prioridad del sanador: Ofrenda → Gran remedio → Copal → Remedio (emergencias primero).
+- Solo el tanque se acerca antes del pull; los demás esperan sin actuar hasta que el jefe está activo.
+- Al estar exactamente en el centro de una zona, el bot escapa hacia el centro de la arena.
+- `sim/` queda cubierto por typecheck vía `tsconfig.test.json`.
 
 ## Decisiones de Venegas (2026-10-06)
 
