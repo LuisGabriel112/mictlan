@@ -26,7 +26,7 @@
 | T3.2 Objetivo y barra de acción | `bbdecd0` | 0 | **Implementada por Claude**. Verificado en Chrome: Tab, clic, 2 (Disparo veloz: −70 al jefe), F5 bloqueado, barra en gris al morir |
 | T3.3 Marcos y barras de casteo | `f3445f7` | 0 | **Implementada por Claude**. Verificado en Chrome: marcos propio/objetivo/grupo, clic en marco de grupo, F1, barra del jefe con borde turquesa en el Lamento. La barra de casteo propia no se pudo capturar (ventana oculta) |
 
-Siguiente: **T3.4** (lectura del combate). **Ya es jugable**: `npm.cmd run dev` y abrir `http://localhost:5173/?dev=1&class=eagle` (ver apps/client/README.md). Antes de T3.1 hay que instalar Vite, Phaser y @colyseus/sdk en apps/client (Codex no tiene red). Checkpoint A hecho el 2026-10-06 (ver sección). Prompts de T2.1–T2.4 listos en `PROMPTS.md`.
+Siguiente: **T3.4** (lectura del combate). Prompts de T3.4–T3.6 listos en `PROMPTS.md` para Codex (con `--wait`). **Ya es jugable**: `npm.cmd run dev` y abrir `http://localhost:5173/?dev=1&class=eagle` (ver apps/client/README.md). Antes de T3.1 hay que instalar Vite, Phaser y @colyseus/sdk en apps/client (Codex no tiene red). Checkpoint A hecho el 2026-10-06 (ver sección). Prompts de T2.1–T2.4 listos en `PROMPTS.md`.
 
 ## Configuración de Codex
 
