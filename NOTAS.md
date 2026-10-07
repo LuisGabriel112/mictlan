@@ -21,7 +21,7 @@
 | T2.1 Sala de Colyseus y lobby | `bf89574` | 0 | `xhigh`, 27 min. Verificó cada API de Colyseus en los `.d.ts`. Su sandbox no pudo correr `npm run dev` (ENOMEM en tsx); Claude lo corrió fuera y responde HTTP 200 |
 | T2.2 Bucle de combate y entradas | `8fcdca6` | 0 | **Implementada por Claude** a pedido de Venegas (Codex con 25 % de cuota). Sin revisión independiente. 11/11 mutaciones detectadas |
 | T2.3 Estado sincronizado y eventos | `6048c75` | 0 | `xhigh`, 10 min |
-| T2.4 Fin de encuentro y reinicio | (pendiente) | 1 | Primer intento abortado a los 30 s (forwarder en segundo plano); relanzado con `--wait`, 20 min. Claude recortó de README el reporte de tarea que Codex pegó ahí |
+| T2.4 Fin de encuentro y reinicio | `ecd357f` | 1 | Primer intento abortado a los 30 s (forwarder en segundo plano); relanzado con `--wait`, 20 min. Claude recortó de README el reporte de tarea que Codex pegó ahí |
 
 Siguiente: **T3.1** (escena base del cliente). Fase 2 completa. Antes de T3.1 hay que instalar Vite, Phaser y @colyseus/sdk en apps/client (Codex no tiene red). Checkpoint A hecho el 2026-10-06 (ver sección). Prompts de T2.1–T2.4 listos en `PROMPTS.md`.
 
