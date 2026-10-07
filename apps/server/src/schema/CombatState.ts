@@ -17,6 +17,12 @@ export const AuraState = schema({
 }, 'AuraState');
 export type AuraState = SchemaType<typeof AuraState>;
 
+export const CooldownState = schema({
+  id: t.string(),
+  remainingTicks: t.number(),
+}, 'CooldownState');
+export type CooldownState = SchemaType<typeof CooldownState>;
+
 export const EntityState = schema({
   id: t.string(),
   type: t.string<Entity['type']>(),
@@ -30,6 +36,9 @@ export const EntityState = schema({
   targetId: t.string(),
   cast: t.ref(CombatCastState).optional(),
   auras: t.map(AuraState),
+  gcdRemainingTicks: t.number().default(0),
+  // Only running cooldowns are listed; an absent ability is ready.
+  cooldowns: t.map(CooldownState),
 }, 'EntityState');
 export type EntityState = SchemaType<typeof EntityState>;
 

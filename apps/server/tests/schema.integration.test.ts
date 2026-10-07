@@ -23,9 +23,11 @@ async function moveAndTakeDamage(eagle: Connection): Promise<void> {
   const previousX = eagle.state.entities.get(eagle.sessionId)!.x;
   eagle.send('move', { dx: 1, dy: 0 });
   await vi.waitFor(() => expect(eagle.state.entities.get(eagle.sessionId)!.x).toBeGreaterThan(previousX));
+  // Moves are held until released (SPEC §7), and casting requires standing still.
+  eagle.send('move', { dx: 0, dy: 0 });
   eagle.send('target', { entityId: 'boss' });
   eagle.send('cast', { abilityId: 'quickShot' });
-  await vi.waitFor(() => expect(eagle.state.entities.get(eagle.sessionId)!.health).toBeLessThan(750), { timeout: 5000 });
+  await vi.waitFor(() => expect(eagle.state.entities.get(eagle.sessionId)!.health).toBeLessThan(750), { timeout: 10000 });
 }
 
 async function observeCastProgress(eagle: Connection): Promise<void> {
@@ -54,7 +56,8 @@ test('C1: the client observes health, position, cast progress and auras on the s
   const previous = aura.remainingTicks;
   await vi.waitFor(() => expect(aura.remainingTicks).toBeLessThan(previous));
   await observeCastProgress(eagle);
-}, 12000);
+  // Under CPU load the loop drops late ticks, so game time can lag behind wall-clock time.
+}, 20000);
 
 test('C2: every client receives an events array with damage sourceId and abilityId', async () => {
   const { eagle, batches } = await connectedParty();

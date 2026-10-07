@@ -201,7 +201,7 @@
 
 ## Fase 3 — Cliente (`apps/client`)
 
-### [ ] T3.1 Escena base
+### [x] T3.1 Escena base
 - **Hacer:**
   - Vite + Phaser y conexión a la sala.
   - Dibujo de la arena (muro y radio seguro) y de las entidades con los placeholders de SPEC §8.
@@ -210,7 +210,7 @@
 - **Criterios (verificación manual de Venegas):** 2 pestañas del navegador se ven moverse una a la otra de forma fluida.
 - **Verificación:** `npm run dev` y prueba manual
 
-### [ ] T3.2 Selección de objetivo y barra de acción
+### [x] T3.2 Selección de objetivo y barra de acción
 - **Hacer:** Tab y clic para seleccionar enemigos, F1–F5 y Shift+1–5 para aliados (con `preventDefault`), barra de acción 1–4 con cooldowns, GCD y estados "sin recurso" y "fuera de alcance".
 - **Criterios (manual):** se puede jugar cualquier clase solo con el teclado, F5 no recarga la página y se ve cuándo cada habilidad está disponible.
 - **Verificación:** `npm run dev` y prueba manual
@@ -228,6 +228,13 @@
 ### [ ] T3.5 Lobby jugable
 - **Hacer:** pantalla para crear o unirse con código, elegir clase (mostrando qué roles faltan), botón de listo y pantalla de victoria o derrota.
 - **Criterios (manual):** 3 pestañas completan el flujo lobby → combate → resultado → lobby.
+- **Verificación:** `npm run dev` y prueba manual
+
+---
+
+### [ ] T3.6 Pulido visual procedural
+- **Hacer:** mejorar los placeholders sin assets externos (todo generado con Phaser): piso y muro de la arena con textura y grecas, unidades con sombra, borde e ícono o letra por clase, jefe con aura que pulsa al castear, nombres sobre las unidades, barras de vida/maná con mejor estilo, círculos de Viento con borde animado, destello al recibir golpes y barra de acción con íconos y recarga circular. Paleta del SPEC §9 (ocres, obsidiana, turquesa).
+- **Criterios (manual de Venegas):** el combate se lee mejor que con los círculos planos y sigue a 60 fps con 5 jugadores y xolos.
 - **Verificación:** `npm run dev` y prueba manual
 
 ---

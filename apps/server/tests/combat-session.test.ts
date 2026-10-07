@@ -6,18 +6,40 @@ function encounter(): EncounterState {
   return createEncounter({ players: [{ id: 'p1', classId: 'eagle' }], devMode: true, critChance: 0 }, 7);
 }
 
-test('queued inputs reach exactly the next step and no later one', () => {
+test('one-shot inputs reach exactly the next step while a held move repeats every step', () => {
   const coreStep = vi.fn(step);
   const session = new CombatSession(encounter(), coreStep, removePlayer);
   session.receive('p1', 'target', { entityId: 'boss' });
   session.receive('p1', 'move', { dx: 0, dy: 1 });
   session.advance(100);
   expect(coreStep).toHaveBeenCalledTimes(2);
-  expect(coreStep.mock.calls[0][1]).toEqual([
-    { playerId: 'p1', type: 'target', entityId: 'boss' }, { playerId: 'p1', type: 'move', dx: 0, dy: 1 },
-  ]);
-  expect(coreStep.mock.calls[1][1]).toEqual([]);
+  const held = { playerId: 'p1', type: 'move', dx: 0, dy: 1 };
+  expect(coreStep.mock.calls[0][1]).toEqual([{ playerId: 'p1', type: 'target', entityId: 'boss' }, held]);
+  expect(coreStep.mock.calls[1][1]).toEqual([held]);
   expect(coreStep.mock.calls.every((call) => call[2] === 50)).toBe(true);
+});
+
+test('a held move keeps moving the player until a zero move releases it', () => {
+  const session = new CombatSession(encounter(), step, removePlayer);
+  const startX = session.state.entities.p1.x;
+  session.receive('p1', 'move', { dx: 1, dy: 0 });
+  session.advance(150);
+  expect(session.state.entities.p1.x).toBeCloseTo(startX + 3 * 0.35, 9);
+  session.receive('p1', 'move', { dx: 0, dy: 0 });
+  session.advance(100);
+  expect(session.state.entities.p1.x).toBeCloseTo(startX + 3 * 0.35, 9);
+});
+
+test('a later move replaces the held direction and a disconnect drops it', () => {
+  const coreStep = vi.fn(step);
+  const session = new CombatSession(encounter(), coreStep, removePlayer);
+  session.receive('p1', 'move', { dx: 1, dy: 0 });
+  session.receive('p1', 'move', { dx: 0, dy: -2 });
+  session.advance(50);
+  expect(coreStep.mock.calls[0][1]).toEqual([{ playerId: 'p1', type: 'move', dx: 0, dy: -1 }]);
+  session.disconnect('p1');
+  session.advance(50);
+  expect(coreStep.mock.calls[1][1]).toEqual([]);
 });
 
 test('inputs from players outside the encounter or malformed payloads are dropped', () => {

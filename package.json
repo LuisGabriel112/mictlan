@@ -13,7 +13,8 @@
     "typecheck": "npm run typecheck --workspaces --if-present",
     "lint": "eslint . --max-warnings 0",
     "sim": "npm run sim --workspace @mictlan/core --",
-    "check": "npm run typecheck && npm run lint && npm run test"
+    "check": "npm run typecheck && npm run lint && npm run test",
+    "dev": "node scripts/dev.mjs"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.0",

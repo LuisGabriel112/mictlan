@@ -1,4 +1,4 @@
-# MICTLÁN — Especificación del MVP (v0.5)
+# MICTLÁN — Especificación del MVP (v0.6)
 
 > Nombre de trabajo. Raid cooperativo en navegador, 3–5 jugadores contra un jefe inspirado en la mitología mexica.
 > Todos los números son **valores iniciales**: se ajustan con el simulador (tareas T1.12–T1.13) y con playtests.
@@ -283,3 +283,8 @@ Estas reglas no cambian ningún número; cierran huecos que el texto anterior de
 - El daño de la arena tiene `sourceId: 'environment'` y `abilityId: 'unsafeGround'`, y no genera amenaza.
 - Al terminar (`victory` o `defeat`) se emite `encounterEnded` una sola vez. Después, `step` solo avanza `tick`: nadie actúa y no hay más eventos. La vuelta al lobby es del servidor (T2.4).
 - El evento `death` incluye `sourceId` y `abilityId` del golpe letal.
+
+**Movimiento sostenido (v0.6, T3.1)**
+- `move { dx, dy }` es una dirección sostenida: el servidor la repite en cada tick hasta recibir otra, o `(0,0)` para detenerse. El cliente solo envía `move` cuando cambia la dirección de las teclas, y suelta todo si la ventana pierde el foco.
+- Las demás entradas (`target`, `cast`) se consumen en el siguiente tick, como antes.
+- El estado sincronizado incluye, por jugador, `gcdRemainingTicks` y los cooldowns en curso (`cooldowns`, solo los mayores que 0), para que la barra de acción muestre la disponibilidad.

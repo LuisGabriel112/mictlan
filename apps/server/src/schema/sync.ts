@@ -1,5 +1,5 @@
 import type { CastState, EncounterState, Entity } from '@mictlan/core';
-import { AuraState, CombatCastState, EntityState, ZoneState } from './CombatState.js';
+import { AuraState, CombatCastState, CooldownState, EntityState, ZoneState } from './CombatState.js';
 import type { LobbyState } from './LobbyState.js';
 import { syncCollection, syncFields } from './projection.js';
 
@@ -8,7 +8,8 @@ function entityFields(entity: Entity) {
   return { id, type, x, y, health, maxHealth,
     classId: entity.classId ?? '', targetId: entity.targetId ?? '',
     mana: entity.type === 'player' ? entity.mana : 0,
-    maxMana: entity.type === 'player' ? entity.maxMana : 0 } satisfies Partial<EntityState>;
+    maxMana: entity.type === 'player' ? entity.maxMana : 0,
+    gcdRemainingTicks: entity.type === 'player' ? entity.gcdRemainingTicks : 0 } satisfies Partial<EntityState>;
 }
 
 function syncCast(view: EntityState, cast: CastState | null): void {
@@ -21,6 +22,12 @@ function syncCast(view: EntityState, cast: CastState | null): void {
   syncFields(view, { cast: current });
 }
 
+function runningCooldowns(entity: Entity): { id: string; remainingTicks: number }[] {
+  if (entity.type !== 'player') return [];
+  return Object.entries(entity.cooldowns).flatMap(([id, remainingTicks]) =>
+    remainingTicks !== undefined && remainingTicks > 0 ? [{ id, remainingTicks }] : []);
+}
+
 function syncEntity(view: EntityState, entity: Entity): void {
   syncFields(view, entityFields(entity));
   syncCast(view, entity.cast);
@@ -28,6 +35,7 @@ function syncEntity(view: EntityState, entity: Entity): void {
     id: definition.id, sourceId, remainingTicks,
   }));
   syncCollection(view.auras, auras, () => new AuraState(), syncFields);
+  syncCollection(view.cooldowns, runningCooldowns(entity), () => new CooldownState(), syncFields);
 }
 
 export function syncEncounter(view: LobbyState, encounter: EncounterState): void {

@@ -122,3 +122,17 @@ test('C4: equal entity, cast, aura and zone values cause zero field assignments 
   for (const assignment of [...writes, ...changes]) expect(assignment).not.toHaveBeenCalled();
   expect(view.tick).toBe(1);
 });
+
+test('players expose their GCD and running cooldowns; finished cooldowns disappear', () => {
+  const encounter = encounterFixture();
+  const view = new LobbyState();
+  const eagle = { ...encounter.entities.eagle, gcdRemainingTicks: 12, cooldowns: { quickShot: 90, flight: 0 } };
+  syncEncounter(view, { ...encounter, entities: { ...encounter.entities, eagle } });
+  expect(view.entities.get('eagle')?.gcdRemainingTicks).toBe(12);
+  expect(view.entities.get('eagle')?.cooldowns.toJSON()).toEqual({ quickShot: { id: 'quickShot', remainingTicks: 90 } });
+  const cooled = { ...eagle, gcdRemainingTicks: 0, cooldowns: {} };
+  syncEncounter(view, { ...encounter, entities: { ...encounter.entities, eagle: cooled } });
+  expect(view.entities.get('eagle')?.gcdRemainingTicks).toBe(0);
+  expect(view.entities.get('eagle')?.cooldowns.size).toBe(0);
+  expect(view.entities.get('boss')?.cooldowns.size).toBe(0);
+});

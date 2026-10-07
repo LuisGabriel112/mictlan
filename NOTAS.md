@@ -22,8 +22,10 @@
 | T2.2 Bucle de combate y entradas | `8fcdca6` | 0 | **Implementada por Claude** a pedido de Venegas (Codex con 25 % de cuota). Sin revisión independiente. 11/11 mutaciones detectadas |
 | T2.3 Estado sincronizado y eventos | `6048c75` | 0 | `xhigh`, 10 min |
 | T2.4 Fin de encuentro y reinicio | `ecd357f` | 1 | Primer intento abortado a los 30 s (forwarder en segundo plano); relanzado con `--wait`, 20 min. Claude recortó de README el reporte de tarea que Codex pegó ahí |
+| T3.1 Escena base | (pendiente) | 0 | **Implementada por Claude** (Codex sin créditos). Verificada por Claude en Chrome con 2 pestañas; falta que Venegas confirme la fluidez |
+| T3.2 Objetivo y barra de acción | (pendiente) | 0 | **Implementada por Claude**. Verificado en Chrome: Tab, clic, 2 (Disparo veloz: −70 al jefe), F5 bloqueado, barra en gris al morir |
 
-Siguiente: **T3.1** (escena base del cliente). Fase 2 completa. Antes de T3.1 hay que instalar Vite, Phaser y @colyseus/sdk en apps/client (Codex no tiene red). Checkpoint A hecho el 2026-10-06 (ver sección). Prompts de T2.1–T2.4 listos en `PROMPTS.md`.
+Siguiente: **T3.3** (marcos de unidad y barras de casteo). **Ya es jugable**: `npm.cmd run dev` y abrir `http://localhost:5173/?dev=1&class=eagle` (ver apps/client/README.md). Antes de T3.1 hay que instalar Vite, Phaser y @colyseus/sdk en apps/client (Codex no tiene red). Checkpoint A hecho el 2026-10-06 (ver sección). Prompts de T2.1–T2.4 listos en `PROMPTS.md`.
 
 ## Configuración de Codex
 
@@ -140,6 +142,17 @@ Siguiente: **T3.1** (escena base del cliente). Fase 2 completa. Antes de T3.1 ha
 - Al terminar, `this.clock.setTimeout` de 5 s (`returnToLobbyDelayTicks × 50`) devuelve la sala al lobby: limpia combate, `ready = false` (conserva `classId`) y `unlock()`.
 - Colyseus 0.18.18: `setTimestep()` sin callback deja `_simulationInterval` asignado y el reloj de la sala deja de avanzar. Por eso, al terminar se pone un callback vacío a 50 ms.
 - `RaidServerOptions.initialBossHealth`: solo para tests.
+
+**T3.1 y T3.2**
+- Cliente: Vite 8 + Phaser 3.90 (no Phaser 4: API estable y conocida; se importa con `import * as Phaser`, porque su ESM no tiene export por defecto) + `@colyseus/sdk`. Usa los datos de `@mictlan/core` (nombres, radios, alcances, costos).
+- Toda la lógica está en módulos puros con tests (parámetros, conexión, proyección, WASD, interpolación, colores, teclado, objetivos, barra de acción, textos). La escena de Phaser solo dibuja y conecta; se verificó a mano en Chrome.
+- **Cambio en el servidor:** `move` pasó a ser sostenido (SPEC §10, v0.6). Antes se consumía un solo tick, así que mantener una tecla no movía de forma continua.
+- **Cambio en el servidor:** el esquema expone `gcdRemainingTicks` y `cooldowns` por jugador.
+- WASD se lee de eventos `keydown`/`keyup` de la ventana, no del bucle de dibujo; al perder el foco se sueltan todas las teclas, para que el movimiento no quede pegado.
+- Vista: 1 m = 32 px con zoom para que quepa la arena; norte arriba. HUD en una segunda cámara.
+- Orden de aliados (F1–F5 / Shift+1–5): uno mismo primero y luego los demás por id. Tab: enemigos vivos del más cercano al más lejano.
+- `npm run dev` (raíz) levanta servidor y cliente con `MICTLAN_DEV_MIN_PLAYERS=1` por defecto.
+- El test de integración C1 de T2.3 tenía un margen de 5 s que fallaba con la CPU saturada (el bucle descarta ticks atrasados); se amplió a 10 s.
 
 ## Decisiones de Venegas (2026-10-06)
 
