@@ -115,7 +115,7 @@
   - Grito sobre un objetivo que no castea se rechaza y no gasta el CD.
 - **Verificación:** `npm run check`
 
-### [ ] T1.10 Xolos
+### [x] T1.10 Xolos
 - **Archivos:** `src/mechanics/xolos.ts` y sus tests.
 - **Hacer:** Llamado de los xolos (2 en ángulos opuestos del muro, cada 40 s solo en fase 2), vida según jugadores, IA de T1.7 y su tabla de amenaza propia con 1 de amenaza inicial al Tícitl. Aplicar SPEC §10 (Xolos).
 - **Criterios:**

@@ -3,6 +3,7 @@ import type { CombatResult } from './combat-effects.js';
 import { BOSS, BOSS_ABILITIES, BOSS_PHASES } from './data/boss.js';
 import { createPhaseAbilityTimers } from './phases.js';
 import { createWindZones } from './mechanics/wind.js';
+import { summonXolos } from './mechanics/xolos.js';
 import type { BossAbilityId, CombatEvent, EncounterState, EnemyEntity, PhaseTimers } from './types.js';
 
 function livingBoss(state: EncounterState): EnemyEntity | undefined {
@@ -27,6 +28,7 @@ export function advanceBossEncounter(state: EncounterState): EncounterState {
 }
 
 function resolveBossAbility(state: EncounterState, event: Extract<CombatEvent, { type: 'abilityResolved' | 'castFinished' }>): CombatResult {
+  if (event.abilityId === 'callOfTheXolos') return { state: summonXolos(state), events: [event] };
   if (event.abilityId === 'obsidianWind') return { state: createWindZones(state, event.sourceId), events: [event] };
   if (event.abilityId === 'lamentOfTheDead') {
     const events: CombatEvent[] = [event];

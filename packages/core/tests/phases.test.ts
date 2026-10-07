@@ -160,7 +160,8 @@ test('C3: a Strike spanning a phase change finishes its original cast and deals 
   expect(waiting.state.entities.boss.cast?.remainingTicks).toBe(1);
   expect(waiting.events.filter(({ type }) => type === 'damage' || type === 'castCancelled')).toEqual([]);
   const finished = combatTick(waiting.state);
-  expect(finished.events).toEqual([
+  // Phase 2 xolos may also attack on this tick; this criterion checks the boss's ongoing cast.
+  expect(finished.events.filter((event) => 'sourceId' in event && event.sourceId === BOSS.id)).toEqual([
     { type: 'castFinished', sourceId: BOSS.id, abilityId: 'flayedStrike', targetId: 'p1', tick: 51 },
     { type: 'abilityResolved', sourceId: BOSS.id, abilityId: 'flayedStrike', targetId: 'p1', tick: 51 },
     { type: 'damage', sourceId: BOSS.id, abilityId: 'flayedStrike', targetId: 'p1', tick: 51, amount: 280, critical: false },

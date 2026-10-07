@@ -1,6 +1,6 @@
 import { expect, test } from 'vitest';
 import { advanceBossAbilities, advanceBossEncounter } from '../src/boss.js';
-import { BOSS } from '../src/data/boss.js';
+import { BOSS, BOSS_ABILITIES } from '../src/data/boss.js';
 import { combatCast, combatEncounter, combatPlayer, combatTick, freezeCombat, readyCast } from './combat-fixtures.js';
 import { threatEnemy } from './threat-fixtures.js';
 import { enemyEncounter, repeatBoss, repeatTick } from './enemy-fixtures.js';
@@ -140,7 +140,7 @@ test('queued Lament next starts exactly 500 ticks after its delayed start', () =
   expect(advanceBossAbilities(waiting.state).events[0]).toMatchObject({ type: 'castStarted', abilityId: 'lamentOfTheDead' });
 });
 
-test('Wind and Call resolve without castStarted during Strike and Wind creates zones', () => {
+test('Wind and Call resolve without castStarted during Strike and create zones and xolos', () => {
   const initial = enemyEncounter();
   initial.phase = 2;
   initial.bossAbilityTimers = { flayedStrike: 1, obsidianWind: 2, callOfTheXolos: 2 };
@@ -152,7 +152,10 @@ test('Wind and Call resolve without castStarted during Strike and Wind creates z
   expect(result.state.entities.boss.cast).toMatchObject({ abilityId: 'flayedStrike', remainingTicks: 49 });
   expect(result.state.bossAbilityTimers).toMatchObject({ obsidianWind: 240, callOfTheXolos: 800 });
   expect(result.state.zones).toHaveLength(3);
-  expect(Object.keys(result.state.entities)).toEqual(Object.keys(initial.entities));
+  expect(Object.values(result.state.entities).filter((entity) => entity.type !== 'xolo').map(({ id }) => id))
+    .toEqual(Object.keys(initial.entities));
+  expect(Object.values(result.state.entities).filter((entity) => entity.type === 'xolo'))
+    .toHaveLength(BOSS_ABILITIES.callOfTheXolos.effect.count);
   expect(result.state.rngState).not.toBe(initial.rngState);
 });
 
