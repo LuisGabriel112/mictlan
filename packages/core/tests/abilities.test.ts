@@ -2,6 +2,7 @@ import { describe, expect, test } from 'vitest';
 import { BOSS } from '../src/index.js';
 import type { AbilityRejectionReason, Input, PlayerAbilityId, PlayerEntity } from '../src/index.js';
 import { scenario, player, cast, target, move, tick, advance, activeCast } from './ability-fixtures.js';
+import { threatEnemy } from './threat-fixtures.js';
 describe('T1.3 ability validation', () => {
   const rejections: {
     reason: AbilityRejectionReason;
@@ -53,11 +54,13 @@ describe('T1.3 ability validation', () => {
     { abilityId: 'quickShot', playerId: 'p3', targetId: null },
     { abilityId: 'quickShot', playerId: 'p3', targetId: 'missing' },
     { abilityId: 'quickShot', playerId: 'p3', targetId: 'p1' },
-    { abilityId: 'quickShot', playerId: 'p3', targetId: BOSS.id, health: 0 },
+    { abilityId: 'quickShot', playerId: 'p3', targetId: 'deadEnemy', health: 0 },
   ] satisfies { abilityId: PlayerAbilityId; playerId: string; targetId: string | null; health?: number }[])(
     'rejects invalid $abilityId target $targetId with health $health',
     ({ abilityId, playerId, targetId, health }) => {
       const state = scenario();
+      // A dead add keeps target validation independent of encounter victory.
+      if (targetId === 'deadEnemy') state.entities.deadEnemy = { ...threatEnemy(state), id: 'deadEnemy', type: 'xolo' };
       player(state, playerId).targetId = targetId;
       if (targetId !== null && health !== undefined) state.entities[targetId].health = health;
       const result = tick(state, [cast(abilityId, playerId)]);
@@ -242,9 +245,11 @@ describe('T1.3 timers and resolution', () => {
   });
 
   test.each(['dead', 'out of range'])('enemy casts revalidate a target that is %s', (change) => {
-    let state = tick(scenario(), [target(BOSS.id, 'p3'), cast('obsidianArrow', 'p3')]).state;
+    const initial = scenario();
+    initial.entities.add = { ...threatEnemy(initial), id: 'add', type: 'xolo' };
+    let state = tick(initial, [target('add', 'p3'), cast('obsidianArrow', 'p3')]).state;
     state = advance(state, 39);
-    state.entities[BOSS.id] = { ...state.entities[BOSS.id], ...(change === 'dead' ? { health: 0 } : { y: 20 }) };
+    state.entities.add = { ...state.entities.add, ...(change === 'dead' ? { health: 0 } : { y: 20 }) };
     const result = tick(state);
     expect(result.events).toEqual([
       { type: 'castCancelled', tick: 41, sourceId: 'p3', abilityId: 'obsidianArrow', reason: change === 'dead' ? 'invalid_target' : 'out_of_range' },

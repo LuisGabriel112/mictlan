@@ -44,7 +44,8 @@ test.each([40, 41])('lethal damage %s emits damage followed by exactly one death
   const result = applyDamage(target, hit);
   expect(result.entity.health).toBe(40 - amount);
   expect(result.events).toEqual([
-    { type: 'damage', targetId: 'p3', ...hit }, { type: 'death', entityId: 'p3', tick: 2 },
+    { type: 'damage', targetId: 'p3', ...hit },
+    { type: 'death', entityId: 'p3', tick: 2, sourceId: 'enemy', abilityId: 'flayedStrike' },
   ]);
   expect(applyDamage(result.entity, hit)).toEqual({ entity: result.entity, events: [] });
   expect(target.health).toBe(40);

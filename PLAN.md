@@ -125,7 +125,7 @@
   - En fase 3 no aparecen xolos nuevos y los vivos siguen.
 - **Verificación:** `npm run check`
 
-### [ ] T1.11 Arena de fase 3 y fin del encuentro
+### [x] T1.11 Arena de fase 3 y fin del encuentro
 - **Archivos:** `src/mechanics/arena.ts` y sus tests.
 - **Hacer:** reducción lineal del radio seguro (20 → 12 m en 10 s), daño de 5 por tick fuera del radio seguro, y las condiciones de victoria y derrota. Aplicar SPEC §10 (Radio seguro y fin del encuentro), incluido el golpe letal en el evento `death` (`combat.ts`).
 - **Criterios:**

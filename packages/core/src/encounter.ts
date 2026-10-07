@@ -8,6 +8,7 @@ import { CLASSES, COMBAT_RULES, PARTY_RULES } from './data/classes.js';
 import { createRngState } from './rng.js';
 import { displace, normalize } from './movement.js';
 import { advanceWindZones } from './mechanics/wind.js';
+import { advanceArena, endEncounter } from './mechanics/arena.js';
 import { advanceBossEnrage, updateBossPhase } from './phases.js';
 import { advanceThreatTimers, updateEnemyTargets } from './threat.js';
 import type {
@@ -219,6 +220,9 @@ export function step(state: EncounterState, inputs: readonly Input[], dtMs: numb
   if (dtMs !== COMBAT_RULES.tickDurationMs) {
     throw new Error(`Cada paso debe durar ${COMBAT_RULES.tickDurationMs} ms.`);
   }
+  if (state.status === 'victory' || state.status === 'defeat') {
+    return { state: { ...state, tick: state.tick + 1 }, events: [] };
+  }
   // Existing timers advance before casts and inputs so newly applied auras retain their full duration.
   const timed = advanceAuraEffects(advanceThreatTimers({ ...state, tick: state.tick + 1 }));
   // Completed casts must affect later validations before any input moves a target.
@@ -230,11 +234,17 @@ export function step(state: EncounterState, inputs: readonly Input[], dtMs: numb
   const enraged = advanceBossEnrage(advanceBossEncounter(attacked.state));
   // Existing zones count down and explode after player movement/abilities and enrage,
   // before enemy actions create new zones. A mark at t explodes at t + warningTicks,
-  // independently of the boss's phase or death.
+  // even after a phase change or death this tick; encounter end freezes later marks.
   const zones = advanceWindZones(enraged.state);
   // One final selection prevents intermediate threat and positions from changing hysteresis.
   const enemies = runEntityPhase(updateEnemyTargets(zones.state), advanceEnemyActions);
-  const phased = updateBossPhase(enemies.state);
-  return { state: phased.state, events: [...timed.events, ...advanced.events, ...processed.events,
-    ...attacked.events, ...enraged.events, ...zones.events, ...enemies.events, ...phased.events] };
+  // Tick end order: enemies -> arena -> phase change -> encounter end.
+  // Arena damage precedes phase entry resetting its clock to zero.
+  // End conditions run last so victory takes precedence over deaths in the same tick.
+  const arena = advanceArena(enemies.state);
+  const phased = updateBossPhase(arena.state);
+  const ended = endEncounter(phased.state);
+  return { state: ended.state, events: [...timed.events, ...advanced.events, ...processed.events,
+    ...attacked.events, ...enraged.events, ...zones.events, ...enemies.events, ...arena.events,
+    ...phased.events, ...ended.events] };
 }

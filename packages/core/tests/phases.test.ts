@@ -73,7 +73,9 @@ test.each(['inactive', 'dead', 'missing'])(
     expect(updateBossPhase(initial).state).toBe(initial);
     const result = combatTick(initial);
     expect(result.state.phase).toBe(1);
-    expect(result.events).toEqual([]);
+    expect(result.events).toEqual(condition === 'dead'
+      ? [{ type: 'encounterEnded', outcome: 'victory', tick: 1 }] : []);
+    expect(result.state.status).toBe(condition === 'dead' ? 'victory' : initial.status);
   },
 );
 
@@ -117,6 +119,8 @@ test.each([1, 2] as const)(
 
 test('C2: phase 3 Lament starts at 160, queues Strike at 200 and releases it at 220', () => {
   const initial = beforeFirstPhaseTick(3);
+  // Keep every player inside the final safe radius to isolate boss scheduling.
+  for (const id of ['p2', 'p3']) Object.assign(initial.entities[id], { x: 12, y: 0 });
   const before = repeatTick(initial, 159);
   expect(before.state.phaseElapsedTicks).toBe(159);
   expect(before.events).toEqual([]);

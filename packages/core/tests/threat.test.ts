@@ -87,7 +87,7 @@ test.each([null, 'missing', 'p1', 'dead'])('taunt ignores invalid enemy %s', (ta
 
 test('unrelated events and resolved abilities cannot produce threat', () => {
   const state = combatEncounter();
-  expect(applyThreatEvent(state, { type: 'death', entityId: 'p3', tick: 1 })).toBe(state);
+  expect(applyThreatEvent(state, { type: 'death', entityId: 'p3', tick: 1, sourceId: 'boss', abilityId: 'autoAttack' })).toBe(state);
   expect(applyThreatEvent(state, { ...threatTaunt(), abilityId: 'claw' })).toBe(state);
   expect(applyThreatEvent(state, { ...threatTaunt(), abilityId: 'remedy' })).toBe(state);
   expect(applyThreatEvent(state, { ...threatTaunt(), type: 'castFinished' })).toBe(state);

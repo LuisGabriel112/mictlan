@@ -298,7 +298,7 @@ export type CombatEvent = { tick: number } & (
     abilityId: PlayerAbilityId;
     reason: AbilityRejectionReason;
   }
-  | { type: 'death'; entityId: string }
+  | { type: 'death'; entityId: string; sourceId: string; abilityId: AbilityId }
   | { type: 'phaseChanged'; phase: Phase }
   | { type: 'enraged'; sourceId: string }
   | { type: 'encounterEnded'; outcome: 'victory' | 'defeat' }

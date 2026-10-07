@@ -101,15 +101,49 @@ test('movement on the explosion tick is processed before Wind', () => {
   expect(result.state.zones).toEqual([]);
 });
 
-test.each(['phase', 'death'])('marked Wind explodes after boss %s', (change) => {
+test('marked Wind explodes after boss phase change', () => {
   const initial = combatEncounter();
   const marked = markWind(initial);
   const changed = { ...marked.state, entities: { ...marked.state.entities,
-    boss: { ...marked.state.entities.boss, health: change === 'death' ? 0 : 7200 } } };
+    boss: { ...marked.state.entities.boss, health: 7200 } } };
   const result = repeatTick(changed, wind.warningTicks);
   expect(result.state.zones).toEqual([]);
   expect(result.events.some((event) => event.type === 'damage' && event.abilityId === 'obsidianWind')).toBe(true);
-  if (change === 'phase') expect(result.state.phase).toBe(3);
+  expect(result.state.phase).toBe(3);
+});
+
+test('marked Wind explodes on the boss death tick while later circles freeze in victory', () => {
+  const marked = markWind(combatEncounter()).state;
+  const initial = { ...marked,
+    zones: marked.zones.map((zone, index) => ({ ...zone, remainingTicks: index + 1 })),
+    entities: { ...marked.entities,
+      boss: { ...marked.entities.boss, health: 70 },
+      p3: { ...marked.entities.p3, targetId: BOSS.id },
+    },
+  };
+  freezeCombat(initial);
+  const result = combatTick(initial, [combatCast('quickShot')]);
+  const tick = initial.tick + 1;
+  expect(result.state.entities.boss.health).toBe(0);
+  expect(result.state.status).toBe('victory');
+  expect(result.events.filter((event) => event.type === 'damage' && event.abilityId === 'obsidianWind')).toEqual(
+    ['p1', 'p2', 'p3'].map((targetId) => ({
+      type: 'damage', sourceId: BOSS.id, abilityId: 'obsidianWind', targetId,
+      amount: targetId === 'p1' ? 140 : 200, critical: false, tick,
+    })),
+  );
+  expect(result.events.map(({ type }) => type)).toEqual([
+    'abilityResolved', 'damage', 'death', 'damage', 'damage', 'damage', 'encounterEnded',
+  ]);
+  expect(result.events.at(-1)).toEqual({ type: 'encounterEnded', outcome: 'victory', tick });
+  expect(result.state.zones).toEqual(initial.zones.slice(1).map((zone) => ({
+    ...zone, remainingTicks: zone.remainingTicks - 1,
+  })));
+  freezeCombat(result.state);
+  const later = repeatTick(result.state, wind.warningTicks);
+  expect(later.events).toEqual([]);
+  expect(later.state).toEqual({ ...result.state, tick: tick + wind.warningTicks });
+  expect(later.state.zones).toBe(result.state.zones);
 });
 
 test('Wind uses armor, a real Shield and enrage activated on its explosion tick', () => {

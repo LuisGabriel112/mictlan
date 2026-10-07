@@ -264,7 +264,7 @@ Estas reglas no cambian ningún número; cierran huecos que el texto anterior de
 - Los objetivos se eligen con el RNG, sin repetir, entre los jugadores vivos ordenados por id.
 - Un jugador está "dentro" de un círculo si la distancia entre su **centro** y el centro del círculo es ≤ 4 m (no se suma su radio de cuerpo).
 - El daño usa la fórmula de "Daño recibido": aplican armadura, Escudo y enfurecer.
-- Un círculo ya marcado explota aunque el jefe cambie de fase o muera antes de que termine el aviso.
+- Un círculo ya marcado explota aunque el jefe cambie de fase antes de que termine el aviso. Si el jefe muere, solo explotan los círculos que vencen en ese mismo tick; el resto queda congelado sin efecto por el fin del encuentro.
 
 **Lamento de los muertos e interrupción**
 - El daño usa la fórmula de "Daño recibido": aplican armadura, Escudo y enfurecer.

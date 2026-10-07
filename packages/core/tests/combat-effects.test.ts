@@ -3,6 +3,7 @@ import { resolveCombatEffects } from '../src/combat-effects.js';
 import { BOSS, nextRandom } from '../src/index.js';
 import type { CombatEvent, Input, PlayerAbilityId } from '../src/index.js';
 import { arrowEncounter, combatCast, combatEncounter, combatPlayer, combatTick, freezeCombat, readyCast } from './combat-fixtures.js';
+import { threatEnemy } from './threat-fixtures.js';
 
 test('C2: Arrow with critChance 1 deals 210 using rngState', () => {
   const state = arrowEncounter(1);
@@ -112,21 +113,23 @@ test.each([0, -1])('C4: a player at %s health ignores targeting, movement and ca
 
 test('death at exactly zero invalidates a later instant action in the same tick', () => {
   const state = combatEncounter();
-  Object.assign(combatPlayer(state, 'p1'), { x: 0, y: 0, targetId: BOSS.id });
-  combatPlayer(state).targetId = BOSS.id;
-  state.entities[BOSS.id].health = 40;
+  // Kill an add so the boss stays alive and the encounter does not end.
+  state.entities.add = { ...threatEnemy(state), id: 'add', type: 'xolo', health: 40 };
+  Object.assign(combatPlayer(state, 'p1'), { x: 0, y: 0, targetId: 'add' });
+  combatPlayer(state).targetId = 'add';
   const result = combatTick(state, [combatCast('quickShot'), combatCast('claw', 'p1')]);
   expect(result.events.map(({ type }) => type)).toEqual(['abilityResolved', 'damage', 'death', 'abilityRejected']);
   expect(result.events.at(-1)).toMatchObject({ reason: 'invalid_target' });
-  expect(result.state.entities[BOSS.id].health).toBe(0);
+  expect(result.state.entities.add.health).toBe(0);
   expect(combatPlayer(result.state).cooldowns.quickShot).toBeUndefined();
 });
 
 test('an earlier completed cast kills the target before a later cast resolves', () => {
-  const state = arrowEncounter();
+  const state = combatEncounter();
+  state.entities.add = { ...threatEnemy(state), id: 'add', type: 'xolo', health: 140 };
   state.entities.p1 = { ...combatPlayer(state, 'p1'), classId: 'eagle' };
-  readyCast(state, 'obsidianArrow', 'p1', BOSS.id);
-  state.entities[BOSS.id].health = 140;
+  readyCast(state, 'obsidianArrow', 'p1', 'add');
+  readyCast(state, 'obsidianArrow', 'p3', 'add');
   const result = combatTick(state);
   expect(result.events.map(({ type }) => type)).toEqual(['castFinished', 'abilityResolved', 'damage', 'death', 'castCancelled']);
   expect(result.events.at(-1)).toMatchObject({ sourceId: 'p3', reason: 'invalid_target' });

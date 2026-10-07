@@ -50,7 +50,9 @@ export function applyDamage(target: Entity, hit: CombatAmount): EntityEffectResu
   const health = target.health - hit.amount;
   const entity = { ...target, health, cast: health <= 0 ? null : target.cast };
   const events: CombatEvent[] = [{ type: 'damage', targetId: target.id, ...hit }];
-  if (health <= 0) events.push({ type: 'death', entityId: target.id, tick: hit.tick });
+  if (health <= 0) events.push({
+    type: 'death', entityId: target.id, tick: hit.tick, sourceId: hit.sourceId, abilityId: hit.abilityId,
+  });
   return { entity, events };
 }
 

@@ -164,7 +164,10 @@ test('resolveTargetEffect uses active Shield mitigation and removes auras on a l
   expect(result.events).toContainEqual({
     type: 'damage', sourceId: 'p3', abilityId: 'quickShot', targetId: BOSS.id, amount: 35, critical: false, tick: 1,
   });
-  expect(result.events.at(-1)).toEqual({ type: 'death', entityId: BOSS.id, tick: 1 });
+  expect(result.events.slice(-2)).toEqual([
+    { type: 'death', entityId: BOSS.id, tick: 1, sourceId: 'p3', abilityId: 'quickShot' },
+    { type: 'encounterEnded', outcome: 'victory', tick: 1 },
+  ]);
   expect(result.state.entities[BOSS.id]).toMatchObject({ health: 0, auras: [] });
   expect(initial.entities[BOSS.id].auras).toHaveLength(2);
 });
