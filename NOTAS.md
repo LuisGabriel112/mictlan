@@ -19,7 +19,7 @@
 | T1.12 Simulador: bots y runner | `aa7a367` | 0 | `--effort high`; sin problemas |
 | T1.13 Simulador: reporte y CLI | `e541b30` | 0 | **Implementada por Claude** a pedido de Venegas (Codex con 4 % de cuota). Sin revisión independiente |
 
-Siguiente: **T2.1** (Fase 2, servidor). Checkpoint A hecho el 2026-10-06 (ver sección). Falta preparar los prompts de la Fase 2 en `PROMPTS.md`.
+Siguiente: **T2.1** (Fase 2, servidor). Checkpoint A hecho el 2026-10-06 (ver sección). Prompts de T2.1–T2.4 listos en `PROMPTS.md`.
 
 ## Configuración de Codex
 
@@ -148,6 +148,15 @@ Unas 1 500 peleas simuladas: bots perfectos y un modelo "humano" desechable (fue
 
 - **Aplicado (SPEC v0.5):** vida del jefe con 4 jugadores 36 000 → 40 000 y con 5, 50 000 → 56 000, para igualar la duración entre tamaños de grupo.
 - **Para el Checkpoint B (no aplicado):** con buen juego nadie muere y el enfurecer nunca llega. Los grupos de 5 son mucho más frágiles ante errores (daño a todos con un solo sanador). Los xolos casi no pesan. Candidato medido: Viento 200 → 250 y Lamento 250 → 300 (grupo promedio: 96 / 74 / 68 % de victorias). Un paquete más agresivo (auto-ataque 80, xolos 40) se pasa: el grupo promedio de 5 baja al 16 %.
+
+## Preparación de la Fase 2 (Claude, 2026-10-06)
+
+- Dependencias instaladas por Claude en `apps/server` (Codex no tiene red): `@colyseus/core` 0.18, `@colyseus/schema` 5, `@colyseus/ws-transport` 0.18 (trae `express`); de desarrollo, `@colyseus/sdk` 0.18, `vitest` 4.1 y `tsx` 4. npm 11 bloqueó los scripts de instalación de `esbuild` y `msgpackr-extract`: `tsx` funciona igual y el otro es opcional.
+- Colyseus 0.18 / schema 5 son recientes: cada prompt exige usar solo APIs de los tipos instalados y listarlas con su `.d.ts`.
+- El servidor importa core por `exports` → `./src/index.ts` (sin build de core); lo ejecutan `tsx` y `vitest`.
+- `check` debe cubrir core y server (scripts raíz con `--workspaces`).
+- Desconexión en combate: nueva función pura de core `removePlayer(state, playerId)` con `death` y `abilityId: 'disconnect'` (T2.4).
+- Opciones de sala solo para tests (semilla, critChance, jefe a poca vida) para que las pruebas sean deterministas y rápidas.
 
 ## Decisiones pendientes (de Venegas)
 
