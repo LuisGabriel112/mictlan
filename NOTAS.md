@@ -1,6 +1,6 @@
 # NOTAS — Bitácora del flujo Claude + Codex
 
-## Estado al 2026-10-05
+## Estado al 2026-10-06
 
 | Tarea | Commit | Rebotes | Notas |
 |---|---|---|---|
@@ -9,14 +9,12 @@
 | T1.2 RNG, reloj y movimiento | `1ecd209` | 0 | — |
 | T1.3 Habilidades | `bcbe8ad` | 0 | Primer intento matado por falta de memoria del sistema; relanzado sin cambios |
 | T1.4 Daño, curación, muerte y Vuelo | `072e443` | 0 | Se detuvo una vez: su `npm ci` borró `node_modules` y la sandbox no tiene red. Venegas reinstaló y se reanudó |
-
 | T1.5 Amenaza | `c426820` | 0 | — |
-
 | T1.6 Auras | `70aaafe` | 0 | Incluye la corrección de Provocar con muertos |
-
 | T1.7 IA de enemigo y jefe | `0d2199b` | 0 | Incluye el auto-ataque del Jaguar, que no estaba en ninguna tarea |
+| T1.8 Fases y enfurecer | `1350afa` | 0 | Intento en la PC del trabajo sin commit; luego límite de uso de Codex (se esperó al reinicio de cuota). El proceso de Codex murió durante su `npm run check` final, sin reporte; Claude revisó lo escrito directamente |
 
-Siguiente: **T1.8**. Se lanzó el 2026-10-06 en la PC del trabajo con poca cuota de Codex. Si no aparece su commit en `git log`, **relanzarla desde cero** con su prompt de `PROMPTS.md`. El hilo de Codex vive solo en esa PC y no se puede reanudar desde otra; cualquier trabajo parcial sin commit allá se ignora.
+Siguiente: **T1.9**, con su prompt de `PROMPTS.md`.
 
 ## Configuración de Codex
 
@@ -71,6 +69,12 @@ Siguiente: **T1.8**. Se lanzó el 2026-10-06 en la PC del trabajo con poca cuota
 - Viento, Lamento y Llamado de los xolos se programan y emiten eventos, pero aún no tienen efectos (T1.9 y T1.10).
 - Viento (sin casteo) emite `castStarted` con duración 0 y `abilityResolved`.
 
+**T1.8**
+- El cambio de fase se evalúa al final del tick, después de las acciones de los enemigos; `phaseElapsedTicks` queda en 0 y el siguiente tick cuenta como 1 (misma convención que el pull).
+- El enfurecer se activa tras `advanceBossEncounter` y antes de las acciones de los enemigos, así que el daño del jefe en el tick 9600 ya sale enfurecido.
+- Nuevo evento `enraged` con `sourceId` del jefe.
+- El enfurecer es un modificador más dentro de `calculateDamage` (un solo floor junto con armadura y Escudo).
+
 ## Decisiones de Venegas (2026-10-06)
 
 - **Vuelo:** entra en T1.4. Detalle en SPEC §5.3 (v0.3).
@@ -98,6 +102,4 @@ Ninguna.
 ## Recordatorios para los próximos prompts
 
 - **Todas:** `step` reutiliza por referencia las entidades sin cambios; está prohibido mutar el estado.
-- **T1.5:** los números de amenaza de SPEC §4 (curación ×0.5, umbrales de 110 % y 130 %) deben ir en `data/`; todavía no están.
-- **T1.9:** los casteos de jugador se crean con `interruptible: true` (`abilities.ts`); cambiar a `false`.
 - **T2.2:** un `move` con `NaN` o `Infinity` deja la posición en `NaN`; el servidor debe validarlo.
