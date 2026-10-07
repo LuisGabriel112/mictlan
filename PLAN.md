@@ -192,7 +192,7 @@
   - Los eventos de daño llegan al cliente con `sourceId` y `abilityId`.
 - **Verificación:** `npm run check`
 
-### [ ] T2.4 Fin de encuentro y reinicio
+### [x] T2.4 Fin de encuentro y reinicio
 - **Hacer:** victoria o derrota, regreso al lobby después de 5 s y manejo de desconexiones (el jugador desconectado muere en combate o sale del lobby).
 - **Criterios:** tests de integración para la victoria, la derrota y una desconexión a media pelea.
 - **Verificación:** `npm run check`

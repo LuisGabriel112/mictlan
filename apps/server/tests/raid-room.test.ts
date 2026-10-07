@@ -1,12 +1,12 @@
 import { expect, test, vi } from 'vitest';
-import { createEncounter, step } from '@mictlan/core';
+import { createEncounter, removePlayer, step } from '@mictlan/core';
 import { RaidRoom, createRaidRoom } from '../src/rooms/RaidRoom.js';
 import { LobbyState, LobbyPlayerState } from '../src/schema/LobbyState.js';
 
 function roomFixture(minPlayers = 3) {
   const dependencies = {
     minPlayers, codes: { reserve: vi.fn(() => 'ABCD'), release: vi.fn() },
-    createEncounter: vi.fn(createEncounter), nextSeed: vi.fn(() => 42), step,
+    createEncounter: vi.fn(createEncounter), nextSeed: vi.fn(() => 42), step, removePlayer,
   };
   const room = new RaidRoom(dependencies);
   vi.spyOn(room, 'lock').mockResolvedValue();
@@ -88,7 +88,7 @@ test('tryStartEncounter stores exactly one seeded encounter and locks combat', a
   expect(room.state.players.get('session')?.classId).toBe('eagle');
 });
 
-test('onLeave starts a complete ready party when the last unready player leaves', async () => {
+test('onLeave keeps a complete ready party in lobby when the last unready player leaves', async () => {
   const { room } = roomFixture(1);
   const ready = lobbyClient('ready');
   const waiting = lobbyClient('waiting');
@@ -97,18 +97,17 @@ test('onLeave starts a complete ready party when the last unready player leaves'
   await room.receiveReady(ready, { classId: 'eagle' });
   expect(room.state.status).toBe('lobby');
   await room.onLeave(waiting);
-  expect(room.state.status).toBe('combat');
+  expect(room.state.status).toBe('lobby');
 });
 
-test('combat rejects late joins and leaves encounter disconnect handling for T2.4', async () => {
+test('combat rejects late joins and kills disconnected players', async () => {
   const { room } = roomFixture(1);
   const client = lobbyClient('session');
   room.onJoin(client);
   await room.receiveReady(client, { classId: 'eagle' });
-  const encounter = room.encounter;
   expect(() => room.onJoin(lobbyClient('late'))).toThrow('La sala ya inició el combate.');
   await room.onLeave(client);
-  expect(room.encounter).toBe(encounter);
+  expect(room.encounter?.entities.session.health).toBe(0);
 });
 
 test('onDispose releases the code and createRaidRoom injects server dependencies', () => {

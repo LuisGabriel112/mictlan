@@ -1,12 +1,12 @@
 import { expect, test, vi } from 'vitest';
-import { createEncounter, step, type CombatEvent } from '@mictlan/core';
+import { createEncounter, removePlayer, step, type CombatEvent } from '@mictlan/core';
 import { RaidRoom } from '../src/rooms/RaidRoom.js';
 import * as synchronization from '../src/schema/sync.js';
 
 async function synchronizedRoom() {
   const advance = vi.fn(step);
   const room = new RaidRoom({ minPlayers: 1, codes: { reserve: () => 'SYNC', release: vi.fn() },
-    createEncounter, nextSeed: () => 42, step: advance });
+    createEncounter, nextSeed: () => 42, step: advance, removePlayer });
   vi.spyOn(room, 'lock').mockResolvedValue();
   const timestep = vi.spyOn(room, 'setTimestep').mockImplementation(() => undefined);
   const broadcast = vi.spyOn(room, 'broadcast').mockImplementation(() => undefined);

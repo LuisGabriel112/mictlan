@@ -154,3 +154,43 @@ progreso de casteos, identidad de aura, progreso de zona, reloj desde el pull,
 volcado inicial y posterior al step, silencio sin eventos y lote completo.
 `npm.cmd run check` pasó con 456 tests de core y 130 de servidor, sin dependencias
 nuevas. El reinicio y las desconexiones de T2.4 quedan fuera de esta tarea.
+
+## T2.4 — Fin de encuentro y reinicio
+
+`removePlayer(state, playerId)` devuelve `{ state, events }`, sin mutar la entrada.
+Un jugador vivo queda con vida 0 y sin casteo; `replaceCombatEntity` reutiliza la
+limpieza de auras de muertos. El único evento es `death`, con `entityId` y
+`sourceId` del jugador, `abilityId: 'disconnect'` y el tick actual. Un jugador
+muerto, inexistente o un enemigo no cambian ni producen eventos. El siguiente
+`step` decide si corresponde derrota.
+
+`CombatSession` recibe esa función por constructor. `onLeave` elimina siempre
+al jugador del roster; durante combate aplica la muerte inmediatamente, antes
+del siguiente step, vuelca el esquema y difunde `events`. El cadáver permanece
+en el encuentro hasta el reinicio. Durante el resultado, el encuentro queda
+congelado. Una salida del lobby libera el rol, pero solo otro `ready` puede
+iniciar combate.
+
+Al terminar se programa un único `this.clock.setTimeout`, con
+`BOSS.returnToLobbyDelayTicks * COMBAT_LOOP_RULES.tickMs` (5000 ms). El callback
+descarta la sesión, vacía entidades y zonas, pone fase, radio y relojes en 0,
+conserva clases y código, pone a todos los conectados con `ready = false` y
+ejecuta `unlock()`. Una nueva partida crea otra sesión y otra cola de entradas.
+
+**Compatibilidad comprobada:** en Colyseus core 0.18.18, `setTimestep()` sin
+callback cancela el intervalo pero conserva `_simulationInterval`; por ello
+`broadcastPatch()` tampoco avanza el reloj. Se sustituye el callback de combate
+por uno vacío a 50 ms para mantener `this.clock` activo sin volver a ejecutar
+core. El nuevo combate sustituye ese callback. No se accede a campos privados
+del framework. Se comprobó en `node_modules/@colyseus/core/build/Room.mjs`,
+líneas 480 y 836, y mediante el regreso real al lobby en integración.
+
+`autoDispose` se conserva en su valor predeterminado `true`. Colyseus cierra la
+sala vacía y limpia sus relojes; `onDispose` libera el código mediante el pool
+existente. Las pruebas verifican la reutilización del código al abandonar una
+sala en lobby, combate o victoria, incluso con el reinicio pendiente.
+
+`RaidServerOptions.initialBossHealth` permite empezar con poca vida del jefe
+solo mediante la inyección del servidor en tests. Sigue el tercer parámetro de
+`createRaidServer` y llega a `RaidDependencies`; no cambia la vida máxima ni
+acepta opciones enviadas por el cliente. No se añadieron dependencias.

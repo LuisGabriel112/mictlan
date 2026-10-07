@@ -1,11 +1,11 @@
 import { expect, test, vi } from 'vitest';
-import { createEncounter, step } from '@mictlan/core';
+import { createEncounter, removePlayer, step } from '@mictlan/core';
 import { RaidRoom } from '../src/rooms/RaidRoom.js';
 
 function combatRoom(critChance?: number) {
   const dependencies = {
     minPlayers: 1, codes: { reserve: vi.fn(() => 'ABCD'), release: vi.fn() },
-    createEncounter: vi.fn(createEncounter), nextSeed: vi.fn(() => 42), step: vi.fn(step), critChance,
+    createEncounter: vi.fn(createEncounter), nextSeed: vi.fn(() => 42), step: vi.fn(step), removePlayer, critChance,
   };
   const room = new RaidRoom(dependencies);
   vi.spyOn(room, 'lock').mockResolvedValue();
@@ -60,5 +60,5 @@ test('the loop stops and the lobby status mirrors the outcome when combat ends',
   dependencies.step.mockReturnValueOnce({ state: ended, events: [] });
   timestep.mock.calls[0][0]?.(50);
   expect(room.state.status).toBe('defeat');
-  expect(timestep).toHaveBeenLastCalledWith();
+  expect(timestep).toHaveBeenLastCalledWith(expect.any(Function), 50);
 });

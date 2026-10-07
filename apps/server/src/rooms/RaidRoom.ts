@@ -1,11 +1,11 @@
 import { Room, type Client } from '@colyseus/core';
-import { PARTY_RULES, type createEncounter, type EncounterConfig, type EncounterState } from '@mictlan/core';
+import { BOSS, PARTY_RULES, type createEncounter, type EncounterConfig, type EncounterState } from '@mictlan/core';
 import { COMBAT_LOOP_RULES } from '../combat-clock.js';
-import { CombatSession, type CoreStep } from '../combat-session.js';
+import { CombatSession, type CoreRemovePlayer, type CoreStep } from '../combat-session.js';
 import { canStartEncounter, encounterConfig, validateReady } from '../lobby.js';
 import type { RoomCodePool } from '../room-codes.js';
 import { LobbyPlayerState, LobbyState } from '../schema/LobbyState.js';
-import { syncEncounter } from '../schema/sync.js';
+import { resetLobby, syncEncounter } from '../schema/sync.js';
 
 export interface RaidDependencies {
   minPlayers: number;
@@ -13,8 +13,10 @@ export interface RaidDependencies {
   createEncounter: typeof createEncounter;
   nextSeed: () => number;
   step: CoreStep;
-  // Only tests inject this; the real server keeps core's default crit chance.
+  removePlayer: CoreRemovePlayer;
+  // Only tests override encounter balance; clients cannot supply these options.
   critChance?: number;
+  initialBossHealth?: number;
 }
 
 const COMBAT_MESSAGES = ['move', 'target', 'cast'] as const;
@@ -48,10 +50,13 @@ export class RaidRoom extends Room<{ state: LobbyState }> {
     this.state.players.set(client.sessionId, new LobbyPlayerState({ id: client.sessionId }));
   }
 
-  async onLeave(client: Pick<Client, 'sessionId'>): Promise<void> {
-    if (this.state.status !== 'lobby') return;
+  onLeave(client: Pick<Client, 'sessionId'>): void {
     this.state.players.delete(client.sessionId);
-    await this.tryStartEncounter();
+    if (!this.session) return;
+    const events = this.session.disconnect(client.sessionId);
+    if (events.length === 0) return;
+    syncEncounter(this.state, this.session.state);
+    this.broadcast('events', events);
   }
 
   onDispose(): void {
@@ -75,11 +80,19 @@ export class RaidRoom extends Room<{ state: LobbyState }> {
   private async tryStartEncounter(): Promise<void> {
     const players = [...this.state.players.values()];
     if (!canStartEncounter(players, this.dependencies.minPlayers)) return;
-    const encounter = this.dependencies.createEncounter(this.combatConfig(players), this.dependencies.nextSeed());
-    this.session = new CombatSession(encounter, this.dependencies.step);
+    const encounter = this.initialEncounter(players);
+    this.session = new CombatSession(encounter, this.dependencies.step, this.dependencies.removePlayer);
     syncEncounter(this.state, encounter);
     this.setTimestep((deltaMs) => this.advanceCombat(deltaMs), COMBAT_LOOP_RULES.tickMs);
     await this.lock();
+  }
+
+  private initialEncounter(players: Parameters<typeof encounterConfig>[0]): EncounterState {
+    const encounter = this.dependencies.createEncounter(this.combatConfig(players), this.dependencies.nextSeed());
+    const { initialBossHealth } = this.dependencies;
+    if (initialBossHealth === undefined) return encounter;
+    const boss = { ...encounter.entities[BOSS.id], health: initialBossHealth };
+    return { ...encounter, entities: { ...encounter.entities, [BOSS.id]: boss } };
   }
 
   private combatConfig(players: Parameters<typeof encounterConfig>[0]): EncounterConfig {
@@ -89,13 +102,21 @@ export class RaidRoom extends Room<{ state: LobbyState }> {
   }
 
   private advanceCombat(deltaMs: number): void {
-    if (!this.session) return;
+    if (!this.session || this.session.finished) return;
     const previousTick = this.session.state.tick;
     const events = this.session.advance(deltaMs);
     if (this.session.state.tick !== previousTick) syncEncounter(this.state, this.session.state);
     if (events.length > 0) this.broadcast('events', events);
     if (!this.session.finished) return;
-    this.setTimestep();
+    // Colyseus 0.18.18 retains the stopped interval handle, blocking clock ticks from patches.
+    this.setTimestep(() => undefined, COMBAT_LOOP_RULES.tickMs);
+    this.clock.setTimeout(() => this.returnToLobby(), BOSS.returnToLobbyDelayTicks * COMBAT_LOOP_RULES.tickMs);
+  }
+
+  private async returnToLobby(): Promise<void> {
+    this.session = undefined;
+    resetLobby(this.state);
+    await this.unlock();
   }
 }
 

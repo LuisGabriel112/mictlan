@@ -21,8 +21,9 @@
 | T2.1 Sala de Colyseus y lobby | `bf89574` | 0 | `xhigh`, 27 min. Verificó cada API de Colyseus en los `.d.ts`. Su sandbox no pudo correr `npm run dev` (ENOMEM en tsx); Claude lo corrió fuera y responde HTTP 200 |
 | T2.2 Bucle de combate y entradas | `8fcdca6` | 0 | **Implementada por Claude** a pedido de Venegas (Codex con 25 % de cuota). Sin revisión independiente. 11/11 mutaciones detectadas |
 | T2.3 Estado sincronizado y eventos | `6048c75` | 0 | `xhigh`, 10 min |
+| T2.4 Fin de encuentro y reinicio | (pendiente) | 1 | Primer intento abortado a los 30 s (forwarder en segundo plano); relanzado con `--wait`, 20 min. Claude recortó de README el reporte de tarea que Codex pegó ahí |
 
-Siguiente: **T2.4** (fin de encuentro y reinicio). Antes de T3.1 hay que instalar Vite, Phaser y @colyseus/sdk en apps/client (Codex no tiene red). Checkpoint A hecho el 2026-10-06 (ver sección). Prompts de T2.1–T2.4 listos en `PROMPTS.md`.
+Siguiente: **T3.1** (escena base del cliente). Fase 2 completa. Antes de T3.1 hay que instalar Vite, Phaser y @colyseus/sdk en apps/client (Codex no tiene red). Checkpoint A hecho el 2026-10-06 (ver sección). Prompts de T2.1–T2.4 listos en `PROMPTS.md`.
 
 ## Configuración de Codex
 
@@ -30,7 +31,7 @@ Siguiente: **T2.4** (fin de encuentro y reinicio). Antes de T3.1 hay que instala
 - Se delega con `--model gpt-6-astra --effort xhigh`.
 - PowerShell bloquea `npm.ps1`: usar `npm.cmd`.
 - La sandbox de Codex no tiene red: prohibirle `npm ci` y `npm install` en cada prompt.
-- Si un proceso de Codex muere (memoria, cuota), el plugin deja la tarea como `running` para siempre y bloquea `--resume` (`/codex:cancel` falla porque el PID ya no existe). Solución usada: relanzar con `--fresh` explicando el trabajo a medias. Tareas fantasma actuales: T1.3 (`task-muw6znbj-g1m1rs`) y T1.8 (`task-muxk6sfg-950ogi`) en `%TEMP%\codex-companion\mictlan-*\state.json`.
+- Si un proceso de Codex muere (memoria, cuota), el plugin deja la tarea como `running` para siempre y bloquea `--resume` (`/codex:cancel` falla porque el PID ya no existe). Solución usada: relanzar con `--fresh` explicando el trabajo a medias. Si el forwarder lanza Codex en segundo plano y termina antes, la sesión de Codex se aborta a los ~30 s (`turn_aborted` en `~/.codex/sessions/...rollout-*.jsonl`) y queda otra tarea fantasma (T2.4, `task-muylymkv-qzjqif`): pedir siempre `--wait` (primer plano). Tareas fantasma actuales: T1.3 (`task-muw6znbj-g1m1rs`) y T1.8 (`task-muxk6sfg-950ogi`) en `%TEMP%\codex-companion\mictlan-*\state.json`.
 
 ## Decisiones tomadas fuera del SPEC (ya implementadas)
 
@@ -132,6 +133,13 @@ Siguiente: **T2.4** (fin de encuentro y reinicio). Antes de T3.1 hay que instala
 - Ausencias: `classId` y `targetId` vacíos (`''`), maná 0/0 para quien no es sanador, `cast` opcional (`undefined` sin casteo). Documentado en apps/server/README.md.
 - Volcado incremental (`schema/projection.ts`): solo asigna campos que cambiaron y crea o borra entradas de mapas. Se vuelca al iniciar y tras cada `advance` que avanzó el tick.
 - Eventos: un mensaje `events` por `advance` con eventos (puede juntar varios ticks si el bucle se atrasó).
+
+**T2.4**
+- `removePlayer(state, playerId)` en core: vida 0, sin casteo (las auras se limpian por la regla de muertos) y evento `death` con `abilityId: 'disconnect'`. Idempotente.
+- `onLeave` siempre saca al jugador de la lista; en combate lo mata al momento, vuelca el esquema y difunde el evento. En el lobby ya no se intenta arrancar la partida.
+- Al terminar, `this.clock.setTimeout` de 5 s (`returnToLobbyDelayTicks × 50`) devuelve la sala al lobby: limpia combate, `ready = false` (conserva `classId`) y `unlock()`.
+- Colyseus 0.18.18: `setTimestep()` sin callback deja `_simulationInterval` asignado y el reloj de la sala deja de avanzar. Por eso, al terminar se pone un callback vacío a 50 ms.
+- `RaidServerOptions.initialBossHealth`: solo para tests.
 
 ## Decisiones de Venegas (2026-10-06)
 

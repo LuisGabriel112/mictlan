@@ -39,3 +39,10 @@ export function syncEncounter(view: LobbyState, encounter: EncounterState): void
   }));
   syncCollection(view.zones, zones, () => new ZoneState(), syncFields);
 }
+
+export function resetLobby(view: LobbyState): void {
+  view.entities.clear();
+  view.zones.clear();
+  syncFields(view, { status: 'lobby', phase: 0, safeRadiusMeters: 0, elapsedTicks: 0, tick: 0 });
+  for (const player of view.players.values()) player.ready = false;
+}

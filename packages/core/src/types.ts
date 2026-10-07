@@ -24,7 +24,7 @@ export type BossAbilityId =
   | 'lamentOfTheDead'
   | 'callOfTheXolos';
 
-export type AbilityId = PlayerAbilityId | BossAbilityId | 'autoAttack' | 'unsafeGround';
+export type AbilityId = PlayerAbilityId | BossAbilityId | 'autoAttack' | 'unsafeGround' | 'disconnect';
 
 // All *Ticks fields are integer counts of 50 ms ticks. All *Bps fields are
 // integer basis points: 10000 is a multiplier of one or a proportion of 100%.
