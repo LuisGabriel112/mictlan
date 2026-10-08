@@ -237,10 +237,8 @@
 
 ---
 
-### [ ] T3.6 Ambiente visual procedural
-- **Hacer:** llevar los placeholders al ambiente del SPEC §9 ("Ambiente del MVP") sin assets externos (todo generado con Phaser): escena oscura con viñeta; piso de losas tenues y muro de piedra con grecas; unidades con sombra, borde e ícono o letra por clase; jefe con aura turquesa que pulsa al castear; muertos como restos; barra de vida compacta sobre cada unidad estilo LoL, con nombre pequeño; áreas de daño (Viento, zona insegura de fase 3) con brillo aditivo de fuego y borde animado; partículas breves en golpes, curaciones y casteos; destello al recibir daño; barra de acción con íconos generados y recarga circular.
-- **Criterios (manual de Venegas):** el combate se parece en ambiente a las referencias del SPEC §9, los avisos de peligro se leen mejor que antes y sigue a 60 fps con 5 jugadores, 4 xolos y 3 zonas.
-- **Verificación:** `npm run dev` y prueba manual
+### [-] T3.6 Pulido visual procedural — CANCELADA
+- **Motivo:** Venegas decidió migrar a 3D (Three.js) después del Checkpoint B; pulir Phaser sería trabajo tirado. Su alcance pasa a la Fase 5.
 
 ---
 
@@ -255,9 +253,22 @@
 
 ---
 
-## Fase 5 — Arte
+## Fase 5 — 3D con Three.js
 
-### [ ] T3.8 Arte real
-- **Hacer:** reemplazar los círculos por sprites (jefe, Guerrero Jaguar, Tícitl, Guerrero Águila, xolos) y texturizar piso y muro, conservando el ambiente de T3.6. Antes de delegar: decidir la fuente del arte (generado, pack CC0, comprado o encargado) y su licencia (SPEC §9).
-- **Criterios (manual de Venegas):** cada clase y el jefe se reconocen sin leer nombres; el combate sigue a 60 fps.
-- **Depende de:** Checkpoint B (mecánica estable).
+Objetivo: el ambiente de SPEC §9 con cámara isométrica. Core, servidor y red no cambian; del cliente se conservan los módulos puros (snapshot, frames, combat-log, targeting, floating-texts, lobby...) y se reemplaza lo que vive en `scene/` (Phaser). Antes de T5.1: Claude instala `three` (Codex no tiene red) y propone el reparto final de tareas según lo que deje el Checkpoint B.
+
+### [ ] T5.1 Escena 3D y entrada
+- **Hacer:** reemplazar Phaser por Three.js: arena (piso, muro), unidades como formas simples con color por clase, cámara isométrica fija, interpolación existente, y entrada por raycast contra el suelo (clic izquierdo selecciona, clic derecho camina, Tab, F1–F5, QWER, S).
+- **Criterios (manual de Venegas):** se juega un intento completo igual que con Phaser.
+
+### [ ] T5.2 HUD en HTML
+- **Hacer:** marcos propio/objetivo/grupo, barras de casteo, barra de acción con recarga, log, temporizador, avisos y números flotantes (proyectados del mundo a pantalla) en HTML sobre el canvas, reusando los módulos puros de T3.2–T3.4.
+- **Criterios (manual de Venegas):** misma información que el HUD de Phaser; los números no tapan el HUD.
+
+### [ ] T5.3 Ambiente y efectos
+- **Hacer:** luz, sombras, bloom, viñeta, áreas de daño que brillan con borde animado, aura del jefe al castear, barras sobre las unidades estilo LoL, partículas y destello al recibir daño (SPEC §9).
+- **Criterios (manual de Venegas):** se parece en ambiente a las referencias, el peligro se lee mejor que en Phaser y sigue a 60 fps con 5 jugadores, 4 xolos y 3 zonas.
+
+### [ ] T5.4 Modelos y animaciones
+- **Hacer:** modelos glTF del jefe, las tres clases y los xolos, más escenario, con animaciones (caminar, atacar, castear, morir). Antes de delegar: elegir la fuente (packs CC0 como Quaternius o KayKit, generados o encargados) y registrar la licencia (SPEC §9).
+- **Criterios (manual de Venegas):** cada clase y el jefe se reconocen sin leer nombres; sigue a 60 fps.

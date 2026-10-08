@@ -12,29 +12,25 @@ Claude borra de aquí cada prompt cuando su tarea queda aprobada.
 
 ---
 
-## T3.6 — Ambiente visual procedural
+## T4.1 — Jugar con amigos
 
 ```
-Tarea T3.6 — Ambiente visual procedural.
+Tarea T4.1 — Jugar con amigos.
 
-Lee AGENTS.md, SPEC.md (§8 Interfaz y §9 Dirección de arte, en especial "Ambiente del MVP"), la tarea T3.6 de PLAN.md, NOTAS.md (T3.x) y el "Contexto común del cliente" de PROMPTS.md. Implementa SOLO T3.6 en apps/client.
+Lee AGENTS.md, SPEC.md, la tarea T4.1 de PLAN.md (incluido "Además"), NOTAS.md (T2.x, T3.5) y el "Contexto común del cliente" de PROMPTS.md. Implementa SOLO T4.1 (apps/server, apps/client, package.json raíz, README). No toques core.
 
-IMPORTANTE: NO ejecutes `npm ci`, `npm install` ni `npm run dev` (Venegas corre los servidores). Sin assets externos ni dependencias nuevas: todo generado con Phaser (Graphics, generateTexture, tweens, partículas, blend modes, postFX). Usa solo APIs que existan en node_modules/phaser/types/phaser.d.ts (Phaser 3.90); si una API es solo WebGL (por ejemplo postFX), deja un respaldo que no truene en Canvas. No hagas commit. No crees archivos de reporte en el repo.
+IMPORTANTE: NO ejecutes `npm ci`, `npm install` ni `npm run dev` (Venegas corre los servidores). Sin dependencias nuevas: `express` ya está instalado (lo trae @colyseus/ws-transport); si no lo puedes importar sin agregarlo a package.json, usa node:http y node:fs y documenta por qué. Usa npm.cmd. No hagas commit. No crees archivos de reporte en el repo.
 
-Contexto de T3.4/T3.5 (ya en commit): el log, los números flotantes y el temporizador están en scene/combat-reading-view.ts; las zonas y el anillo de fase 3 en scene/arena-renderer.ts con estilos de danger-reading.ts; el lobby es HTML sobre el canvas (lobby-view.ts, lobby.css) y no se toca. Los estados se validan con isSyncedSnapshot (snapshot.ts).
+1. `npm run start` en la raíz: compila el cliente (vite build) y levanta UN solo proceso que sirve `apps/client/dist` y el servidor de Colyseus en el mismo puerto (PORT, por defecto 2567). Rutas desconocidas que no sean archivos → index.html. Sin MICTLAN_DEV_MIN_PLAYERS en producción (usa el mínimo real del SPEC).
+2. URL del servidor en el cliente: hoy es `ws://<hostname>:2567` (launch-params.ts). Cuando la página la sirve el propio servidor (build de producción), debe ser el mismo origen: `wss://<host>` si la página es https, `ws://<host>` si es http, sin forzar puerto, para que funcione detrás de un túnel https. En dev con Vite se conserva el comportamiento actual. `?server=` sigue teniendo prioridad. Lógica pura con tests.
+3. `"dev": "vite --host"` en apps/client/package.json (red local sin pasar flags a mano).
+4. README (raíz o apps/server, elige y justifica): cómo jugar en red local (URL Network de Vite, permiso del firewall de Windows con perfil Privado) y cómo exponer `npm run start` con Cloudflare Tunnel (`cloudflared tunnel --url http://localhost:2567`) para amigos en otras redes.
+5. Tests del servidor: que sirva index.html y un archivo estático, y que el WebSocket de Colyseus siga funcionando en el mismo puerto (puedes usar un dist falso en un directorio temporal).
 
-Objetivo: el ambiente de las referencias de Venegas (WoW, LoL, V Rising; descritas en SPEC §9) sin arte real, sin cambiar la lógica ni los colores por clase del §8 (siguen siendo la base de cada unidad):
-1. Escena oscura: fondo obsidiana, viñeta que oscurece los bordes; piso de losas tenues y muro de piedra con grecas en ocre.
-2. Unidades: sombra elíptica, borde y una letra o ícono simple por clase; el jefe más grande, con aura turquesa que pulsa mientras castea; los muertos como restos (no solo transparentes).
-3. Sobre cada unidad: barra de vida compacta con marco oscuro (estilo LoL) y nombre pequeño. Sin encimarse entre unidades cercanas más de lo inevitable.
-4. Peligro: círculos de Viento y zona insegura de fase 3 con brillo aditivo de fuego (rojo/naranja) y borde animado; deben leerse mejor que hoy sobre el piso oscuro.
-5. Efectos: partículas breves en golpes, curaciones (verde) y casteos (turquesa) y un destello en la unidad que recibe daño (eventos damage). Ningún efecto tapa un área de daño: si compiten, se atenúa el efecto.
-6. Barra de acción: un ícono generado por habilidad y la recarga como barrido circular.
-7. Rendimiento: 60 fps con 5 jugadores, 4 xolos y 3 zonas. Deja un contador de fps visible solo con ?dev=1 y reporta cómo medirlo.
+Criterios:
+1. 3 personas en redes distintas completan un intento (manual de Venegas, por túnel).
+2. `npm run start` funciona desde un clon limpio después de `npm ci`.
 
-La lógica nueva (ícono o letra por clase y habilidad, curvas de pulso y destello, cuándo atenuar un efecto, layout de barras sobre unidades) va en módulos puros con tests; el dibujo, en scene/. Respeta la regla de las dos cámaras: todo objeto del HUD en hud.objects; todo objeto del mundo ignorado por la cámara del HUD.
-
-Criterio (manual de Venegas): el combate se parece en ambiente a las referencias, los avisos de peligro se leen mejor que antes y sigue fluido.
 Si algo es ambiguo, detente y reporta una propuesta. No inventes.
-Termina con npm.cmd run check en verde y el reporte del formato de AGENTS.md (incluye la descripción de lo que cambió, qué probaste a mano y qué debe revisar Venegas).
+Termina con npm.cmd run check en verde y el reporte del formato de AGENTS.md (incluye qué probaste a mano y los pasos exactos para que Venegas pruebe el túnel).
 ```

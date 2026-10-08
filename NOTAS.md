@@ -29,13 +29,13 @@
 | T3.4 Lectura del combate | `6462217` | 2 | Primera tarea con `gpt-6.1-sol` (`high`, 30 min). Rebotes: línea de muerte redundante con entorno/propia entidad y reporte pegado en el repo; luego, tras la prueba de Venegas, nombre corto del jefe ("Mictlantecuhtli", solo en cliente) y log semitransparente de 400 px. Verificada por Venegas en navegador; fase 3 y Viento quedan para el playtest |
 | T3.5 Lobby jugable | `e387a1d` | 2 | `gpt-6-astra` `xhigh`, 22 min. Rebote 1: `joinById` devuelve 522 tanto para sala inexistente como bloqueada (llena o en combate); se distingue por el mensaje "locked". Rebote 2 (hallado por Venegas en red local): se leía `room.state.toJSON()` antes de la primera sincronización (`{}`), lo que tumbaba la escena (pantalla negra); el guard `isSyncedSnapshot` lo **implementó Claude** (Codex sin cuota hasta 2:34 PM), sin revisión independiente, 6/6 mutaciones detectadas. Verificada por Venegas con un compañero en otra máquina de la red local: unirse, jugar, resultado con duración y regreso al lobby con la clase conservada. Falta confirmar el rechazo del segundo Jaguar |
 
-Siguiente: **T3.6** (pulido visual) y T4.1 (playtest). Prompts listos en `PROMPTS.md`; lanzarlos con `/codex:rescue --wait --fresh --model gpt-6-astra --effort high` (T3.6, T4.1); `gpt-6.1-sol` también funcionó en T3.4.
+Siguiente: **T4.1** (jugar con amigos por túnel) y Checkpoint B. T3.6 quedó cancelada: después del Checkpoint B se migra a 3D con Three.js (Fase 5 del PLAN, SPEC §9). Prompt de T4.1 listo en `PROMPTS.md`; lanzarlo con `/codex:rescue --wait --fresh --model gpt-6-astra --effort high`; `gpt-6.1-sol` también funcionó en T3.4.
 
 **Para continuar en otra máquina:**
 1. `git pull` y `npm.cmd ci` (instala también Phaser, Vite y el SDK del cliente).
 2. `npm.cmd run check` debe dar 862 tests en verde (464 core, 177 servidor, 221 cliente).
 3. Jugar: `npm.cmd run dev` (en red local, cliente con `npm.cmd run dev --workspace @mictlan/client -- --host` hasta T4.1) y abrir la URL que imprima Vite con `?dev=1&class=eagle` (o `jaguar` / `healer`). Controles en `apps/client/README.md` (clic derecho, S, Q W E R, Tab, F1–F5).
-4. En Claude Code: "lee NOTAS.md y lanza T3.6 con PROMPTS.md". Si Codex no tiene créditos, Claude puede implementarla (T3.1–T3.3 y T3.7 las hizo Claude).
+4. En Claude Code: "lee NOTAS.md y lanza T4.1 con PROMPTS.md". Si Codex no tiene créditos, Claude puede implementarla (T3.1–T3.3 y T3.7 las hizo Claude).
 
 ## Configuración de Codex
 

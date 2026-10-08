@@ -9,7 +9,7 @@
 
 - **Qué es:** un solo encuentro de jefe estilo "raid" de WoW: roles (tanque, sanador, daño), combate tab-target, cooldowns, casteos y mecánicas que el grupo debe aprender.
 - **Plataforma:** navegador de escritorio. Se entra con un código de sala, sin instalar nada.
-- **Vista:** 2D cenital. En el MVP todo se dibuja con formas de colores (placeholders).
+- **Vista:** 2D cenital con Phaser hasta el Checkpoint B; en el MVP todo se dibuja con formas de colores (placeholders). **Desde la Fase 5: 3D isométrico con Three.js** (ver §9).
 - **Duración de un intento:** 4–7 minutos.
 - **Éxito del MVP:** 3 amigos pueden entrar a una sala, pelear contra el jefe completo (3 fases) y ganar o morir. Al terminar, quieren otro intento.
 
@@ -253,15 +253,15 @@ Entidades (id, tipo, clase, x, y, vida, vida máx., recurso, objetivo, casteo ac
 
 Estética de códice y Día de Muertos: paleta de ocres, negro obsidiana y turquesa. **Todo el arte debe ser propio** o con licencia de uso libre (por ejemplo, CC0).
 
-**Ambiente del MVP (T3.6, sin assets):** referencias de Venegas: una banda de WoW (áreas de daño en el suelo que brillan), la jungla de LoL (barra de vida sobre cada unidad, arena circular con borde de piedra) y V Rising (oscuro, luces frías de color, viñeta). Se toma de ellas el **ambiente**, no el arte:
-- Escena oscura: fondo obsidiana, piso apenas visible y viñeta que oscurece los bordes de la pantalla.
-- Luz turquesa como acento (aura del jefe, brillos de casteo); el peligro siempre en rojo/naranja de fuego.
-- Las áreas de daño brillan (mezcla aditiva) y se leen de un vistazo sobre el piso oscuro.
-- Barra de vida compacta sobre cada unidad, con marco oscuro (estilo LoL).
+**Ambiente objetivo (Fase 5, Three.js):** referencias de Venegas: una banda de WoW (áreas de daño en el suelo que brillan), la jungla de LoL (cámara isométrica, barra de vida sobre cada unidad, arena circular con borde de piedra) y V Rising (oscuro, luces frías de color, viñeta).
+- Cámara isométrica fija sobre la arena; el combate sigue siendo plano (x, y del core); la altura es solo visual.
+- Escena oscura: fondo obsidiana, luz ambiental baja, sombras y viñeta.
+- Luz turquesa como acento (aura del jefe, brillos de casteo); el peligro siempre en rojo/naranja de fuego, con bloom.
+- Las áreas de daño brillan y se leen de un vistazo sobre el piso oscuro.
+- Barra de vida compacta sobre cada unidad, con marco oscuro (estilo LoL). El HUD (marcos, barra de acción, log) es HTML sobre el canvas, como el lobby.
 - Partículas breves en golpes, curaciones y casteos; nada que tape las áreas de daño.
+- Modelos: primero formas simples con luz; después personajes y escenario 3D con licencia CC0 o propios (glTF), con animaciones de caminar, atacar, castear y morir.
 - La legibilidad manda: si un efecto compite con un aviso de peligro, se atenúa el efecto.
-
-**Arte real (T3.8, después del Checkpoint B):** sprites del jefe, las tres clases y los xolos, y textura de la arena, cuando la mecánica ya esté estable.
 
 ---
 
