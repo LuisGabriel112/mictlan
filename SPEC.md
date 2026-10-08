@@ -253,6 +253,16 @@ Entidades (id, tipo, clase, x, y, vida, vida máx., recurso, objetivo, casteo ac
 
 Estética de códice y Día de Muertos: paleta de ocres, negro obsidiana y turquesa. **Todo el arte debe ser propio** o con licencia de uso libre (por ejemplo, CC0).
 
+**Ambiente del MVP (T3.6, sin assets):** referencias de Venegas: una banda de WoW (áreas de daño en el suelo que brillan), la jungla de LoL (barra de vida sobre cada unidad, arena circular con borde de piedra) y V Rising (oscuro, luces frías de color, viñeta). Se toma de ellas el **ambiente**, no el arte:
+- Escena oscura: fondo obsidiana, piso apenas visible y viñeta que oscurece los bordes de la pantalla.
+- Luz turquesa como acento (aura del jefe, brillos de casteo); el peligro siempre en rojo/naranja de fuego.
+- Las áreas de daño brillan (mezcla aditiva) y se leen de un vistazo sobre el piso oscuro.
+- Barra de vida compacta sobre cada unidad, con marco oscuro (estilo LoL).
+- Partículas breves en golpes, curaciones y casteos; nada que tape las áreas de daño.
+- La legibilidad manda: si un efecto compite con un aviso de peligro, se atenúa el efecto.
+
+**Arte real (T3.8, después del Checkpoint B):** sprites del jefe, las tres clases y los xolos, y textura de la arena, cuando la mecánica ya esté estable.
+
 ---
 
 ## 10. Aclaraciones de implementación (v0.4)

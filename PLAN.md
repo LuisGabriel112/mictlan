@@ -237,9 +237,9 @@
 
 ---
 
-### [ ] T3.6 Pulido visual procedural
-- **Hacer:** mejorar los placeholders sin assets externos (todo generado con Phaser): piso y muro de la arena con textura y grecas, unidades con sombra, borde e ícono o letra por clase, jefe con aura que pulsa al castear, nombres sobre las unidades, barras de vida/maná con mejor estilo, círculos de Viento con borde animado, destello al recibir golpes y barra de acción con íconos y recarga circular. Paleta del SPEC §9 (ocres, obsidiana, turquesa).
-- **Criterios (manual de Venegas):** el combate se lee mejor que con los círculos planos y sigue a 60 fps con 5 jugadores y xolos.
+### [ ] T3.6 Ambiente visual procedural
+- **Hacer:** llevar los placeholders al ambiente del SPEC §9 ("Ambiente del MVP") sin assets externos (todo generado con Phaser): escena oscura con viñeta; piso de losas tenues y muro de piedra con grecas; unidades con sombra, borde e ícono o letra por clase; jefe con aura turquesa que pulsa al castear; muertos como restos; barra de vida compacta sobre cada unidad estilo LoL, con nombre pequeño; áreas de daño (Viento, zona insegura de fase 3) con brillo aditivo de fuego y borde animado; partículas breves en golpes, curaciones y casteos; destello al recibir daño; barra de acción con íconos generados y recarga circular.
+- **Criterios (manual de Venegas):** el combate se parece en ambiente a las referencias del SPEC §9, los avisos de peligro se leen mejor que antes y sigue a 60 fps con 5 jugadores, 4 xolos y 3 zonas.
 - **Verificación:** `npm run dev` y prueba manual
 
 ---
@@ -252,3 +252,12 @@
 - **Criterios:** 3 personas en redes distintas completan un intento.
 
 > **Checkpoint B:** después de 5 intentos reales, anotar qué fue divertido, qué fue injusto y qué no se entendió. Claude convierte eso en cambios al SPEC y en tareas nuevas.
+
+---
+
+## Fase 5 — Arte
+
+### [ ] T3.8 Arte real
+- **Hacer:** reemplazar los círculos por sprites (jefe, Guerrero Jaguar, Tícitl, Guerrero Águila, xolos) y texturizar piso y muro, conservando el ambiente de T3.6. Antes de delegar: decidir la fuente del arte (generado, pack CC0, comprado o encargado) y su licencia (SPEC §9).
+- **Criterios (manual de Venegas):** cada clase y el jefe se reconocen sin leer nombres; el combate sigue a 60 fps.
+- **Depende de:** Checkpoint B (mecánica estable).
