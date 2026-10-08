@@ -146,6 +146,33 @@ Teclas: `Q` `W` `E` `R` para habilidades (los números no castean; decisión de 
 - Si el jugador estaba casteando, el casteo se cancela (sin costo ni cooldown) antes del desplazamiento.
 - No cambia la orientación por sí mismo: la orientación solo cambia con `move`.
 
+### 5.4 Ayuda en el juego (T4.3, v0.8)
+
+**Tipo de cada habilidad** (etiqueta en la barra de acción y en el panel de clase): Zarpazo, Flecha de obsidiana y Disparo veloz → **daño**; Remedio, Gran remedio, Copal y Ofrenda → **cura**; Escudo de obsidiana → **defensa**; Provocar, Rugido y Grito de guerra → **control**; Vuelo → **movilidad**.
+
+**Controles comunes** (en todas las guías): clic derecho camina, S se detiene, Tab cambia de enemigo, clic selecciona, F1–F5 seleccionan aliados, Q W E R lanzan habilidades.
+
+**Guía del Guerrero Jaguar (tanque)**
+- **Tu trabajo:** que el jefe te pegue a ti y no a los demás. Ponte frente a él (a 4 m o menos) y no te alejes.
+- **Rotación:** Zarpazo (Q) cada vez que esté listo. Rugido (R) al empezar y cuando aparezcan xolos. Provocar (W) si el jefe o un xolo se va con otro jugador.
+- **Lo más importante:** cuando el jefe castee **Golpe del Descarnado** sobre ti (no se puede interrumpir), usa Escudo de obsidiana (E) antes de que termine: sin Escudo recibes 280, con Escudo 140.
+- **Evita:** los círculos rojos de Viento de obsidiana; en la fase 3, salir del círculo seguro.
+- **Con tu grupo:** mantén al jefe cerca del centro; en la fase 2 atrae a los xolos, que van por el Tícitl.
+
+**Guía del Tícitl (sanador)**
+- **Tu trabajo:** mantener vivos a todos, sobre todo al Jaguar. Selecciona aliados con F1–F5 o con clic en su marco.
+- **Rotación:** Copal (E) siempre activo en el Jaguar. Remedio (Q) para el daño normal. Gran remedio (W) cuando alguien esté bajo y tengas 3 s. Ofrenda (R) justo después de un Lamento de los muertos, que golpea a todos.
+- **Maná:** regenera 18 por segundo; no gastes Gran remedio en alguien casi lleno.
+- **Evita:** los círculos rojos de Viento; sal antes de empezar un casteo largo. En la fase 2 los xolos van por ti: acércate al Jaguar.
+- **Con tu grupo:** avisa cuando te quedes sin maná.
+
+**Guía del Guerrero Águila (daño a distancia)**
+- **Tu trabajo:** hacer daño desde lejos y cortar el Lamento de los muertos.
+- **Rotación:** Disparo veloz (W) cada vez que esté listo; Flecha de obsidiana (Q) el resto del tiempo (2 s de casteo).
+- **Lo más importante:** cuando el jefe castee **Lamento de los muertos** (borde turquesa: se puede interrumpir), usa Grito de guerra (E) con el jefe seleccionado: lo cancela y nadie recibe daño. Si hay varios Águilas, túrnense.
+- **Evita:** los círculos rojos de Viento: sal caminando o con Vuelo (R, 8 m). En la fase 3, quédate dentro del círculo seguro.
+- **Con tu grupo:** en la fase 2, mata primero a los xolos (Tab para seleccionarlos).
+
 ---
 
 ## 6. El jefe: Mictlantecuhtli, Señor del Mictlán

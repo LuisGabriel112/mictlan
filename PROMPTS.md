@@ -28,3 +28,29 @@ IMPORTANTE: NO ejecutes `npm ci`, `npm install` ni `npm run dev`/`npm run start`
 Criterio: con 3 jugadores, 100 % de victorias y duración media de 3:00 a 4:00. Si no cae en ese rango, NO ajustes otros números: detente y reporta los resultados.
 Termina con npm.cmd run check en verde y el reporte del formato de AGENTS.md.
 ```
+
+---
+
+## T4.3 — Habilidades y roles legibles
+
+```
+Tarea T4.3 — Habilidades y roles legibles.
+
+Lee AGENTS.md, SPEC.md §5 (clases y la nueva §5.4 "Ayuda en el juego"), la tarea T4.3 de PLAN.md, NOTAS.md (T3.5, T4.1) y el "Contexto común del cliente" de PROMPTS.md. Implementa SOLO T4.3 en apps/client. No toques core ni server.
+
+IMPORTANTE: NO ejecutes `npm ci`, `npm install`, `npm run dev` ni `npm run start`. Usa npm.cmd. No hagas commit. No crees archivos de reporte en el repo.
+
+Motivo (Checkpoint B): en el primer playtest nadie pasó de la fase 1 porque "solo presionas teclas y no sabes qué hace cada cosa".
+
+Todo en HTML/CSS sobre el canvas, como el lobby (lobby-view.ts, lobby.css), porque en la Fase 5 se reemplaza Phaser y esto debe sobrevivir.
+1. Panel de clase en el lobby: al elegir clase (y antes de marcar Listo), mostrar rol, vida/recurso y sus 4 habilidades con tecla, nombre, etiqueta de tipo (§5.4), descripción de una línea, costo, casteo o "instantánea", recarga y alcance. Los números salen de CLASSES en core (no los copies a mano); la descripción en español va en un módulo del cliente.
+2. Botón "Cómo jugar" en el lobby que abre la guía del rol elegido con el texto de §5.4 (tu trabajo, rotación, lo más importante, evita, con tu grupo, más los controles comunes). Usa el texto del SPEC tal cual; si algo no cuadra con los datos de core, detente y repórtalo.
+3. En combate: etiqueta de tipo en cada botón de la barra de acción y tooltip al pasar el mouse con lo mismo que el panel. Como la barra de acción hoy la dibuja Phaser (scene/hud.ts), el tooltip es un elemento HTML posicionado sobre el botón con el layout que ya existe (reading-layout.ts / hud.ts); la detección del hover puede venir de Phaser o del DOM, elige lo más simple y documenta por qué.
+4. La guía también se puede abrir en combate con una tecla que no choque con las existentes (propón cuál; H si está libre) y se cierra con Esc o la misma tecla.
+
+Lógica pura con tests: texto de cada habilidad (tipo, costo, casteo, recarga, alcance) a partir de los datos de core, contenido de la guía por clase y qué tooltip corresponde a qué botón.
+
+Criterio (manual de Venegas): un jugador nuevo, tras leer la guía de su rol, sabe qué tecla usar y cuándo sin preguntar.
+Si algo es ambiguo, detente y reporta una propuesta. No inventes.
+Termina con npm.cmd run check en verde y el reporte del formato de AGENTS.md (incluye qué debe revisar Venegas en el navegador).
+```
