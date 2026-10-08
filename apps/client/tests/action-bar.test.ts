@@ -1,8 +1,10 @@
+import { BOSS } from '@mictlan/core';
 import { expect, test } from 'vitest';
 import { actionSlots } from '../src/action-bar';
 import { entity, room } from './fixtures';
 
-const boss = entity({ id: 'boss', type: 'boss', classId: '', x: 0, y: 0, health: 24000, maxHealth: 24000 });
+const boss = entity({ id: 'boss', type: 'boss', classId: '', x: 0, y: 0,
+  health: BOSS.maxHealthByPlayerCount[3], maxHealth: BOSS.maxHealthByPlayerCount[3] });
 
 function eagleAt(y: number, overrides = {}) {
   return entity({ id: 'p1', classId: 'eagle', x: 0, y, targetId: 'boss', ...overrides });

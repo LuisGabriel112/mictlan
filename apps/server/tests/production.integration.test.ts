@@ -1,3 +1,4 @@
+import { BOSS } from '@mictlan/core';
 import { mkdtemp, mkdir, writeFile, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
@@ -75,6 +76,6 @@ test('C1: real WebSockets share HTTP port and production waits for three roles d
   const eagle = await client.joinById<LobbyState>(jaguar.roomId);
   await readyPlayer(eagle, 'eagle');
   await vi.waitFor(() => expect(connections.map((room) => room.state.status)).toEqual(['combat', 'combat', 'combat']));
-  expect(eagle.state.entities.get('boss')?.maxHealth).toBe(24000);
+  expect(eagle.state.entities.get('boss')?.maxHealth).toBe(BOSS.maxHealthByPlayerCount[3]);
   expect((await fetch(origin)).status).toBe(200);
 });

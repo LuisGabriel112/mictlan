@@ -20,7 +20,7 @@ function arenaEncounter() {
 test('C1: phase 3 starts at the wall, reaches 16 m at 5 s and stays at 12 m from 10 s', () => {
   const initial = combatEncounter();
   initial.bossActive = true;
-  initial.entities.boss.health = 7200;
+  initial.entities.boss.health = BOSS.maxHealthByPlayerCount[3] * 0.30;
   for (const id of ['p1', 'p2', 'p3']) Object.assign(initial.entities[id], { x: 12, y: 0 });
   const entered = combatTick(initial).state;
   expect(entered).toMatchObject({ phase: 3, phaseElapsedTicks: 0, safeRadiusMeters: 20 });

@@ -1,5 +1,5 @@
 import { expect, test, vi } from 'vitest';
-import { createEncounter, removePlayer, step, type CombatEvent } from '@mictlan/core';
+import { BOSS, createEncounter, removePlayer, step, type CombatEvent } from '@mictlan/core';
 import { RaidRoom } from '../src/rooms/RaidRoom.js';
 import * as synchronization from '../src/schema/sync.js';
 
@@ -19,7 +19,7 @@ test('starting combat synchronizes core before the first timestep', async () => 
   const { room, advance, broadcast } = await synchronizedRoom();
   expect(room.state.entities.get('eagle')).toMatchObject({ id: 'eagle', health: 750, x: 0, y: -15 });
   expect(room.state).toMatchObject({ status: 'combat', tick: 0, elapsedTicks: 0, phase: 1, safeRadiusMeters: 20 });
-  expect(room.state.entities.get('boss')?.health).toBe(24000);
+  expect(room.state.entities.get('boss')?.health).toBe(BOSS.maxHealthByPlayerCount[3]);
   expect(advance).not.toHaveBeenCalled();
   expect(broadcast).not.toHaveBeenCalled();
 });

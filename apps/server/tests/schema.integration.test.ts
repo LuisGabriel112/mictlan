@@ -1,5 +1,5 @@
 import { afterEach, expect, test, vi } from 'vitest';
-import type { CombatEvent } from '@mictlan/core';
+import { BOSS, type CombatEvent } from '@mictlan/core';
 import { IntegrationServer } from './integration-fixture.js';
 
 let server: IntegrationServer;
@@ -38,7 +38,7 @@ async function observeCastProgress(eagle: Connection): Promise<void> {
   expect(cast).toMatchObject({ targetId: 'boss', durationTicks: 40, interruptible: false });
   await vi.waitFor(() => expect(eagle.state.entities.get(eagle.sessionId)!.cast!.remainingTicks).toBeLessThan(previous));
   await vi.waitFor(() => expect(eagle.state.entities.get(eagle.sessionId)?.cast).toBeUndefined(), { timeout: 4000 });
-  expect(eagle.state.entities.get('boss')!.health).toBe(23790);
+  expect(eagle.state.entities.get('boss')!.health).toBe(BOSS.maxHealthByPlayerCount[3] - 210);
 }
 
 afterEach(async () => {

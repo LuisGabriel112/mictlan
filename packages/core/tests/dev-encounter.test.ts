@@ -1,5 +1,5 @@
 import { expect, test } from 'vitest';
-import { createEncounter } from '../src/index.js';
+import { BOSS, createEncounter } from '../src/index.js';
 import { scaledPlayerCount, validatePartySize } from '../src/party.js';
 import { summonXolos } from '../src/mechanics/xolos.js';
 import type { EncounterConfig } from '../src/types.js';
@@ -17,7 +17,13 @@ test('C4: two players require explicit devMode', () => {
   expect(() => createEncounter({ players, devMode: false }, 42)).toThrow('entre 3 y 5');
 });
 
-test.each([[1, 24000, 300], [2, 24000, 300], [3, 24000, 300], [4, 40000, 450], [5, 56000, 600]])(
+test.each([
+  [1, BOSS.maxHealthByPlayerCount[3], 300],
+  [2, BOSS.maxHealthByPlayerCount[3], 300],
+  [3, BOSS.maxHealthByPlayerCount[3], 300],
+  [4, BOSS.maxHealthByPlayerCount[4], 450],
+  [5, BOSS.maxHealthByPlayerCount[5], 600],
+])(
   'C4: dev party %i scales boss to %i and xolos to %i', (count, bossHealth, xoloHealth) => {
     const initial = createEncounter(devConfig(count), 42);
     const summoned = summonXolos(initial);

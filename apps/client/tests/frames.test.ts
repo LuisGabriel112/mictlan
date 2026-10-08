@@ -1,3 +1,4 @@
+import { BOSS } from '@mictlan/core';
 import { describe, expect, test } from 'vitest';
 import {
   CAST_BORDER, GROUP_FRAME_LAYOUT, bossCastBar, castBarBorder, groupFrameAt, groupFrameRect, groupFrames,
@@ -38,12 +39,13 @@ describe('selfFrame', () => {
 });
 
 describe('targetFrame', () => {
-  const boss = entity({ id: 'boss', type: 'boss', classId: '', health: 12000, maxHealth: 24000, cast: lament });
+  const boss = entity({ id: 'boss', type: 'boss', classId: '',
+    health: BOSS.maxHealthByPlayerCount[3] / 2, maxHealth: BOSS.maxHealthByPlayerCount[3], cast: lament });
 
   test('mirrors the selected unit and its interruptible cast', () => {
     const frame = targetFrame(room([entity({ id: 'p1', targetId: 'boss' }), boss]), 'p1');
     expect(frame).toMatchObject({ id: 'boss', name: 'Mictlantecuhtli', isSelf: false,
-      health: { value: 12000, max: 24000, ratio: 0.5 } });
+      health: { value: BOSS.maxHealthByPlayerCount[3] / 2, max: BOSS.maxHealthByPlayerCount[3], ratio: 0.5 } });
     expect(frame?.cast).toEqual({ abilityName: 'Lamento de los muertos', progress: 40 / 60, remainingSeconds: 1, interruptible: true });
   });
 

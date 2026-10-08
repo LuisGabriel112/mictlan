@@ -57,12 +57,12 @@ test.each([{ x: 6, y: 8 }, { x: -7, y: 9 }, { x: 11, y: -3 }])(
 );
 
 test.each([
-  { condition: 'inactive', bossActive: false, health: 24000, targetId: 'p1', targetHealth: 1200 },
+  { condition: 'inactive', bossActive: false, health: BOSS.maxHealthByPlayerCount[3], targetId: 'p1', targetHealth: 1200 },
   { condition: 'dead', bossActive: true, health: 0, targetId: 'p1', targetHealth: 1200 },
-  { condition: 'untargeted', bossActive: true, health: 24000, targetId: null, targetHealth: 1200 },
-  { condition: 'missing', bossActive: true, health: 24000, targetId: 'missing', targetHealth: 1200 },
-  { condition: 'deadTarget', bossActive: true, health: 24000, targetId: 'p1', targetHealth: 0 },
-  { condition: 'enemyTarget', bossActive: true, health: 24000, targetId: BOSS.id, targetHealth: 1200 },
+  { condition: 'untargeted', bossActive: true, health: BOSS.maxHealthByPlayerCount[3], targetId: null, targetHealth: 1200 },
+  { condition: 'missing', bossActive: true, health: BOSS.maxHealthByPlayerCount[3], targetId: 'missing', targetHealth: 1200 },
+  { condition: 'deadTarget', bossActive: true, health: BOSS.maxHealthByPlayerCount[3], targetId: 'p1', targetHealth: 0 },
+  { condition: 'enemyTarget', bossActive: true, health: BOSS.maxHealthByPlayerCount[3], targetId: BOSS.id, targetHealth: 1200 },
 ])(
   'enemy stays unchanged when $condition', ({ bossActive, health, targetId, targetHealth }) => {
     const initial = enemyEncounter();

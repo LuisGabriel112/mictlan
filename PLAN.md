@@ -249,7 +249,7 @@
 - **Además:** `"dev": "vite --host"` en `apps/client/package.json` para jugar en red local sin túnel (en la prueba de T3.5 hubo que pasar `-- --host` a mano), y documentar en el README el permiso del firewall de Windows (perfil de red Privado).
 - **Criterios:** 3 personas en redes distintas completan un intento.
 
-### [ ] T4.2 Balance: vida del jefe
+### [x] T4.2 Balance: vida del jefe
 - **Hacer:** vida del jefe a 15 000 / 25 000 / 35 000 (3/4/5 jugadores, SPEC §6 v0.8). Actualizar los tests que dependían de los valores anteriores y correr el simulador.
 - **Criterios:** `npm run sim -- --players=3 --runs=50` da 100 % de victorias con duración media de 3:00 a 4:00 (los bots juegan perfecto; los humanos tardarán más).
 

@@ -1,6 +1,6 @@
 import { expect, onTestFinished, test, vi } from 'vitest';
 import { matchMaker } from '@colyseus/core';
-import type { ClassId } from '@mictlan/core';
+import { BOSS, type ClassId } from '@mictlan/core';
 import { IntegrationServer } from './integration-fixture.js';
 import { connectedEndingParty, expectCleanLobby, expectTimedReturn, leaveClient } from './ending-integration-fixture.js';
 
@@ -95,5 +95,5 @@ test('client creation options cannot lower boss health', async () => {
   const eagle = await server.create({ initialBossHealth: 1 });
   eagle.send('ready', { classId: 'eagle' });
   await vi.waitFor(() => expect(eagle.state.status).toBe('combat'));
-  expect(eagle.state.entities.get('boss')?.health).toBe(24000);
+  expect(eagle.state.entities.get('boss')?.health).toBe(BOSS.maxHealthByPlayerCount[3]);
 });

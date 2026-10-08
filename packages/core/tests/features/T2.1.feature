@@ -11,11 +11,11 @@ Feature: T2.1 development encounters
     And player positions use the actual party size
     Examples:
       | count | boss  | xolo |
-      | 1     | 24000 | 300  |
-      | 2     | 24000 | 300  |
-      | 3     | 24000 | 300  |
-      | 4     | 40000 | 450  |
-      | 5     | 56000 | 600  |
+      | 1     | 15000 | 300  |
+      | 2     | 15000 | 300  |
+      | 3     | 15000 | 300  |
+      | 4     | 25000 | 450  |
+      | 5     | 35000 | 600  |
 
   Scenario Outline: Development does not permit empty or oversized parties
     Given devMode is true

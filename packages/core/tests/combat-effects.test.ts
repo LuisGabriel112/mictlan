@@ -8,7 +8,7 @@ import { threatEnemy } from './threat-fixtures.js';
 test('C2: Arrow with critChance 1 deals 210 using rngState', () => {
   const state = arrowEncounter(1);
   const result = combatTick(state);
-  expect(result.state.entities[BOSS.id].health).toBe(23790);
+  expect(result.state.entities[BOSS.id].health).toBe(BOSS.maxHealthByPlayerCount[3] - 210);
   expect(result.state.rngState).toBe(nextRandom(state.rngState).rngState);
   expect(result.events.at(-1)).toEqual({
     type: 'damage', tick: 1, sourceId: 'p3', abilityId: 'obsidianArrow', targetId: BOSS.id, amount: 210, critical: true,
@@ -24,7 +24,7 @@ test.each([
     Object.assign(combatPlayer(state, playerId), { x: 0, y: 0, targetId: BOSS.id });
     state.entities[playerId].autoAttackRemainingTicks = 40;
     const result = combatTick(state, [combatCast(abilityId, playerId)]);
-    expect(result.state.entities[BOSS.id].health).toBe(24000 - amount);
+    expect(result.state.entities[BOSS.id].health).toBe(BOSS.maxHealthByPlayerCount[3] - amount);
     expect(result.events).toContainEqual({
       type: 'damage', sourceId: playerId, abilityId, targetId: BOSS.id, amount, critical: false, tick: 1,
     });
@@ -80,7 +80,7 @@ test('Roar includes body-adjusted boundary enemies, excludes dead and distant en
     ['add', 25], [BOSS.id, 25],
   ]);
   for (const id of ['outside', 'dead', 'p2', 'p3']) expect(result.state.entities[id]).toBe(state.entities[id]);
-  expect(result.state.entities[BOSS.id]).toMatchObject({ threat: { p1: 125 }, health: 23975 });
+  expect(result.state.entities[BOSS.id]).toMatchObject({ threat: { p1: 125 }, health: BOSS.maxHealthByPlayerCount[3] - 25 });
 });
 
 test('Offering includes self and living boundary allies but excludes enemies, dead and distant allies', () => {
@@ -95,7 +95,7 @@ test('Offering includes self and living boundary allies but excludes enemies, de
   ]);
   expect(result.state.entities.p2).toMatchObject({ health: 250, mana: 850 });
   for (const id of ['dead', 'p3']) expect(result.state.entities[id]).toBe(state.entities[id]);
-  expect(result.state.entities[BOSS.id]).toMatchObject({ health: 24000, threat: { p2: 150 } });
+  expect(result.state.entities[BOSS.id]).toMatchObject({ health: BOSS.maxHealthByPlayerCount[3], threat: { p2: 150 } });
 });
 
 test.each([0, -1])('C4: a player at %s health ignores targeting, movement and casting', (health) => {

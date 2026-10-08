@@ -41,8 +41,8 @@ test('the scheduled reset discards the session, unlocks and allows a fresh encou
 test('initialBossHealth changes only the new session without mutating core creation', async () => {
   const { room, dependencies } = endingRoom(1);
   await readyPlayer(room);
-  expect(room.encounter?.entities.boss).toMatchObject({ health: 1, maxHealth: 24000 });
-  expect(dependencies.createEncounter.mock.results[0].value.entities.boss.health).toBe(24000);
+  expect(room.encounter?.entities.boss).toMatchObject({ health: 1, maxHealth: BOSS.maxHealthByPlayerCount[3] });
+  expect(dependencies.createEncounter.mock.results[0].value.entities.boss.health).toBe(BOSS.maxHealthByPlayerCount[3]);
 });
 
 test('without test health the created encounter is used unchanged', async () => {

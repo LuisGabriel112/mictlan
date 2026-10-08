@@ -85,9 +85,9 @@ export const BOSS = {
   id: 'boss',
   name: 'Mictlantecuhtli, Señor del Mictlán',
   maxHealthByPlayerCount: {
-    3: 24000,
-    4: 40000,
-    5: 56000,
+    3: 15000,
+    4: 25000,
+    5: 35000,
   } satisfies Record<PlayerCount, number>,
   armorBps: 0,
   bodyRadiusMeters: 1.5,

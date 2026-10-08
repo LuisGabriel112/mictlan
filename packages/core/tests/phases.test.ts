@@ -13,7 +13,7 @@ function beforeFirstPhaseTick(phase: Phase): EncounterState {
   const initial = combatEncounter();
   Object.assign(initial.entities.p1, { x: 11.5, y: 0 });
   if (phase === 1) return initial;
-  initial.entities.boss.health = phase === 2 ? 15600 : 7200;
+  initial.entities.boss.health = phase === 2 ? BOSS.maxHealthByPlayerCount[3] * 0.65 : BOSS.maxHealthByPlayerCount[3] * 0.30;
   const entered = combatTick(initial);
   expect(entered.state).toMatchObject({ phase, phaseElapsedTicks: 0 });
   return entered.state;
@@ -22,13 +22,13 @@ function beforeFirstPhaseTick(phase: Phase): EncounterState {
 test('C1: 66% stays in phase 1, 65% enters phase 2 and 30% enters phase 3', () => {
   const initial = combatEncounter();
   initial.bossActive = true;
-  const above = combatTick(withBossHealth(initial, 15840));
+  const above = combatTick(withBossHealth(initial, BOSS.maxHealthByPlayerCount[3] * 0.66));
   expect(above.state.phase).toBe(1);
   expect(above.events).toEqual([]);
-  const second = combatTick(withBossHealth(above.state, 15600));
+  const second = combatTick(withBossHealth(above.state, BOSS.maxHealthByPlayerCount[3] * 0.65));
   expect(second.state.phase).toBe(2);
   expect(second.events).toEqual([{ type: 'phaseChanged', phase: 2, tick: 2 }]);
-  const third = combatTick(withBossHealth(second.state, 7200));
+  const third = combatTick(withBossHealth(second.state, BOSS.maxHealthByPlayerCount[3] * 0.30));
   expect(third.state.phase).toBe(3);
   expect(third.events.at(-1)).toEqual({ type: 'phaseChanged', phase: 3, tick: 3 });
 });
@@ -46,7 +46,7 @@ test('C1: crossing both thresholds in one tick jumps directly from phase 1 to ph
   expect(result.events.at(-1)?.type).toBe('phaseChanged');
 });
 
-test.each([{ health: 15601, phase: 1 }, { health: 7201, phase: 2 }])(
+test.each([{ health: BOSS.maxHealthByPlayerCount[3] * 0.65 + 1, phase: 1 }, { health: BOSS.maxHealthByPlayerCount[3] * 0.30 + 1, phase: 2 }])(
   'integer threshold comparison keeps health $health above phase $phase boundary', ({ health, phase }) => {
     const initial = combatEncounter();
     initial.bossActive = true;
@@ -67,7 +67,7 @@ test.each(['inactive', 'dead', 'missing'])(
   'phase checks preserve the state of an %s boss', (condition) => {
     const initial = combatEncounter();
     initial.bossActive = condition !== 'inactive';
-    initial.entities.boss.health = condition === 'dead' ? 0 : 7200;
+    initial.entities.boss.health = condition === 'dead' ? 0 : BOSS.maxHealthByPlayerCount[3] * 0.30;
     if (condition === 'missing') delete initial.entities.boss;
     freezeCombat(initial);
     expect(updateBossPhase(initial).state).toBe(initial);
@@ -83,7 +83,7 @@ test('phase entry runs after enemy actions and new phase abilities start on the 
   const initial = combatEncounter();
   initial.bossActive = true;
   initial.bossAbilityTimers = { obsidianWind: 1 };
-  initial.entities.boss.health = 15600;
+  initial.entities.boss.health = BOSS.maxHealthByPlayerCount[3] * 0.65;
   const entered = combatTick(initial);
   expect(entered.events.map((event) => 'abilityId' in event ? event.abilityId : event.type)).toEqual([
     'obsidianWind', 'phaseChanged',
@@ -156,7 +156,7 @@ test('C3: a Strike spanning a phase change finishes its original cast and deals 
   initial.entities.boss.autoAttackRemainingTicks = 100;
   const started = combatTick(initial);
   expect(started.state.entities.boss.cast?.remainingTicks).toBe(50);
-  const entered = combatTick(withBossHealth(started.state, 15600));
+  const entered = combatTick(withBossHealth(started.state, BOSS.maxHealthByPlayerCount[3] * 0.65));
   expect(entered.state.phase).toBe(2);
   expect(entered.state.entities.boss.cast).toMatchObject({ abilityId: 'flayedStrike', remainingTicks: 49, targetId: 'p1' });
   expect(entered.events).toEqual([{ type: 'phaseChanged', phase: 2, tick: 2 }]);
@@ -182,7 +182,7 @@ test('C5: entering phase 3 removes Wind and Call timers and empties the old queu
   initial.phaseElapsedTicks = 999;
   initial.bossAbilityTimers = { flayedStrike: 0, obsidianWind: 25, lamentOfTheDead: 0, callOfTheXolos: 80 };
   initial.bossAbilityQueue = ['flayedStrike', 'lamentOfTheDead'];
-  initial.entities.boss.health = 7200;
+  initial.entities.boss.health = BOSS.maxHealthByPlayerCount[3] * 0.30;
   initial.entities.boss.cast = {
     abilityId: 'lamentOfTheDead', targetId: null, remainingTicks: 30,
     durationTicks: BOSS_ABILITIES.lamentOfTheDead.castTicks, interruptible: true,
@@ -201,7 +201,7 @@ test('C5: entering phase 3 removes Wind and Call timers and empties the old queu
 test('changing only phase state preserves every entity and its active cast by reference', () => {
   const initial = combatEncounter();
   initial.bossActive = true;
-  initial.entities.boss.health = 15600;
+  initial.entities.boss.health = BOSS.maxHealthByPlayerCount[3] * 0.65;
   initial.entities.boss.cast = {
     abilityId: 'flayedStrike', targetId: 'p1', durationTicks: 50, remainingTicks: 20, interruptible: false,
   };

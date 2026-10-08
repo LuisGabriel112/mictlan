@@ -1,5 +1,5 @@
 import { expect, test, vi } from 'vitest';
-import { type EnemyEntity } from '@mictlan/core';
+import { BOSS, type EnemyEntity } from '@mictlan/core';
 import { LobbyState } from '../src/schema/LobbyState.js';
 import { syncEncounter } from '../src/schema/sync.js';
 import { activeFixture, auraFixture, castFixture, encounterFixture, zoneFixture } from './schema-fixture.js';
@@ -10,7 +10,7 @@ test('syncEncounter initializes every entity field and documents absent optional
   syncEncounter(view, encounter);
   expect(view.entities.size).toBe(4);
   expect(view.entities.get('boss')).toMatchObject({ id: 'boss', type: 'boss', classId: '', x: 0, y: 0,
-    health: 24000, maxHealth: 24000, mana: 0, maxMana: 0, targetId: '' });
+    health: BOSS.maxHealthByPlayerCount[3], maxHealth: BOSS.maxHealthByPlayerCount[3], mana: 0, maxMana: 0, targetId: '' });
   expect(view.entities.get('tank')).toMatchObject({ type: 'player', classId: 'jaguar', mana: 0, maxMana: 0 });
   expect(view.entities.get('healer')).toMatchObject({ classId: 'healer', mana: 1000, maxMana: 1000 });
   expect(view.entities.get('healer')?.cast).toBeUndefined();

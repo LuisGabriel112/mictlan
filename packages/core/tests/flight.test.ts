@@ -80,5 +80,5 @@ test('the first cast wins over Flight and a completing Arrow resolves before Fli
   readyCast(state, 'obsidianArrow', 'p3', BOSS.id);
   const finished = combatTick(state, [combatCast('flight')]);
   expect(finished.events.map(({ type }) => type)).toEqual(['castFinished', 'abilityResolved', 'damage', 'abilityResolved']);
-  expect(finished.state.entities[BOSS.id].health).toBe(23860);
+  expect(finished.state.entities[BOSS.id].health).toBe(BOSS.maxHealthByPlayerCount[3] - 140);
 });

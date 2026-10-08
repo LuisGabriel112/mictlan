@@ -90,7 +90,7 @@ test.each(['roar', 'taunt'] as const)('C3: %s switches a summoned xolo from heal
 
 test('C4: phase 3 stops summoning while living xolos keep pursuing and attacking', () => {
   const initial = combatTick(enterPhaseTwo()).state;
-  initial.entities.boss.health = 7200;
+  initial.entities.boss.health = BOSS.maxHealthByPlayerCount[3] * 0.30;
   Object.assign(initial.entities.p2, { x: 0, y: 0, health: 100000, maxHealth: 100000 });
   const entered = combatTick(initial);
   expect(entered.state.phase).toBe(3);

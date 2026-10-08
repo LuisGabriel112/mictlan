@@ -125,7 +125,7 @@ test('enrage and phase entry are immutable, deterministic and preserve untouched
   const initial = combatEncounter();
   initial.bossActive = true;
   initial.elapsedTicks = BOSS.enrage.afterTicks - 1;
-  initial.entities.boss.health = 7200;
+  initial.entities.boss.health = BOSS.maxHealthByPlayerCount[3] * 0.30;
   const original = structuredClone(initial);
   freezeCombat(initial);
   const result = combatTick(initial);

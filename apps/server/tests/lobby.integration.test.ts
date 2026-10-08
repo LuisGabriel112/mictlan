@@ -1,3 +1,4 @@
+import { BOSS } from '@mictlan/core';
 import { afterEach, expect, test, vi } from 'vitest';
 import { IntegrationServer } from './integration-fixture.js';
 
@@ -51,7 +52,7 @@ test('C3: MICTLAN_DEV_MIN_PLAYERS=1 allows one eagle to start', async () => {
   room.send('ready', { classId: 'eagle' });
   await vi.waitFor(() => expect(room.state.status).toBe('combat'));
   expect(server.room(room.roomId).encounter?.config.devMode).toBe(true);
-  expect(server.room(room.roomId).encounter?.entities.boss.health).toBe(24000);
+  expect(server.room(room.roomId).encounter?.entities.boss.health).toBe(BOSS.maxHealthByPlayerCount[3]);
   await expect(server.join(room.state.code)).rejects.toThrow();
 });
 

@@ -105,7 +105,7 @@ test('marked Wind explodes after boss phase change', () => {
   const initial = combatEncounter();
   const marked = markWind(initial);
   const changed = { ...marked.state, entities: { ...marked.state.entities,
-    boss: { ...marked.state.entities.boss, health: 7200 } } };
+    boss: { ...marked.state.entities.boss, health: BOSS.maxHealthByPlayerCount[3] * 0.30 } } };
   const result = repeatTick(changed, wind.warningTicks);
   expect(result.state.zones).toEqual([]);
   expect(result.events.some((event) => event.type === 'damage' && event.abilityId === 'obsidianWind')).toBe(true);
