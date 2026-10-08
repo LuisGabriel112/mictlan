@@ -1,4 +1,110 @@
-# T2.1 — Sala de Colyseus y lobby
+# Servidor de Mictlán
+
+## Jugar con amigos (T4.1)
+
+Esta guía vive aquí porque el servidor aloja tanto la partida como el cliente
+compilado. Los [controles y el lobby](../client/README.md) están en la guía del cliente.
+
+### Preparar un clon limpio
+
+Usa Node.js 24 y npm en PowerShell, desde la raíz del repositorio:
+
+```powershell
+npm.cmd ci
+npm.cmd run start
+```
+
+`start` compila el cliente con Vite y después inicia **un solo proceso de juego**
+con `node --import tsx`. HTTP y WebSocket comparten `PORT`, por defecto `2567`.
+Abre `http://localhost:2567`. No hace falta compilar core ni iniciar Vite aparte.
+Las herramientas de build y tsx son dependencias de desarrollo: usa `npm ci`
+completo, sin `--omit=dev`. Detén el servidor con Ctrl+C.
+
+Producción siempre exige de 3 a 5 jugadores y la composición del SPEC: un Jaguar,
+un Tícitl y de uno a tres Águilas. Ignora `MICTLAN_DEV_MIN_PLAYERS` aunque esté
+definida en la terminal. Para cambiar el puerto antes de arrancar:
+
+```powershell
+$env:PORT = '3000'
+npm.cmd run start
+```
+
+El cliente compilado usa el mismo origen: `wss://<host>` en HTTPS y `ws://<host>`
+en HTTP, conservando el puerto de la página cuando existe. `?server=` tiene
+prioridad y normalmente no se necesita. Las rutas sin extensión sirven
+`index.html`; un archivo inexistente devuelve 404.
+
+### Red local con Vite
+
+En la máquina anfitriona, desde la raíz:
+
+```powershell
+$env:MICTLAN_DEV_MIN_PLAYERS = '3'
+npm.cmd run dev
+```
+
+Comparte la URL **Network** que imprime Vite, por ejemplo
+`http://192.168.1.20:5173`, sin `?dev=1`. El script del cliente incluye `vite --host`.
+Los amigos deben estar en la misma red local; `localhost` apunta a su propia
+máquina. En desarrollo, el cliente conecta al hostname de esa URL en el puerto
+2567; si cambias `PORT`, indica `?server=ws://192.168.1.20:3000`.
+
+En Windows, usa el perfil de red **Privado** en tu red de confianza. Cuando
+Windows pida acceso para Node.js, permite **Redes privadas**. Si se rechazó antes,
+abre Seguridad de Windows → Firewall y protección de red → Permitir una aplicación
+a través del firewall → Cambiar configuración, y habilita Node.js en **Privada**.
+Ambos procesos de Node (Vite y Colyseus) deben ser accesibles; no apagues el firewall.
+Consulta la [guía de Microsoft](https://support.microsoft.com/en-us/windows/security/firewall/risks-of-allowing-apps-through-windows-firewall).
+
+### Otras redes con Cloudflare Tunnel
+
+Instala previamente `cloudflared` siguiendo la
+[documentación oficial](https://developers.cloudflare.com/tunnel/get-started/).
+Para un playtest, un [Quick Tunnel](https://developers.cloudflare.com/tunnel/get-started/quick-tunnels/)
+genera una URL temporal `https://…trycloudflare.com`.
+
+1. Libera el puerto 2567 deteniendo cualquier servidor dev anterior. En una
+   terminal de PowerShell, desde la raíz, ejecuta:
+
+   ```powershell
+   Remove-Item Env:PORT -ErrorAction SilentlyContinue
+   npm.cmd run start
+   ```
+
+2. Comprueba que `http://localhost:2567` muestra el lobby. En otra terminal:
+
+   ```powershell
+   cloudflared tunnel --url http://localhost:2567
+   ```
+
+3. Mantén ambas terminales abiertas y comparte la URL **HTTPS** que imprime
+   cloudflared, sin añadir `:2567`, `?server=` ni `?dev=1`. Si elegiste otro `PORT`,
+   cambia también el puerto del comando del túnel.
+4. Para validar T4.1, tres personas en **tres redes distintas** abren esa URL.
+   Una pulsa **Crear sala** y comparte el código de cuatro letras; las otras
+   pulsan **Unirse** con ese código. Elijan Jaguar, Tícitl y Águila y pulsen **Listo**.
+5. Jueguen hasta victoria o derrota. Confirmen que los tres ven el mismo resultado
+   y regresan al lobby tras cinco segundos, con clase conservada y Listo desmarcado.
+   En las herramientas del navegador, la conexión WS debe usar `wss://` con el
+   mismo host público. Esta es la prueba manual de aceptación de Venegas.
+6. Al terminar, Ctrl+C en ambas terminales. El Quick Tunnel es temporal; comparte
+   la nueva URL si lo reinicias.
+
+### Servicio estático y Colyseus
+
+Se usan `node:http` y `node:fs/promises`: `express` está instalado transitivamente,
+pero faltan sus declaraciones TypeScript (`@types/express`). Así se conserva
+`strict` sin añadir dependencias ni declaraciones incompletas de terceros.
+El directorio `apps/client/dist` se resuelve desde el módulo, independientemente
+del directorio de trabajo. Solo se permite leer rutas dentro de ese directorio.
+
+Colyseus 0.18.18 registra sus listeners HTTP al completar `Server.listen()`
+(`node_modules/@colyseus/core/build/Server.d.ts` y `build/Server.mjs`). Después,
+el adaptador conserva esos listeners para `/matchmake` y `/__healthcheck` y
+sirve el cliente en el resto. No modifica los listeners de upgrade WebSocket de
+`WebSocketTransport({ server })` (`@colyseus/ws-transport/build/WebSocketTransport.d.ts`).
+
+## T2.1 — Sala de Colyseus y lobby
 
 Desde la raíz, `npm.cmd run dev --workspace @mictlan/server` arranca HTTP y WebSocket
 en `PORT` (2567 por defecto). Core se consume como TypeScript mediante su export

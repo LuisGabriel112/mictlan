@@ -6,7 +6,8 @@
   "scripts": {
     "typecheck": "tsc --project tsconfig.json",
     "test": "vitest run",
-    "dev": "tsx src/index.ts"
+    "dev": "tsx src/index.ts",
+    "start": "node --import tsx src/production-index.ts"
   },
   "dependencies": {
     "@colyseus/core": "^0.18.18",

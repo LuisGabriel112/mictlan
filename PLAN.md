@@ -244,7 +244,7 @@
 
 ## Fase 4 — Playtest
 
-### [ ] T4.1 Jugar con amigos
+### [x] T4.1 Jugar con amigos
 - **Hacer:** script `npm run start` que levanta el servidor sirviendo el cliente compilado, más una guía en el README para exponerlo con un túnel (por ejemplo, Cloudflare Tunnel) y que tus amigos entren.
 - **Además:** `"dev": "vite --host"` en `apps/client/package.json` para jugar en red local sin túnel (en la prueba de T3.5 hubo que pasar `-- --host` a mano), y documentar en el README el permiso del firewall de Windows (perfil de red Privado).
 - **Criterios:** 3 personas en redes distintas completan un intento.

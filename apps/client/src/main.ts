@@ -17,7 +17,7 @@ function createArena(room: ArenaRoom): void {
 }
 
 function start(): void {
-  const params = parseLaunchParams(window.location.search, window.location.hostname);
+  const params = parseLaunchParams(window.location.search, window.location, import.meta.env.PROD);
   const view = new LobbyView(document, params.code);
   const controller = new LobbyController(params, new Client(params.serverUrl), (model) => view.render(model), createArena);
   view.bind(controller);

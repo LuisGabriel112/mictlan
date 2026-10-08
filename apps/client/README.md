@@ -57,10 +57,15 @@ La barra de acción muestra la recarga y por qué una habilidad no está disponi
 
 - `dev=1`: se une a una sala abierta (o crea una) y marca listo con `class`.
 - `class=jaguar|healer|eagle`: clase en modo dev (por defecto `eagle`).
-- `server=ws://host:2567`: servidor (por defecto, el mismo host de la página en el puerto 2567).
+- `server=ws://host:2567`: servidor explícito. En Vite, el valor por defecto es el
+  hostname de la página en el puerto 2567. En el build servido por `npm.cmd run start`,
+  usa el mismo origen de la página (`wss` en HTTPS, `ws` en HTTP, conservando su puerto).
 - `code=ABCD`: rellena el código del formulario; **Unirse** confirma la entrada.
 
 ## Desarrollo
+
+Para jugar en red local o con amigos en otras redes, sigue la
+[guía del servidor](../server/README.md#jugar-con-amigos-t41).
 
 - `npm.cmd run test --workspace @mictlan/client`: tests de la lógica pura (Vitest).
 - La escena de Phaser (`src/scene/`) solo dibuja y conecta; se prueba a mano en el navegador.
