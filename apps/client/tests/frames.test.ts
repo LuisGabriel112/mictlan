@@ -42,7 +42,7 @@ describe('targetFrame', () => {
 
   test('mirrors the selected unit and its interruptible cast', () => {
     const frame = targetFrame(room([entity({ id: 'p1', targetId: 'boss' }), boss]), 'p1');
-    expect(frame).toMatchObject({ id: 'boss', name: 'Mictlantecuhtli, Señor del Mictlán', isSelf: false,
+    expect(frame).toMatchObject({ id: 'boss', name: 'Mictlantecuhtli', isSelf: false,
       health: { value: 12000, max: 24000, ratio: 0.5 } });
     expect(frame?.cast).toEqual({ abilityName: 'Lamento de los muertos', progress: 40 / 60, remainingSeconds: 1, interruptible: true });
   });

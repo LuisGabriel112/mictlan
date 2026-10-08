@@ -1,14 +1,14 @@
 import type * as Phaser from 'phaser';
+import type { CombatEvent } from '@mictlan/core';
 import { actionSlots, type ActionSlot } from '../action-bar';
 import { bossCastBar, groupFrameRect, groupFrames, selfFrame, targetFrame, type Rect } from '../frames';
 import { slotLabel, statusText } from '../hud-text';
 import type { RoomSnapshot } from '../snapshot';
+import type { Positions } from '../interpolation';
+import { HUD_LAYOUT as LAYOUT, readingLayout, unitFrameRects, type ReadingViewport } from '../reading-layout';
+import { CombatReadingView } from './combat-reading-view';
 import { CastBarWidget, FrameWidget } from './frame-view';
 
-const LAYOUT = {
-  margin: 16, slotWidth: 132, slotHeight: 54, slotGap: 8, flashMs: 1500, maxGroup: 5,
-  unitFrame: { width: 260, height: 50 }, castBar: { width: 320, height: 22 },
-} as const;
 const TEXT_STYLE = { fontFamily: 'system-ui, sans-serif', fontSize: '15px', color: '#ffffff' } as const;
 
 interface SlotView {
@@ -38,19 +38,25 @@ export class Hud {
   private readonly status: Phaser.GameObjects.Text;
   private readonly flash: Phaser.GameObjects.Text;
   private flashUntilMs = 0;
+  private readonly reading: CombatReadingView;
 
   constructor(private readonly scene: Phaser.Scene) {
     const track = (object: Phaser.GameObjects.GameObject) => this.objects.push(object);
     this.panels = scene.add.graphics();
     track(this.panels);
+    this.reading = new CombatReadingView(scene, track);
     this.selfWidget = new FrameWidget(scene, track);
     this.targetWidget = new FrameWidget(scene, track);
-    for (let index = 0; index < LAYOUT.maxGroup; index += 1) this.groupWidgets.push(new FrameWidget(scene, track));
     this.ownCast = new CastBarWidget(scene, track);
     this.targetCast = new CastBarWidget(scene, track);
     this.bossCast = new CastBarWidget(scene, track);
     this.status = this.text(0, LAYOUT.margin, '28px').setOrigin(0.5, 0);
     this.flash = this.text(0, 0, '18px').setOrigin(0.5, 1).setColor('#ffd166');
+    this.createGroupAndSlots(track);
+  }
+
+  private createGroupAndSlots(track: (object: Phaser.GameObjects.GameObject) => void): void {
+    for (let index = 0; index < LAYOUT.maxGroup; index += 1) this.groupWidgets.push(new FrameWidget(this.scene, track));
     for (let index = 0; index < 4; index += 1) this.slots.push(this.slotView());
   }
 
@@ -59,8 +65,17 @@ export class Hud {
     this.flashUntilMs = nowMs + LAYOUT.flashMs;
   }
 
-  update(snapshot: RoomSnapshot, selfId: string, nowMs: number): void {
+  receiveCombatEvents(events: readonly CombatEvent[], snapshot: RoomSnapshot, selfId: string, positions: Positions): void {
+    this.reading.receive(events, snapshot, selfId, positions);
+  }
+
+  resetReading(): void {
+    this.reading.reset();
+  }
+
+  update(snapshot: RoomSnapshot, selfId: string, nowMs: number, deltaMs: number, viewport: ReadingViewport): void {
     const { width, height } = this.scene.scale;
+    this.reading.update(snapshot, deltaMs, viewport);
     this.panels.clear();
     this.drawFrames(snapshot, selfId);
     this.drawCastBars(snapshot, selfId, width, height);
@@ -70,18 +85,17 @@ export class Hud {
   }
 
   private drawFrames(snapshot: RoomSnapshot, selfId: string): void {
-    const { margin, unitFrame } = LAYOUT;
-    this.selfWidget.draw(this.panels, selfFrame(snapshot, selfId), { x: margin, y: margin, ...unitFrame });
-    const targetRect = { x: 2 * margin + unitFrame.width, y: margin, ...unitFrame };
+    const [selfRect, targetRect, targetCastRect] = unitFrameRects();
+    this.selfWidget.draw(this.panels, selfFrame(snapshot, selfId), selfRect);
     const target = targetFrame(snapshot, selfId);
     this.targetWidget.draw(this.panels, target, targetRect);
-    this.targetCast.draw(this.panels, target?.cast, { ...targetRect, y: targetRect.y + unitFrame.height + 4, height: 18 });
+    this.targetCast.draw(this.panels, target?.cast, targetCastRect);
     const party = groupFrames(snapshot, selfId);
     this.groupWidgets.forEach((widget, index) => widget.draw(this.panels, party[index], groupFrameRect(index)));
   }
 
   private drawCastBars(snapshot: RoomSnapshot, selfId: string, width: number, height: number): void {
-    this.bossCast.draw(this.panels, bossCastBar(snapshot), centered(width, LAYOUT.margin + 40, LAYOUT.castBar));
+    this.bossCast.draw(this.panels, bossCastBar(snapshot), readingLayout(width, height).bossCast);
     const ownTop = this.actionTop(height) - LAYOUT.castBar.height - 10;
     this.ownCast.draw(this.panels, selfFrame(snapshot, selfId)?.cast, centered(width, ownTop, LAYOUT.castBar));
   }

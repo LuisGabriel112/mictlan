@@ -46,16 +46,18 @@ export class ArenaScene extends Phaser.Scene {
     this.listen();
   }
 
-  update(time: number): void {
+  update(time: number, deltaMs: number): void {
     if (!this.snapshot) return;
     const positions: Positions = this.history.sample(performance.now() - INTERPOLATION_DELAY_MS);
     this.world.clear();
     drawArena(this.world, this.snapshot);
-    drawZones(this.world, this.snapshot);
+    drawZones(this.world, this.snapshot, time);
     const marker = this.destination.position;
     if (marker && this.destination.visibleAt(this.snapshot.entities[this.room.sessionId])) drawDestination(this.world, marker);
     drawEntities(this.world, this.snapshot, positions, this.room.sessionId);
-    this.hud.update(this.snapshot, this.room.sessionId, time);
+    const viewport = { width: this.scale.width, height: this.scale.height, zoom: this.cameras.main.zoom };
+    this.hud.update(this.snapshot, this.room.sessionId, time, deltaMs, viewport);
+    this.cameras.main.ignore(this.hud.objects);
   }
 
   private listen(): void {
@@ -70,6 +72,7 @@ export class ArenaScene extends Phaser.Scene {
   }
 
   private receiveState(snapshot: RoomSnapshot): void {
+    if (snapshot.status === 'lobby') this.hud.resetReading();
     this.snapshot = snapshot;
     const positions: Positions = {};
     for (const entity of Object.values(snapshot.entities)) positions[entity.id] = { x: entity.x, y: entity.y };
@@ -79,6 +82,9 @@ export class ArenaScene extends Phaser.Scene {
   private receiveEvents(events: readonly CombatEvent[]): void {
     const reason = latestRejection(events, this.room.sessionId);
     if (reason) this.hud.showFlash(rejectionText(reason), this.time.now);
+    if (!this.snapshot) return;
+    const positions = this.history.sample(performance.now() - INTERPOLATION_DELAY_MS);
+    this.hud.receiveCombatEvents(events, this.snapshot, this.room.sessionId, positions);
   }
 
   private handleKey(event: KeyboardEvent): void {

@@ -10,6 +10,7 @@ const REJECTION_TEXT: Readonly<Record<string, string>> = {
 };
 
 const STATUS_TEXT = { combat: '', victory: '¡Victoria!', defeat: 'Derrota' } as const;
+const BOSS_DISPLAY_NAME = BOSS.name.split(',')[0];
 
 const SLOT_LABELS: Readonly<Record<Exclude<SlotState, 'cooldown'>, { caption: string; tint: number }>> = {
   ready: { caption: '', tint: 0xffffff }, gcd: { caption: '', tint: 0x888888 }, casting: { caption: '', tint: 0x888888 },
@@ -32,7 +33,7 @@ export function slotLabel({ state, cooldownSeconds }: Pick<ActionSlot, 'state' |
 }
 
 export function entityName(entity: EntitySnapshot, selfId: string): string {
-  if (entity.type === 'boss') return BOSS.name;
+  if (entity.type === 'boss') return BOSS_DISPLAY_NAME;
   if (entity.type === 'xolo') return XOLO.name;
   const name = entity.classId === '' ? '' : CLASSES[entity.classId].name;
   return entity.id === selfId ? `${name} (tú)` : name;

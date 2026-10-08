@@ -12,31 +12,6 @@ Claude borra de aquí cada prompt cuando su tarea queda aprobada.
 
 ---
 
-## T3.4 — Lectura del combate
-
-```
-Tarea T3.4 — Lectura del combate.
-
-Lee AGENTS.md, SPEC.md (§8 Interfaz, §6 y §10), la tarea T3.4 de PLAN.md, NOTAS.md y el "Contexto común del cliente" de PROMPTS.md. Implementa SOLO T3.4 en apps/client (no toques core ni server; si falta un dato, detente y repórtalo).
-
-IMPORTANTE: NO ejecutes `npm ci` ni `npm install`. Usa npm.cmd (Windows PowerShell). No hagas commit.
-
-1. Zonas de peligro: los círculos de Viento ya se dibujan (arena-renderer.ts). Añade el radio seguro de fase 3 más visible (zona exterior sombreada en rojo translúcido) y un contorno animado en los círculos de Viento durante el aviso.
-2. Texto flotante: por cada evento damage y healing sobre una entidad visible, un número que sube y se desvanece en ~1 s (daño en blanco, críticos más grandes en amarillo, curación en verde con "+"; no muestres curaciones con 0 efectivo). Lógica pura: una cola de textos flotantes con posición, tiempo de vida y estilo, testeable sin Phaser.
-3. Log de combate: panel en la esquina inferior derecha con las últimas ~12 líneas, en español, con el nombre de la habilidad en español (los `name` de CLASSES y BOSS_ABILITIES de core; 'autoAttack' = "Ataque", 'unsafeGround' = "Río Apanohuaya", 'disconnect' = "Desconexión"). Ejemplos: "Mictlantecuhtli → Tícitl: Golpe del Descarnado 280", "Tícitl → Guerrero Jaguar: Remedio +120", "Tícitl murió (Golpe del Descarnado)", "Fase 2: Los guías", "¡Enfurecido!". Tus propios rechazos ya salen como aviso: no los dupliques. Lógica pura: `combatLogLines(events, snapshot, selfId)` → líneas, con tests para cada tipo de evento relevante (damage, healing, death, phaseChanged, el evento de enfurecer que exista en core, encounterEnded, castStarted del jefe).
-4. Temporizador: tiempo desde el pull (elapsedTicks) como mm:ss arriba al centro, junto a la fase actual con su nombre (BOSS_PHASES).
-
-Criterios (verificación manual de Venegas, más tests de la lógica pura):
-1. Un jugador nuevo entiende qué lo mató leyendo el log (la línea de muerte dice la habilidad y quién la lanzó).
-2. Los números flotantes no tapan los marcos ni la barra de acción.
-3. Tests: formato de cada tipo de línea del log, cola de textos flotantes (alta, envejecimiento y baja) y mm:ss.
-
-Si algo es ambiguo, detente y reporta una propuesta. No inventes.
-Termina con npm.cmd run check en verde y el reporte del formato de AGENTS.md (incluye qué probaste a mano y qué no).
-```
-
----
-
 ## T3.5 — Lobby jugable
 
 ```

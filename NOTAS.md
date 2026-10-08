@@ -26,14 +26,15 @@
 | T3.2 Objetivo y barra de acción | `bbdecd0` | 0 | **Implementada por Claude**. Verificado en Chrome: Tab, clic, 2 (Disparo veloz: −70 al jefe), F5 bloqueado, barra en gris al morir |
 | T3.3 Marcos y barras de casteo | `f3445f7` | 0 | **Implementada por Claude**. Verificado en Chrome: marcos propio/objetivo/grupo, clic en marco de grupo, F1, barra del jefe con borde turquesa en el Lamento. La barra de casteo propia no se pudo capturar (ventana oculta) |
 | T3.7 Movimiento con clic derecho | `5600940` | 0 | Pedida por Venegas e **implementada por Claude**. Verificada en Chrome: clic derecho, llegada, y Flecha lanzada a media caminata (−140 al jefe) |
+| T3.4 Lectura del combate | (pendiente) | 2 | Primera tarea con `gpt-6.1-sol` (`high`, 30 min). Rebotes: línea de muerte redundante con entorno/propia entidad y reporte pegado en el repo; luego, tras la prueba de Venegas, nombre corto del jefe ("Mictlantecuhtli", solo en cliente) y log semitransparente de 400 px. Verificada por Venegas en navegador; fase 3 y Viento quedan para el playtest |
 
-Siguiente: **T3.4** (lectura del combate), luego T3.5 (lobby), T3.6 (pulido visual) y T4.1 (playtest). Prompts listos en `PROMPTS.md`; lanzarlos con `/codex:rescue --wait --fresh --model gpt-6-astra --effort high`.
+Siguiente: **T3.5** (lobby), luego T3.6 (pulido visual) y T4.1 (playtest). Prompts listos en `PROMPTS.md`; lanzarlos con `/codex:rescue --wait --fresh --model gpt-6-astra --effort xhigh` (T3.5) o `--model gpt-6.1-sol --effort high` (T3.6, T4.1).
 
 **Para continuar en otra máquina:**
 1. `git pull` y `npm.cmd ci` (instala también Phaser, Vite y el SDK del cliente).
-2. `npm.cmd run check` debe dar 745 tests en verde (464 core, 177 servidor, 104 cliente).
+2. `npm.cmd run check` debe dar 788 tests en verde (464 core, 177 servidor, 147 cliente).
 3. Jugar: `npm.cmd run dev` y abrir la URL que imprima Vite con `?dev=1&class=eagle` (o `jaguar` / `healer`). Controles en `apps/client/README.md` (clic derecho, S, Q W E R, Tab, F1–F5).
-4. En Claude Code: "lee NOTAS.md y lanza T3.4 con PROMPTS.md". Si Codex no tiene créditos, Claude puede implementarla (T3.1–T3.3 y T3.7 las hizo Claude).
+4. En Claude Code: "lee NOTAS.md y lanza T3.5 con PROMPTS.md". Si Codex no tiene créditos, Claude puede implementarla (T3.1–T3.3 y T3.7 las hizo Claude).
 
 ## Configuración de Codex
 

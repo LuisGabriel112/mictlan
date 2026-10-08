@@ -1,4 +1,5 @@
-import { BOSS, BOSS_ABILITIES, CLASSES, COMBAT_RULES } from '@mictlan/core';
+import { BOSS, COMBAT_RULES } from '@mictlan/core';
+import { abilityName } from './combat-names';
 import { entityName } from './hud-text';
 import { entityColor } from './palette';
 import { isLiving, type CastSnapshot, type EntitySnapshot, type Point, type RoomSnapshot } from './snapshot';
@@ -37,11 +38,6 @@ export interface Rect extends Point {
 export const CAST_BORDER = { interruptible: 0x2ec4b6, uninterruptible: 0x888888 } as const;
 export const GROUP_FRAME_LAYOUT = { left: 16, top: 150, width: 210, height: 40, gap: 6 } as const;
 
-const ABILITY_NAMES: ReadonlyMap<string, string> = new Map([
-  ...Object.values(CLASSES).flatMap(({ abilities }) => abilities.map(({ id, name }) => [id, name] as const)),
-  ...Object.values(BOSS_ABILITIES).map(({ id, name }) => [id, name] as const),
-]);
-
 function bar(value: number, max: number): BarValue {
   const clamped = Math.max(0, Math.floor(value));
   return { value: clamped, max, ratio: clamped / max };
@@ -50,7 +46,7 @@ function bar(value: number, max: number): BarValue {
 function castBar(cast: CastSnapshot | undefined): CastBarView | undefined {
   if (!cast) return undefined;
   return {
-    abilityName: ABILITY_NAMES.get(cast.abilityId) ?? cast.abilityId,
+    abilityName: abilityName(cast.abilityId),
     progress: (cast.durationTicks - cast.remainingTicks) / cast.durationTicks,
     remainingSeconds: cast.remainingTicks / COMBAT_RULES.ticksPerSecond,
     interruptible: cast.interruptible,

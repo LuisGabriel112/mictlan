@@ -31,7 +31,7 @@ test.each([
 });
 
 test('entity names come from core data and mark the local player', () => {
-  expect(entityName(entity({ id: 'boss', type: 'boss', classId: '' }), 'p1')).toBe('Mictlantecuhtli, Señor del Mictlán');
+  expect(entityName(entity({ id: 'boss', type: 'boss', classId: '' }), 'p1')).toBe('Mictlantecuhtli');
   expect(entityName(entity({ id: 'x1', type: 'xolo', classId: '' }), 'p1')).toBe('Xolo espectral');
   expect(entityName(entity({ id: 'p2', classId: 'healer' }), 'p1')).toBe('Tícitl');
   expect(entityName(entity({ id: 'p1' }), 'p1')).toBe('Guerrero Águila (tú)');

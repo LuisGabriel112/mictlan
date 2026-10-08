@@ -225,7 +225,7 @@
 - **Criterios:** clic derecho lleva al jugador al punto; S lo detiene; castear Flecha mientras camina la lanza sin rechazo por movimiento.
 - **Verificación:** `npm run check` y prueba manual
 
-### [ ] T3.4 Lectura del combate
+### [x] T3.4 Lectura del combate
 - **Hacer:** dibujo de las zonas de peligro, texto flotante, log de combate (con el nombre de la habilidad en español) y temporizador del encuentro.
 - **Criterios (manual):** un jugador nuevo entiende qué lo mató leyendo el log.
 - **Verificación:** `npm run dev` y prueba manual
