@@ -6,7 +6,7 @@ import { groupFrameAt } from '../frames';
 import { latestRejection, rejectionText } from '../hud-text';
 import { PositionHistory, type Positions } from '../interpolation';
 import { keyAction, type KeyAction } from '../keyboard';
-import type { RoomSnapshot } from '../snapshot';
+import { isSyncedSnapshot, type RoomSnapshot } from '../snapshot';
 import { allyAt, entityAtPoint, nextEnemyTarget } from '../targeting';
 import { screenToWorld, PIXELS_PER_METER } from '../world-view';
 import { drawArena, drawDestination, drawEntities, drawZones } from './arena-renderer';
@@ -14,6 +14,7 @@ import { Hud } from './hud';
 
 export interface ArenaRoom {
   readonly sessionId: string;
+  readonly state?: { toJSON(): unknown };
   send(type: string, payload?: unknown): void;
   onStateChange(callback: (state: { toJSON(): unknown }) => void): unknown;
   onMessage(type: string, callback: (payload: CombatEvent[]) => void): unknown;
@@ -61,7 +62,8 @@ export class ArenaScene extends Phaser.Scene {
   }
 
   private listen(): void {
-    this.room.onStateChange((state) => this.receiveState(state.toJSON() as RoomSnapshot));
+    this.room.onStateChange((state) => this.receiveState(state.toJSON()));
+    if (this.room.state) this.receiveState(this.room.state.toJSON());
     this.room.onMessage('events', (events) => this.receiveEvents(events));
     const onKeyDown = (event: KeyboardEvent) => this.handleKey(event);
     window.addEventListener('keydown', onKeyDown);
@@ -71,7 +73,8 @@ export class ArenaScene extends Phaser.Scene {
     this.input.on('pointerdown', (pointer: Phaser.Input.Pointer) => this.handleClick(pointer));
   }
 
-  private receiveState(snapshot: RoomSnapshot): void {
+  private receiveState(snapshot: unknown): void {
+    if (!isSyncedSnapshot(snapshot)) return;
     if (snapshot.status === 'lobby') this.hud.resetReading();
     this.snapshot = snapshot;
     const positions: Positions = {};
@@ -88,9 +91,10 @@ export class ArenaScene extends Phaser.Scene {
   }
 
   private handleKey(event: KeyboardEvent): void {
+    if (this.snapshot?.status !== 'combat') return;
     const { action, preventDefault } = keyAction(event);
     if (preventDefault) event.preventDefault();
-    if (action && this.snapshot && !event.repeat) this.perform(action, this.snapshot);
+    if (action && !event.repeat) this.perform(action, this.snapshot);
   }
 
   private perform(action: KeyAction, snapshot: RoomSnapshot): void {
@@ -120,7 +124,7 @@ export class ArenaScene extends Phaser.Scene {
   }
 
   private handleClick(pointer: Phaser.Input.Pointer): void {
-    if (!this.snapshot) return;
+    if (this.snapshot?.status !== 'combat') return;
     if (pointer.rightButtonDown()) return this.walkTo(pointer);
     // Group frames live in screen space and take priority over the world under them.
     const framed = groupFrameAt(this.snapshot, this.room.sessionId, { x: pointer.x, y: pointer.y });

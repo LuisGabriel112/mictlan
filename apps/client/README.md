@@ -15,6 +15,19 @@ Por defecto `MICTLAN_DEV_MIN_PLAYERS=1`, así que una sola pestaña puede pelear
 
 Abre `http://localhost:5173/?dev=1&class=eagle`. Clases: `jaguar`, `healer`, `eagle`.
 
+Para jugar el lobby con tres personas, inicia desde PowerShell con:
+
+```powershell
+$env:MICTLAN_DEV_MIN_PLAYERS = '3'; npm.cmd run dev
+```
+
+Usa la URL que imprima Vite, sin `?dev=1`. Una persona pulsa **Crear sala** y comparte
+el código de cuatro letras; las otras lo escriben y pulsan **Unirse**. Elijan un
+Jaguar, un Tícitl y uno a tres Águilas (máximo cinco jugadores) y pulsen **Listo**.
+Los roles faltantes cuentan solo las clases confirmadas con Listo por el servidor.
+Al terminar se muestra el resultado y la duración desde el pull; el servidor regresa
+al lobby después de cinco segundos, conservando la clase y desmarcando Listo.
+
 Para ver a dos jugadores juntos, el servidor debe esperar a ambos:
 
 ```powershell
@@ -45,9 +58,11 @@ La barra de acción muestra la recarga y por qué una habilidad no está disponi
 - `dev=1`: se une a una sala abierta (o crea una) y marca listo con `class`.
 - `class=jaguar|healer|eagle`: clase en modo dev (por defecto `eagle`).
 - `server=ws://host:2567`: servidor (por defecto, el mismo host de la página en el puerto 2567).
-- `code=ABCD`: unirse a una sala por código (sin modo dev; el lobby jugable llega en T3.5).
+- `code=ABCD`: rellena el código del formulario; **Unirse** confirma la entrada.
 
 ## Desarrollo
 
 - `npm.cmd run test --workspace @mictlan/client`: tests de la lógica pura (Vitest).
 - La escena de Phaser (`src/scene/`) solo dibuja y conecta; se prueba a mano en el navegador.
+- Inicio, lobby y resultado usan HTML sobre el canvas: permite un formulario nativo con
+  teclado y foco, y conserva la escena de combate durante todo el intento.

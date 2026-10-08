@@ -60,3 +60,13 @@ export function centerDistance(from: Point, to: Point): number {
 export function isLiving(entity: Pick<EntitySnapshot, 'health'>): boolean {
   return entity.health > 0;
 }
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null;
+}
+
+// Colyseus creates room.state before the first patch; until then toJSON() lacks the collections.
+export function isSyncedSnapshot(value: unknown): value is RoomSnapshot {
+  if (!isRecord(value) || typeof value.status !== 'string') return false;
+  return isRecord(value.players) && isRecord(value.entities) && isRecord(value.zones);
+}

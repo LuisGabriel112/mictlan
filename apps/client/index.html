@@ -11,6 +11,45 @@
   </head>
   <body>
     <div id="game"></div>
+    <main id="overlay">
+      <div class="lobby-panel">
+        <section id="start-screen" aria-labelledby="start-title">
+          <h1 id="start-title">Mictlán</h1>
+          <p>Reúne a tu grupo para enfrentar a Mictlantecuhtli.</p>
+          <button id="create-room" type="button">Crear sala</button>
+          <form id="join-form">
+            <label for="room-code">Código de sala</label>
+            <div class="lobby-actions">
+              <input id="room-code" name="code" placeholder="ABCD" maxlength="4" autocomplete="off" spellcheck="false" />
+              <button id="join-room" type="submit">Unirse</button>
+            </div>
+          </form>
+          <p id="connection-status" role="status"></p>
+        </section>
+        <section id="lobby-screen" aria-labelledby="lobby-title" hidden>
+          <h1 id="lobby-title">Sala</h1>
+          <p>Comparte este código con tu grupo:</p>
+          <p id="shared-code" aria-label="Código de sala"></p>
+          <p id="capacity"></p>
+          <ul id="players" aria-label="Jugadores"></ul>
+          <p id="missing-roles" role="status"></p>
+          <h2>Elige tu clase</h2>
+          <div class="lobby-actions" role="group" aria-label="Clase">
+            <button id="class-jaguar" type="button" aria-pressed="false"></button>
+            <button id="class-healer" type="button" aria-pressed="false"></button>
+            <button id="class-eagle" type="button" aria-pressed="false"></button>
+          </div>
+          <button id="ready" type="button" aria-pressed="false">Listo</button>
+          <p>El combate empieza cuando todo el grupo está listo y la composición está completa.</p>
+        </section>
+        <section id="result-screen" aria-labelledby="result-title" hidden>
+          <h1 id="result-title"></h1>
+          <p id="result-duration"></p>
+          <p>Volviendo a la sala para el siguiente intento…</p>
+        </section>
+        <p id="error" role="alert"></p>
+      </div>
+    </main>
     <script type="module" src="/src/main.ts"></script>
   </body>
 </html>

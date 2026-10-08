@@ -1,13 +1,12 @@
 import * as Phaser from 'phaser';
 import { Client } from '@colyseus/sdk';
-import { connectToRaid, type RaidClient } from './connection';
 import { parseLaunchParams } from './launch-params';
+import { LobbyController } from './lobby-controller';
+import { LobbyView } from './lobby-view';
 import { ArenaScene, type ArenaRoom } from './scene/ArenaScene';
+import './lobby.css';
 
-async function start(): Promise<void> {
-  const params = parseLaunchParams(window.location.search, window.location.hostname);
-  const client = new Client(params.serverUrl) as unknown as RaidClient<ArenaRoom>;
-  const room = await connectToRaid(params, client);
+function createArena(room: ArenaRoom): void {
   new Phaser.Game({
     type: Phaser.AUTO,
     parent: 'game',
@@ -17,7 +16,12 @@ async function start(): Promise<void> {
   });
 }
 
-start().catch((error: unknown) => {
-  const message = error instanceof Error ? error.message : String(error);
-  document.body.textContent = `No se pudo conectar al servidor: ${message}`;
-});
+function start(): void {
+  const params = parseLaunchParams(window.location.search, window.location.hostname);
+  const view = new LobbyView(document, params.code);
+  const controller = new LobbyController(params, new Client(params.serverUrl), (model) => view.render(model), createArena);
+  view.bind(controller);
+  void controller.start();
+}
+
+start();

@@ -230,7 +230,7 @@
 - **Criterios (manual):** un jugador nuevo entiende qué lo mató leyendo el log.
 - **Verificación:** `npm run dev` y prueba manual
 
-### [ ] T3.5 Lobby jugable
+### [x] T3.5 Lobby jugable
 - **Hacer:** pantalla para crear o unirse con código, elegir clase (mostrando qué roles faltan), botón de listo y pantalla de victoria o derrota.
 - **Criterios (manual):** 3 pestañas completan el flujo lobby → combate → resultado → lobby.
 - **Verificación:** `npm run dev` y prueba manual
@@ -248,6 +248,7 @@
 
 ### [ ] T4.1 Jugar con amigos
 - **Hacer:** script `npm run start` que levanta el servidor sirviendo el cliente compilado, más una guía en el README para exponerlo con un túnel (por ejemplo, Cloudflare Tunnel) y que tus amigos entren.
+- **Además:** `"dev": "vite --host"` en `apps/client/package.json` para jugar en red local sin túnel (en la prueba de T3.5 hubo que pasar `-- --host` a mano), y documentar en el README el permiso del firewall de Windows (perfil de red Privado).
 - **Criterios:** 3 personas en redes distintas completan un intento.
 
 > **Checkpoint B:** después de 5 intentos reales, anotar qué fue divertido, qué fue injusto y qué no se entendió. Claude convierte eso en cambios al SPEC y en tareas nuevas.

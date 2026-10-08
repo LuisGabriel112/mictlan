@@ -12,32 +12,6 @@ Claude borra de aquí cada prompt cuando su tarea queda aprobada.
 
 ---
 
-## T3.5 — Lobby jugable
-
-```
-Tarea T3.5 — Lobby jugable.
-
-Lee AGENTS.md, SPEC.md (§5 composición, §7 mensajes, §8 Lobby), la tarea T3.5 de PLAN.md, NOTAS.md (T2.1, T2.4, T3.x) y el "Contexto común del cliente" de PROMPTS.md. Implementa SOLO T3.5 en apps/client. El servidor ya tiene todo el lobby (T2.1/T2.4): código de 4 letras, `ready { classId }`, `rejected { reason }` y regreso al lobby 5 s después del fin con ready = false.
-
-IMPORTANTE: NO ejecutes `npm ci` ni `npm install`. Usa npm.cmd. No hagas commit.
-
-1. Pantalla de inicio (sin `?dev=1`): "Crear sala" (client.create('raid')) o escribir un código y "Unirse" (joinById). Si el código no existe, mensaje claro. `?code=ABCD` en la URL rellena el código. Puede ser DOM/HTML sobre el canvas o Phaser: elige lo más simple y documenta por qué.
-2. Lobby: el código en grande (para compartirlo), la lista de jugadores con su clase y si están listos, y los roles que faltan según SPEC §5 (falta Jaguar, falta Tícitl, falta al menos un Águila; máximo 5). Botones para elegir clase y "Listo". Un `rejected` muestra el motivo en español (composition → "Ese rol ya está ocupado", invalid_class → "Clase inválida").
-3. Combate: al pasar status a 'combat' se ve la escena actual (T3.1–T3.4).
-4. Resultado: con status 'victory' o 'defeat', pantalla de "¡Victoria!" o "Derrota" con la duración del encuentro; cuando el servidor vuelve a 'lobby' (5 s), el cliente regresa al lobby con la clase conservada y "Listo" desmarcado.
-5. `?dev=1` sigue funcionando como hoy (se salta el inicio y el lobby).
-6. Lógica pura con tests: roles faltantes a partir de los jugadores del lobby, texto de los rechazos y qué pantalla toca según status y si hay sala.
-
-Criterios (manual de Venegas, más tests de la lógica pura):
-1. 3 pestañas completan el flujo lobby → combate → resultado → lobby (con `npm run dev` y MICTLAN_DEV_MIN_PLAYERS en 3).
-2. Un segundo Jaguar ve "Ese rol ya está ocupado".
-
-Si algo es ambiguo, detente y reporta una propuesta. No inventes.
-Termina con npm.cmd run check en verde y el reporte del formato de AGENTS.md (incluye qué probaste a mano y qué no).
-```
-
----
-
 ## T3.6 — Pulido visual procedural
 
 ```
