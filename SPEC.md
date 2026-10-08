@@ -150,7 +150,7 @@ Teclas: `Q` `W` `E` `R` para habilidades (los números no castean; decisión de 
 
 ## 6. El jefe: Mictlantecuhtli, Señor del Mictlán
 
-- **Vida según número de jugadores:** 3 → 24 000, 4 → 40 000, 5 → 56 000. **Armadura:** 0. **Radio de cuerpo:** 1.5 m.
+- **Vida según número de jugadores:** 3 → 15 000, 4 → 25 000, 5 → 35 000 (v0.8, Checkpoint B: con 24 000/40 000/56 000 los humanos no pasaban de la fase 1 antes del enfurecer). **Armadura:** 0. **Radio de cuerpo:** 1.5 m.
 - **Modo dev (1–2 jugadores):** solo para pruebas. El jefe y los xolos usan los valores de 3 jugadores. Ver §7.
 - **Auto-ataque:** 60 de daño cada 2.0 s a su objetivo, si está a ≤ 4 m. Si no, camina hacia él a 5 m/s.
 - **Enfurecer:** a los 480 s del pull, todo el daño del jefe ×5 (auto-ataque, Golpe, Lamento y Viento). No afecta a los xolos ni al daño por salir del radio seguro.

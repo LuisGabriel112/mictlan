@@ -12,4 +12,19 @@ Claude borra de aquí cada prompt cuando su tarea queda aprobada.
 
 ---
 
-_(Sin prompts pendientes. Los de la Fase 5 se escriben después del Checkpoint B.)_
+## T4.2 — Balance: vida del jefe
+
+```
+Tarea T4.2 — Balance: vida del jefe.
+
+Lee AGENTS.md, SPEC.md §6 (Jefe: "Vida según número de jugadores", ya actualizada a v0.8) y la tarea T4.2 de PLAN.md. Implementa SOLO T4.2.
+
+IMPORTANTE: NO ejecutes `npm ci`, `npm install` ni `npm run dev`/`npm run start`. Usa npm.cmd. No hagas commit. No crees archivos de reporte en el repo.
+
+1. packages/core/src/data/boss.ts: vida 3 → 15000, 4 → 25000, 5 → 35000.
+2. Actualiza los tests que dependían de 24000/40000/56000 (core, server y client: grep los números). Donde un test solo necesitaba "la vida del jefe", léela de los datos en vez de repetir el literal.
+3. Corre `npm.cmd run sim -- --players=3 --runs=50`, y también con 4 y 5 jugadores. Reporta victorias, duración media y DPS/HPS por clase.
+
+Criterio: con 3 jugadores, 100 % de victorias y duración media de 3:00 a 4:00. Si no cae en ese rango, NO ajustes otros números: detente y reporta los resultados.
+Termina con npm.cmd run check en verde y el reporte del formato de AGENTS.md.
+```
