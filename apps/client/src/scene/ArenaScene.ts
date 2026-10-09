@@ -3,6 +3,7 @@ import type { CombatEvent } from '@mictlan/core';
 import { actionSlots } from '../action-bar';
 import { DestinationMarker } from '../click-move';
 import { groupFrameAt } from '../frames';
+import { recordHitFlashes, type HitFlashes } from '../hit-flash';
 import { latestRejection, rejectionText } from '../hud-text';
 import { PositionHistory, type Positions } from '../interpolation';
 import { keyAction, type KeyAction } from '../keyboard';
@@ -29,6 +30,7 @@ export class ArenaScene extends Phaser.Scene {
   private snapshot?: RoomSnapshot;
   private readonly history = new PositionHistory();
   private readonly destination = new DestinationMarker();
+  private hitFlashes: HitFlashes = new Map();
   private world!: Phaser.GameObjects.Graphics;
   private hud!: Hud;
 
@@ -55,7 +57,8 @@ export class ArenaScene extends Phaser.Scene {
     drawZones(this.world, this.snapshot, time);
     const marker = this.destination.position;
     if (marker && this.destination.visibleAt(this.snapshot.entities[this.room.sessionId])) drawDestination(this.world, marker);
-    drawEntities(this.world, this.snapshot, positions, this.room.sessionId);
+    drawEntities(this.world, this.snapshot, positions, this.room.sessionId,
+      { hits: this.hitFlashes, nowMs: this.time.now });
     const viewport = { width: this.scale.width, height: this.scale.height, zoom: this.cameras.main.zoom };
     this.hud.update(this.snapshot, this.room.sessionId, time, deltaMs, viewport);
     this.cameras.main.ignore(this.hud.objects);
@@ -75,7 +78,10 @@ export class ArenaScene extends Phaser.Scene {
 
   private receiveState(snapshot: unknown): void {
     if (!isSyncedSnapshot(snapshot)) return;
-    if (snapshot.status === 'lobby') this.hud.resetReading();
+    if (snapshot.status === 'lobby') {
+      this.hud.resetReading();
+      this.hitFlashes = new Map();
+    }
     this.snapshot = snapshot;
     const positions: Positions = {};
     for (const entity of Object.values(snapshot.entities)) positions[entity.id] = { x: entity.x, y: entity.y };
@@ -83,6 +89,7 @@ export class ArenaScene extends Phaser.Scene {
   }
 
   private receiveEvents(events: readonly CombatEvent[]): void {
+    this.hitFlashes = recordHitFlashes(this.hitFlashes, events, this.time.now);
     const reason = latestRejection(events, this.room.sessionId);
     if (reason) this.hud.showFlash(rejectionText(reason), this.time.now);
     if (!this.snapshot) return;

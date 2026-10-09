@@ -1,6 +1,7 @@
 import type * as Phaser from 'phaser';
 import { COMBAT_RULES } from '@mictlan/core';
 import { unsafeRing, windWarningStyle } from '../danger-reading';
+import { hitFlashFor, type HitFlashFrame } from '../hit-flash';
 import type { Positions } from '../interpolation';
 import { entityColor } from '../palette';
 import { entityRadius, isLiving, type EntitySnapshot, type RoomSnapshot } from '../snapshot';
@@ -40,10 +41,20 @@ function drawHealthBar(graphics: Graphics, entity: EntitySnapshot, center: { x: 
   graphics.fillStyle(COLORS.healthFill, 1).fillRect(center.x - widthPx / 2, top, widthPx * ratio, HEALTH_BAR.heightPx);
 }
 
-function drawEntity(graphics: Graphics, entity: EntitySnapshot, position: { x: number; y: number }, marks: Marks): void {
+function drawBossHitFlash(graphics: Graphics, entity: EntitySnapshot, center: { x: number; y: number },
+  radiusPx: number, frame?: HitFlashFrame): void {
+  if (entity.type !== 'boss' || !frame) return;
+  const flash = hitFlashFor(frame.hits, entity.id, frame.nowMs);
+  if (flash.intensity === 0) return;
+  graphics.fillStyle(flash.color, flash.intensity).fillCircle(center.x, center.y, radiusPx * flash.scale);
+}
+
+function drawEntity(graphics: Graphics, entity: EntitySnapshot, position: { x: number; y: number },
+  marks: Marks, frame?: HitFlashFrame): void {
   const center = worldToScreen(position);
   const radiusPx = entityRadius(entity) * PIXELS_PER_METER;
   graphics.fillStyle(entityColor(entity), isLiving(entity) ? 1 : 0.3).fillCircle(center.x, center.y, radiusPx);
+  drawBossHitFlash(graphics, entity, center, radiusPx, frame);
   if (entity.id === marks.selfId) graphics.lineStyle(2, COLORS.self, 1).strokeCircle(center.x, center.y, radiusPx + 3);
   if (entity.id === marks.targetId) graphics.lineStyle(3, COLORS.target, 1).strokeCircle(center.x, center.y, radiusPx + 7);
   if (isLiving(entity)) drawHealthBar(graphics, entity, center, radiusPx);
@@ -62,9 +73,10 @@ export function drawDestination(graphics: Graphics, destination: { x: number; y:
   graphics.lineBetween(center.x, center.y - arm, center.x, center.y + arm);
 }
 
-export function drawEntities(graphics: Graphics, snapshot: RoomSnapshot, positions: Positions, selfId: string): void {
+export function drawEntities(graphics: Graphics, snapshot: RoomSnapshot, positions: Positions,
+  selfId: string, frame?: HitFlashFrame): void {
   const marks = { selfId, targetId: snapshot.entities[selfId]?.targetId ?? '' };
   for (const entity of Object.values(snapshot.entities)) {
-    drawEntity(graphics, entity, positions[entity.id] ?? entity, marks);
+    drawEntity(graphics, entity, positions[entity.id] ?? entity, marks, frame);
   }
 }
