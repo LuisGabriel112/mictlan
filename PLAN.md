@@ -281,9 +281,13 @@
 
 Objetivo: el ambiente de SPEC §9 con cámara isométrica. Core, servidor y red no cambian; del cliente se conservan los módulos puros (snapshot, frames, combat-log, targeting, floating-texts, lobby...) y se reemplaza lo que vive en `scene/` (Phaser). Antes de T5.1: Claude instala `three` (Codex no tiene red) y propone el reparto final de tareas según lo que deje el Checkpoint B.
 
-### [ ] T5.1 Escena 3D y entrada
+### [x] T5.1 Escena 3D y entrada
 - **Hacer:** reemplazar Phaser por Three.js: arena (piso, muro), unidades como formas simples con color por clase, cámara isométrica fija, interpolación existente, y entrada por raycast contra el suelo (clic izquierdo selecciona, clic derecho camina, Tab, F1–F5, QWER, S).
 - **Criterios (manual de Venegas):** se juega un intento completo igual que con Phaser.
+
+### [ ] T5.1b Lectura del combate en 3D
+- **Hacer:** animaciones baratas en Three.js a partir de los eventos ya sincronizados: proyectil de cada habilidad a distancia (flecha del Águila, curas del Tícitl), arco de golpe cuerpo a cuerpo (Zarpazo, auto-ataques), aura y anillo en el suelo durante el casteo del jefe (turquesa si es interrumpible, rojo si no), aro que se llena bajo el jugador que castea, destello verde en el aliado curado e inclinación del jefe al castear. Sin tocar core ni server.
+- **Criterios (manual de Venegas):** cada ataque se ve salir y llegar; se distingue a simple vista qué casteo del jefe se puede cortar.
 
 ### [ ] T5.2 HUD en HTML
 - **Hacer:** marcos propio/objetivo/grupo, barras de casteo, barra de acción con recarga, log, temporizador, avisos y números flotantes (proyectados del mundo a pantalla) en HTML sobre el canvas, reusando los módulos puros de T3.2–T3.4.

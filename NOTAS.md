@@ -34,6 +34,7 @@
 | T4.4 Resumen del intento | `033814d` | 0 | `gpt-6-astra` `high`; revisada por Claude. Probada por Venegas: tabla tras derrota (solo, 13 s, 30 DPS, 2 rechazos, muerte por Mictlantecuhtli) |
 | T4.6 Animación de daño al jefe | `87fac3f` | 0 | Codex se quedó sin cupo al final, pero dejó todo listo; Claude verificó con `npm run check`. Probada por Venegas: el jefe parpadea. Se rehace en T5.3, el módulo `hit-flash.ts` se conserva |
 | T4.7 Tutorial in-game | `a60b6a9` | 0 | **Claude** (ahorrar cupo de Codex). 4 pasos en el primer intento, tecla T repite. Probado por Venegas. Para probar solo: `MICTLAN_DEV_MIN_PLAYERS=1` + `npm run dev` (`npm run start` lo ignora) |
+| T5.1 Escena 3D y entrada | `9f6682c` | 0 | **Claude** (cupo de Codex agotado). Three.js para el mundo, Phaser transparente encima con HUD e input. Cámara ortográfica fija desde el sureste a 35°; clic izquierdo elige por el eje del cuerpo proyectado (en iso el suelo cae detrás de la unidad). Probado por Venegas |
 
 Siguiente: **Checkpoint B** (5 intentos reales; anotar qué fue divertido, qué fue injusto y qué no se entendió) y luego la Fase 5 (Three.js). Para jugar con amigos: `npm.cmd run start` y en otra terminal `cloudflared tunnel --url http://localhost:2567` (guía en `apps/server/README.md`).
 
