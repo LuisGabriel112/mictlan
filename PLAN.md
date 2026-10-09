@@ -285,7 +285,7 @@ Objetivo: el ambiente de SPEC §9 con cámara isométrica. Core, servidor y red 
 - **Hacer:** reemplazar Phaser por Three.js: arena (piso, muro), unidades como formas simples con color por clase, cámara isométrica fija, interpolación existente, y entrada por raycast contra el suelo (clic izquierdo selecciona, clic derecho camina, Tab, F1–F5, QWER, S).
 - **Criterios (manual de Venegas):** se juega un intento completo igual que con Phaser.
 
-### [ ] T5.1b Lectura del combate en 3D
+### [x] T5.1b Lectura del combate en 3D
 - **Hacer:** animaciones baratas en Three.js a partir de los eventos ya sincronizados: proyectil de cada habilidad a distancia (flecha del Águila, curas del Tícitl), arco de golpe cuerpo a cuerpo (Zarpazo, auto-ataques), aura y anillo en el suelo durante el casteo del jefe (turquesa si es interrumpible, rojo si no), aro que se llena bajo el jugador que castea, destello verde en el aliado curado e inclinación del jefe al castear. Sin tocar core ni server.
 - **Criterios (manual de Venegas):** cada ataque se ve salir y llegar; se distingue a simple vista qué casteo del jefe se puede cortar.
 
