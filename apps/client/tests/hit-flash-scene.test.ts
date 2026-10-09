@@ -98,3 +98,20 @@ test('resizing reframes the world and shutting the scene down frees it', () => {
   shutdown();
   expect(world.dispose).toHaveBeenCalledOnce();
 });
+
+test('combat events become attack effects in the world frame until they expire or the lobby returns', () => {
+  const { arena, surface, receiveState, receiveEvents, lastFrame } = worldScene();
+  receiveState({ toJSON: bossRoom });
+  surface.time.now = 1000;
+  receiveEvents([hit()]);
+  arena.update(1000, 16);
+  expect(lastFrame().effects).toEqual([expect.objectContaining({ kind: 'projectile', sourceId: 'eagle', targetId: 'boss', startMs: 1000 })]);
+  surface.time.now = 1300;
+  arena.update(1300, 16);
+  expect(lastFrame().effects).toEqual([]);
+  receiveEvents([hit()]);
+  receiveState({ toJSON: () => room([], { status: 'lobby' }) });
+  receiveState({ toJSON: bossRoom });
+  arena.update(1300, 16);
+  expect(lastFrame().effects).toEqual([]);
+});

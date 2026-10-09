@@ -3,12 +3,16 @@ import { hitFlashFor } from '../hit-flash';
 import { entityColor } from '../palette';
 import { entityRadius, isLiving, type EntitySnapshot } from '../snapshot';
 import { unitHeight, type WorldFrame } from './arena-world';
+import { castProgress } from './cast-layer';
 import { toScene } from './iso-camera';
 
 type UnitMesh = THREE.Mesh<THREE.BufferGeometry, THREE.MeshLambertMaterial>;
 
 const DEAD_OPACITY = 0.3;
 const BODY_SEGMENTS = 24;
+// Readable wind-up: the caster tips toward its target as the cast fills.
+const MAX_LEAN_RADIANS = 0.3;
+const leanAxis = new THREE.Vector3();
 
 function bodyGeometry(entity: EntitySnapshot): THREE.BufferGeometry {
   const radius = entityRadius(entity);
@@ -62,6 +66,18 @@ export class UnitLayer {
     mesh.material.transparent = !living;
     mesh.material.opacity = living ? 1 : DEAD_OPACITY;
     this.applyFlash(mesh, entity, frame);
+    this.applyLean(mesh, entity, frame);
+  }
+
+  private applyLean(mesh: UnitMesh, entity: EntitySnapshot, frame: WorldFrame): void {
+    mesh.quaternion.identity();
+    const target = entity.cast ? frame.snapshot.entities[entity.cast.targetId] : undefined;
+    if (!entity.cast || !target || target === entity) return;
+    const from = toScene(frame.positions[entity.id] ?? entity);
+    const to = toScene(frame.positions[target.id] ?? target);
+    leanAxis.set(to.z - from.z, 0, from.x - to.x);
+    if (leanAxis.lengthSq() === 0) return;
+    mesh.quaternion.setFromAxisAngle(leanAxis.normalize(), MAX_LEAN_RADIANS * castProgress(entity.cast));
   }
 
   private applyFlash(mesh: UnitMesh, entity: EntitySnapshot, frame: WorldFrame): void {

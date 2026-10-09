@@ -16,7 +16,7 @@ function fixture() {
   const renderer = { domElement: {} as HTMLCanvasElement, setSize: vi.fn(), render: vi.fn(), dispose: vi.fn() };
   const world = new ThreeArenaWorld(renderer);
   const draw = (frame: Partial<WorldFrame> & Pick<WorldFrame, 'snapshot'>) => {
-    world.render({ positions: {}, selfId: 'eagle', hits: new Map(), nowMs: 0, ...frame });
+    world.render({ positions: {}, selfId: 'eagle', hits: new Map(), effects: [], nowMs: 0, ...frame });
     return renderer.render.mock.lastCall![0] as THREE.Scene;
   };
   return { renderer, world, draw };

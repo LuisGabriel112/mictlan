@@ -1,6 +1,7 @@
 import * as Phaser from 'phaser';
 import type { CombatEvent } from '@mictlan/core';
 import { actionSlots } from '../action-bar';
+import { effectsFromEvents, liveEffects, type AttackEffect } from '../attack-effects';
 import { DestinationMarker } from '../click-move';
 import { groupFrameAt } from '../frames';
 import { recordHitFlashes, type HitFlashes } from '../hit-flash';
@@ -31,6 +32,7 @@ export class ArenaScene extends Phaser.Scene {
   private readonly history = new PositionHistory();
   private readonly destination = new DestinationMarker();
   private hitFlashes: HitFlashes = new Map();
+  private effects: AttackEffect[] = [];
   private bars!: Phaser.GameObjects.Graphics;
   private hud!: Hud;
   private readonly project = (world: Point, heightMeters?: number): Point => this.world.project(world, heightMeters);
@@ -51,11 +53,16 @@ export class ArenaScene extends Phaser.Scene {
     if (!this.snapshot) return;
     const positions: Positions = this.history.sample(performance.now() - INTERPOLATION_DELAY_MS);
     this.world.render({ snapshot: this.snapshot, positions, selfId: this.room.sessionId,
-      destination: this.visibleDestination(this.snapshot), hits: this.hitFlashes, nowMs: this.time.now });
+      destination: this.visibleDestination(this.snapshot), hits: this.hitFlashes, effects: this.currentEffects(), nowMs: this.time.now });
     this.bars.clear();
     drawUnitBars(this.bars, this.snapshot, positions, this.project);
     const viewport = { width: this.scale.width, height: this.scale.height, project: this.project };
     this.hud.update(this.snapshot, this.room.sessionId, time, deltaMs, viewport);
+  }
+
+  private currentEffects(): AttackEffect[] {
+    this.effects = liveEffects(this.effects, this.time.now);
+    return this.effects;
   }
 
   private visibleDestination(snapshot: RoomSnapshot): Point | undefined {
@@ -83,6 +90,7 @@ export class ArenaScene extends Phaser.Scene {
     if (snapshot.status === 'lobby') {
       this.hud.resetReading();
       this.hitFlashes = new Map();
+      this.effects = [];
     }
     this.snapshot = snapshot;
     const positions: Positions = {};
@@ -96,6 +104,7 @@ export class ArenaScene extends Phaser.Scene {
     if (reason) this.hud.showFlash(rejectionText(reason), this.time.now);
     if (!this.snapshot) return;
     const positions = this.history.sample(performance.now() - INTERPOLATION_DELAY_MS);
+    this.effects.push(...effectsFromEvents(events, this.snapshot, positions, this.time.now));
     this.hud.receiveCombatEvents(events, this.snapshot, this.room.sessionId, positions);
   }
 

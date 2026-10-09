@@ -1,12 +1,11 @@
 import * as THREE from 'three';
 import { COMBAT_RULES } from '@mictlan/core';
 import { unsafeRing, windWarningStyle } from '../danger-reading';
-import { entityRadius, type Point, type ZoneSnapshot } from '../snapshot';
+import { entityRadius, type ZoneSnapshot } from '../snapshot';
 import type { WorldFrame } from './arena-world';
-import { toScene } from './iso-camera';
+import { flat, overlay, placeFlat, type BasicMesh } from './flat-mesh';
 
-type FlatMesh = THREE.Mesh<THREE.BufferGeometry, THREE.MeshBasicMaterial>;
-interface ZoneMeshes { disc: FlatMesh; border: FlatMesh }
+interface ZoneMeshes { disc: BasicMesh; border: BasicMesh }
 
 const WALL_RADIUS = COMBAT_RULES.arena.wallRadiusMeters;
 const COLORS = { floor: 0x2a2233, wall: 0xd9c08c, unsafe: 0xff4444, zone: 0xff2222, self: 0xffffff,
@@ -16,25 +15,6 @@ const LAYER_Y = { unsafe: 0.01, zone: 0.02, zoneBorder: 0.03, ring: 0.04, destin
 const RING_GAP_METERS = { self: 0.1, target: 0.3 } as const;
 const UNSAFE_BAND_OPACITY = 0.22;
 const WALL_THICKNESS_METERS = 0.35;
-
-function overlay(color: number, opacity: number): THREE.MeshBasicMaterial {
-  return new THREE.MeshBasicMaterial({ color, opacity, transparent: true, depthWrite: false, side: THREE.DoubleSide });
-}
-
-function flat<M extends THREE.Material>(geometry: THREE.BufferGeometry, material: M, name: string, height: number) {
-  const mesh = new THREE.Mesh(geometry, material);
-  mesh.name = name;
-  mesh.rotation.x = -Math.PI / 2;
-  mesh.position.y = height;
-  return mesh;
-}
-
-function placeFlat(mesh: THREE.Object3D, point: Point, scale: number): void {
-  const { x, z } = toScene(point);
-  mesh.position.set(x, mesh.position.y, z);
-  mesh.scale.set(scale, scale, 1);
-  mesh.visible = true;
-}
 
 function detach(mesh: THREE.Mesh<THREE.BufferGeometry, THREE.Material>): void {
   mesh.removeFromParent();
@@ -54,7 +34,7 @@ function stoneWall() {
 export class GroundLayer {
   private readonly floor = flat(new THREE.CircleGeometry(WALL_RADIUS, 96), new THREE.MeshLambertMaterial({ color: COLORS.floor }), 'floor', 0);
   private readonly wall = stoneWall();
-  private readonly unsafeBand: FlatMesh = flat(new THREE.RingGeometry(WALL_RADIUS, WALL_RADIUS, 96), overlay(COLORS.unsafe, UNSAFE_BAND_OPACITY), 'unsafe-band', LAYER_Y.unsafe);
+  private readonly unsafeBand: BasicMesh = flat(new THREE.RingGeometry(WALL_RADIUS, WALL_RADIUS, 96), overlay(COLORS.unsafe, UNSAFE_BAND_OPACITY), 'unsafe-band', LAYER_Y.unsafe);
   private readonly safeEdge = flat(new THREE.RingGeometry(0.985, 1, 128), overlay(COLORS.unsafe, 0.9), 'safe-edge', LAYER_Y.unsafe);
   private readonly selfRing = flat(new THREE.RingGeometry(1, 1.12, 48), overlay(COLORS.self, 1), 'self-ring', LAYER_Y.ring);
   private readonly targetRing = flat(new THREE.RingGeometry(1, 1.15, 48), overlay(COLORS.target, 1), 'target-ring', LAYER_Y.ring);

@@ -1,6 +1,8 @@
 import * as THREE from 'three';
 import type { Point } from '../snapshot';
 import type { ArenaWorld, WorldFrame } from './arena-world';
+import { CastLayer } from './cast-layer';
+import { EffectLayer } from './effect-layer';
 import { GroundLayer } from './ground-layer';
 import { isoCamera, pickGround, projectToScreen, type IsoCamera } from './iso-camera';
 import { UnitLayer } from './unit-layer';
@@ -28,6 +30,8 @@ export class ThreeArenaWorld implements ArenaWorld {
   private readonly camera = new THREE.OrthographicCamera();
   private readonly units = new UnitLayer(this.scene);
   private readonly ground = new GroundLayer(this.scene);
+  private readonly casts = new CastLayer(this.scene);
+  private readonly effects = new EffectLayer(this.scene);
   private rig: IsoCamera = isoCamera(1, 1);
 
   constructor(private readonly renderer: WorldRenderer) {
@@ -55,12 +59,16 @@ export class ThreeArenaWorld implements ArenaWorld {
   render(frame: WorldFrame): void {
     this.units.update(frame);
     this.ground.update(frame);
+    this.casts.update(frame);
+    this.effects.update(frame);
     this.renderer.render(this.scene, this.camera);
   }
 
   dispose(): void {
     this.units.dispose();
     this.ground.dispose();
+    this.casts.dispose();
+    this.effects.dispose();
     this.renderer.dispose();
   }
 }

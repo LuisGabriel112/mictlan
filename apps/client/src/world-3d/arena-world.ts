@@ -1,3 +1,4 @@
+import type { AttackEffect } from '../attack-effects';
 import type { HitFlashes } from '../hit-flash';
 import type { Positions } from '../interpolation';
 import type { EntitySnapshot, Point, RoomSnapshot } from '../snapshot';
@@ -8,6 +9,7 @@ export interface WorldFrame {
   selfId: string;
   destination?: Point;
   hits: HitFlashes;
+  effects: readonly AttackEffect[];
   nowMs: number;
 }
 
