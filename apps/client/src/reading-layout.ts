@@ -8,6 +8,15 @@ export const HUD_LAYOUT = {
 } as const;
 export interface ReadingViewport { width: number; height: number; zoom: number }
 
+export function actionSlotRects(width: number, height: number): Rect[] {
+  const { slotWidth, slotGap, slotHeight, margin } = HUD_LAYOUT;
+  const totalWidth = 4 * slotWidth + 3 * slotGap;
+  return Array.from({ length: 4 }, (_, index) => ({
+    x: (width - totalWidth) / 2 + index * (slotWidth + slotGap),
+    y: height - slotHeight - margin, width: slotWidth, height: slotHeight,
+  }));
+}
+
 export function unitFrameRects(): readonly [Rect, Rect, Rect] {
   const { margin, unitFrame } = HUD_LAYOUT;
   return [{ x: margin, y: margin, ...unitFrame }, { x: 2 * margin + unitFrame.width, y: margin, ...unitFrame },

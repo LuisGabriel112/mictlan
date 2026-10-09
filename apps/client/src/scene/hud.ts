@@ -5,7 +5,7 @@ import { bossCastBar, groupFrameRect, groupFrames, selfFrame, targetFrame, type 
 import { slotLabel, statusText } from '../hud-text';
 import type { RoomSnapshot } from '../snapshot';
 import type { Positions } from '../interpolation';
-import { HUD_LAYOUT as LAYOUT, readingLayout, unitFrameRects, type ReadingViewport } from '../reading-layout';
+import { HUD_LAYOUT as LAYOUT, actionSlotRects, readingLayout, unitFrameRects, type ReadingViewport } from '../reading-layout';
 import { CombatReadingView } from './combat-reading-view';
 import { CastBarWidget, FrameWidget } from './frame-view';
 
@@ -105,10 +105,10 @@ export class Hud {
   }
 
   private drawSlots(slots: readonly ActionSlot[], width: number, height: number): void {
-    const totalWidth = 4 * LAYOUT.slotWidth + 3 * LAYOUT.slotGap;
+    const rectangles = actionSlotRects(width, height);
     this.slots.forEach((view, index) => {
-      const left = (width - totalWidth) / 2 + index * (LAYOUT.slotWidth + LAYOUT.slotGap);
-      this.drawSlot(view, slots[index], left, this.actionTop(height));
+      const { x, y } = rectangles[index];
+      this.drawSlot(view, slots[index], x, y);
     });
   }
 

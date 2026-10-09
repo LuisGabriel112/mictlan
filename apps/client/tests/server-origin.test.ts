@@ -11,6 +11,7 @@ test.each([[null, 'eagle'], ['', 'eagle'], ['wizard', 'eagle'], ['jaguar', 'jagu
 vi.mock('@colyseus/sdk', () => ({ Client: vi.fn() }));
 vi.mock('phaser', () => ({}));
 vi.mock('../src/scene/ArenaScene', () => ({}));
+vi.mock('../src/help-view', () => ({ HelpView: vi.fn(function () { return { render: vi.fn() }; }) }));
 afterEach(() => { vi.unstubAllEnvs(); vi.unstubAllGlobals(); vi.resetModules(); });
 
 test.each([

@@ -1,0 +1,27 @@
+#class-panel { margin-top: 24px; }
+#class-panel h2 { font-size: 1.15rem; }
+.class-abilities { display: grid; gap: 10px; }
+.ability-card { padding: 12px; border: 1px solid #76624c; border-radius: 6px; background: #191520; }
+.ability-card h3 { margin: 0 0 6px; font-size: 1rem; }
+.ability-card p { margin: 8px 0 0; line-height: 1.45; }
+.ability-details { color: #dfd0bc; font-size: 0.85rem; }
+.ability-kind { color: #75e4d5; font-weight: 600; font-size: 0.75rem; }
+#how-to-play { margin-top: 16px; }
+#combat-help { position: fixed; inset: 0; z-index: 2; pointer-events: none; }
+.help-slot { position: absolute; box-sizing: border-box; pointer-events: auto; cursor: help; }
+.help-slot > .ability-kind { position: absolute; bottom: 3px; left: 6px; line-height: 14px; }
+.help-slot:focus-visible { outline: 2px solid #75e4d5; outline-offset: 2px; }
+.ability-tooltip { position: fixed; width: min(340px, calc(100vw - 32px)); pointer-events: none; z-index: 3; }
+.ability-tooltip .ability-card { box-shadow: 0 8px 30px #000a; }
+.role-guide { box-sizing: border-box; width: min(700px, calc(100vw - 32px)); max-height: calc(100vh - 32px);
+  overflow: auto; padding: 24px; color: #f2e9dc; background: #211a26; border: 1px solid #8e714c; border-radius: 12px; }
+.role-guide::backdrop { background: #09070dc9; }
+.role-guide h2 { margin: 0 0 12px; }
+.role-guide h3 { font-size: 1rem; margin: 20px 0 6px; color: #75e4d5; }
+.role-guide p { margin: 0; line-height: 1.55; }
+.role-guide button { padding: 8px 16px; font: inherit; color: inherit; border: 1px solid #8e714c;
+  border-radius: 6px; background: #14101c; cursor: pointer; }
+.role-guide button:focus-visible { outline: 3px solid #75e4d5; outline-offset: 3px; }
+.role-guide .help-hint { margin-top: 20px; color: #dfd0bc; }
+#combat-help-hint { position: fixed; right: 16px; bottom: 8px; margin: 0; font-size: 12px; color: #dfd0bc; pointer-events: none; }
+body:has(#combat-help[hidden]) #combat-help-hint { display: none; }

@@ -47,11 +47,18 @@ En modo dev no se puede repetir Jaguar ni Tícitl; Águilas, las que quieras.
 | Clic | Seleccionar la unidad bajo el puntero |
 | F1–F5 o Shift+1–5 | Seleccionar aliado (1 = tú, luego los demás) |
 | Q W E R | Habilidades de tu clase (los números no castean) |
+| H | Abrir o cerrar la guía del rol en combate |
+| Esc | Cerrar la guía |
 
 Pedir una habilidad con tiempo de casteo (Flecha, Remedio…) te detiene y la lanza.
 
 La barra de acción muestra la recarga y por qué una habilidad no está disponible
 (GCD, sin maná, lejos, sin objetivo). Si el servidor rechaza una habilidad, aparece el motivo.
+
+Antes de marcar Listo, el panel de clase explica sus cuatro habilidades y **Cómo jugar**
+abre la guía del rol de SPEC §5.4. En combate, pasa el puntero sobre una habilidad para
+consultar sus detalles. La guía bloquea las entradas del juego mientras está abierta;
+el combate del servidor continúa.
 
 ## Parámetros de la URL
 
@@ -71,3 +78,8 @@ Para jugar en red local o con amigos en otras redes, sigue la
 - La escena de Phaser (`src/scene/`) solo dibuja y conecta; se prueba a mano en el navegador.
 - Inicio, lobby y resultado usan HTML sobre el canvas: permite un formulario nativo con
   teclado y foco, y conserva la escena de combate durante todo el intento.
+- La ayuda también usa HTML/CSS. El hover se detecta en el DOM sobre los rectángulos
+  de `actionSlotRects`, compartidos con el HUD. Así el contenido y su interacción
+  sobreviven al reemplazo de Phaser; solo depende del tamaño del canvas, que ocupa
+  toda la ventana. `HelpView` recibe documento y ventana, conserva la selección y
+  actualiza las posiciones al redimensionar. H está libre en los controles actuales.

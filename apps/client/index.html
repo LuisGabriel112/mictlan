@@ -11,6 +11,8 @@
   </head>
   <body>
     <div id="game"></div>
+    <div id="combat-help" aria-label="Ayuda de habilidades" hidden></div>
+    <p id="combat-help-hint">H · Cómo jugar</p>
     <main id="overlay">
       <div class="lobby-panel">
         <section id="start-screen" aria-labelledby="start-title">
@@ -39,6 +41,8 @@
             <button id="class-healer" type="button" aria-pressed="false"></button>
             <button id="class-eagle" type="button" aria-pressed="false"></button>
           </div>
+          <div id="class-panel"></div>
+          <button id="how-to-play" type="button">Cómo jugar</button>
           <button id="ready" type="button" aria-pressed="false">Listo</button>
           <p>El combate empieza cuando todo el grupo está listo y la composición está completa.</p>
         </section>
