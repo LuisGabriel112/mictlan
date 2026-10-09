@@ -103,3 +103,31 @@ Criterio (manual de Venegas): un jugador nuevo completa los 4 pasos sin pregunta
 Si algo es ambiguo, detente y reporta una propuesta. No inventes.
 Termina con npm.cmd run check en verde y el reporte del formato de AGENTS.md (incluye qué debe revisar Venegas en el navegador).
 ```
+
+---
+
+## T5.1 — Escena 3D y entrada (Three.js)
+
+```
+Tarea T5.1 — Escena 3D y entrada.
+
+Lee AGENTS.md, SPEC.md §3, §5, §8 y §9, la tarea T5.1 de PLAN.md, NOTAS.md (T3.1–T3.7, T4.6) y el "Contexto común del cliente" de PROMPTS.md. Implementa SOLO T5.1 en apps/client. No toques core ni server.
+
+IMPORTANTE: NO ejecutes `npm ci`, `npm install`, `npm run dev` ni `npm run start`. Usa npm.cmd. No hagas commit. No crees archivos de reporte en el repo. `three` 0.186 y `@types/three` ya están instalados (Claude); no agregues dependencias.
+
+Decisión de diseño (de Claude, aprobada): el MUNDO pasa a Three.js; Phaser se queda SOLO como capa de HUD transparente encima (barra de acción, marcos, barras de casteo, log, textos flotantes) hasta T5.2, que lo pasa a HTML. Así el HUD actual sigue funcionando y no se rehace dos veces.
+
+1. Canvas de Three (WebGLRenderer, fondo #14101c) en #game debajo del canvas de Phaser, que pasa a fondo transparente (`transparent: true`) y ya no dibuja el mundo. El de Phaser conserva el teclado y el puntero; el de Three no recibe eventos.
+2. Escena: piso circular de radio COMBAT_RULES.arena.wallRadiusMeters, muro como anillo (color 0xd9c08c), unidades como formas simples: jugadores cilindros del color de entityColor(), jefe un cilindro grande morado, xolos conos grises, radio = entityRadius(). Muertos al 30 % de opacidad. Aro blanco bajo el propio jugador, aro amarillo bajo el objetivo, marcador de destino (T3.7), zonas de Viento como discos rojos con alpha y borde según windWarningStyle (danger-reading.ts), anillo del radio seguro en fase 3 según unsafeRing, y el destello del jefe de T4.6 (hitFlashFor) como emisivo + escala.
+3. Mundo → Three: x este, y norte del core se mapea a (x, 0, -y) de Three (1 unidad = 1 m). Módulo puro `world-3d.ts` con esa conversión y su inversa.
+4. Cámara isométrica fija (ortográfica, mirando al centro desde el sureste-arriba, ~35° de elevación, ~45° de giro), encuadrada para que quepa el diámetro de la arena + margen (VIEW_MARGIN_METERS) en cualquier tamaño de ventana, y se reencuadra al redimensionar. Módulo puro `camera-rig.ts` con la matemática (parámetros → posición/frustum), sin importar three.
+5. Entrada por raycast: módulo puro `ground-pick.ts` que, dada la cámara ortográfica (parámetros del rig) y un punto de pantalla, devuelve el punto del suelo (y=0) en coordenadas de mundo; y su inversa `worldToPixel` para los textos flotantes y marcos del HUD (que hoy usan worldToScreen/PIXELS_PER_METER de Phaser: adapta hud.ts/combat-reading-view.ts para recibir esa proyección inyectada). Clic izquierdo selecciona (entityAtPoint con el punto del suelo, groupFrameAt sigue igual), clic derecho camina, Tab, F1–F5, Q W E R, S: el mismo comportamiento que hoy; ArenaScene sigue manejando input pero con ground-pick en lugar de la cámara de Phaser.
+6. Interpolación: reutiliza PositionHistory tal cual. Bucle de render con requestAnimationFrame o el update de Phaser (elige uno y justifícalo); libera recursos (geometrías, materiales) al volver al lobby.
+7. No bajes de 60 fps con 5 jugadores, 4 xolos y 3 zonas (mallas reutilizadas, sin crear objetos por frame).
+
+Lógica pura con tests (Vitest, sin WebGL real; mockea three o prueba solo los módulos puros): world-3d, camera-rig, ground-pick (ida y vuelta pantalla↔mundo con varios tamaños de ventana), y la selección de objetivo con el punto del suelo. Los módulos que importen three van detrás de una interfaz inyectable.
+
+Criterio (manual de Venegas): se juega un intento completo igual que con Phaser (seleccionar, caminar, lanzar, esquivar vientos, ver marcos y barras), la cámara se ve isométrica y las unidades se distinguen por color.
+Si algo es ambiguo, detente y reporta una propuesta. No inventes.
+Termina con npm.cmd run check en verde y el reporte del formato de AGENTS.md (incluye qué debe revisar Venegas en el navegador).
+```

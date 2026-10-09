@@ -253,7 +253,7 @@
 - **Hacer:** vida del jefe a 15 000 / 25 000 / 35 000 (3/4/5 jugadores, SPEC §6 v0.9). Actualizar los tests que dependían de los valores anteriores y correr el simulador.
 - **Criterios:** `npm run sim -- --players=3 --runs=50` da 100 % de victorias con duración media de 3:00 a 4:00 (los bots juegan perfecto; los humanos tardarán más).
 
-### [ ] T4.3 Habilidades y roles legibles
+### [x] T4.3 Habilidades y roles legibles
 - **Hacer:** (1) en el lobby, al elegir clase, panel con el rol y sus 4 habilidades (tecla, qué hace en una línea, tipo, costo, casteo, recarga, alcance); (2) botón "Cómo jugar" por clase con la guía del rol: tu trabajo, rotación básica, qué evitar y cómo coordinarte; (3) en combate, tooltip al pasar el mouse sobre la barra de acción y etiqueta de tipo en cada botón (daño, cura, defensa, control). Todo en HTML (sobrevive a la Fase 5). Datos de core y SPEC §5; textos en el cliente.
 - **Criterios (manual de Venegas):** un jugador nuevo, tras leer la guía de su rol, sabe qué tecla usar y cuándo sin preguntar.
 - **Opcional después (T4.4):** práctica interactiva de un jugador con pasos guiados, solo si la guía no basta.

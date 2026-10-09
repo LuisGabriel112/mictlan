@@ -12,7 +12,9 @@
   "dependencies": {
     "@colyseus/sdk": "^0.18.5",
     "@mictlan/core": "*",
-    "phaser": "^3.90.0"
+    "@types/three": "^0.186.0",
+    "phaser": "^3.90.0",
+    "three": "^0.186.1"
   },
   "devDependencies": {
     "vite": "^8.3.3",
