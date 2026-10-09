@@ -7,6 +7,8 @@ import { expect, test } from 'vitest';
 const rootDirectory = resolve(import.meta.dirname, '..', '..', '..');
 const require = createRequire(import.meta.url);
 const eslint = new ESLint({ cwd: rootDirectory });
+// ESLint cold-starts slowly under machine load; the 5 s default flakes.
+const LINT_TIMEOUT_MS = 30_000;
 
 test('resolves the three installed workspaces', () => {
   const workspaces = [
@@ -42,7 +44,7 @@ test('rejects impure APIs in core source', async () => {
     expect(result.errorCount).toBe(1);
     expect(result.messages[0].ruleId).toBe(ruleId);
   }
-});
+}, LINT_TIMEOUT_MS);
 
 test('allows impure APIs in the simulator and apps', async () => {
   const directories = [
@@ -67,4 +69,4 @@ test('allows impure APIs in the simulator and apps', async () => {
     expect(result.errorCount).toBe(0);
     expect(result.warningCount).toBe(0);
   }
-});
+}, LINT_TIMEOUT_MS);
