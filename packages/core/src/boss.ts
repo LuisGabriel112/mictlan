@@ -19,12 +19,28 @@ function isPulled(state: EncounterState, boss: EnemyEntity): boolean {
   });
 }
 
+// SPEC §4: a pull without threat (by proximity only) aims the boss at the nearest living player.
+function pullTarget(state: EncounterState, boss: EnemyEntity): string | null {
+  let nearest: { id: string; distance: number } | null = null;
+  for (const id of Object.keys(state.entities).sort()) {
+    const player = state.entities[id];
+    if (player.type !== 'player' || player.health <= 0) continue;
+    if ((boss.threat[id] ?? 0) > 0) return boss.targetId;
+    const distance = Math.hypot(player.x - boss.x, player.y - boss.y);
+    if (!nearest || distance < nearest.distance) nearest = { id, distance };
+  }
+  return nearest?.id ?? null;
+}
+
 export function advanceBossEncounter(state: EncounterState): EncounterState {
   const boss = livingBoss(state);
   if (!boss || (!state.bossActive && !isPulled(state, boss))) return state;
   const bossAbilityTimers = state.bossActive ? state.bossAbilityTimers : createPhaseAbilityTimers(state.phase);
-  return { ...state, bossActive: true, elapsedTicks: state.elapsedTicks + 1,
+  const advanced = { ...state, bossActive: true, elapsedTicks: state.elapsedTicks + 1,
     phaseElapsedTicks: state.phaseElapsedTicks + 1, bossAbilityTimers };
+  if (state.bossActive || boss.targetId !== null) return advanced;
+  const targetId = pullTarget(state, boss);
+  return targetId === null ? advanced : { ...advanced, entities: { ...state.entities, [boss.id]: { ...boss, targetId } } };
 }
 
 function resolveBossAbility(state: EncounterState, event: Extract<CombatEvent, { type: 'abilityResolved' | 'castFinished' }>): CombatResult {

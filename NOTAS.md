@@ -32,7 +32,7 @@ Siguiente: **T3.5** (lobby), T3.6 (pulido visual) y T4.1 (playtest). Prompts lis
 
 **Para continuar en otra máquina:**
 1. `git pull` y `npm.cmd ci` (instala también Phaser, Vite y el SDK del cliente).
-2. `npm.cmd run check` debe dar 813 tests en verde (464 core, 177 servidor, 172 cliente).
+2. `npm.cmd run check` debe dar 815 tests en verde (466 core, 177 servidor, 172 cliente).
 3. Jugar: `npm.cmd run dev` y abrir la URL que imprima Vite con `?dev=1&class=eagle` (o `jaguar` / `healer`). Controles en `apps/client/README.md` (clic derecho, S, Q W E R, Tab, F1–F5).
 4. En Claude Code: "lee NOTAS.md y lanza T3.5 con PROMPTS.md". Si Codex no tiene créditos, Claude puede implementarla (T3.1–T3.3 y T3.7 las hizo Claude).
 
@@ -184,6 +184,12 @@ Siguiente: **T3.5** (lobby), T3.6 (pulido visual) y T4.1 (playtest). Prompts lis
 - Reloj arriba al centro (`clockTop` 96) y casteo del jefe debajo (`bossCastTop` 122). Constantes del HUD en `hud-layout.ts`.
 - Fase 3: anillo rojo translúcido entre el radio seguro y el muro, más línea roja en el radio seguro.
 
+**Corrección: pull sin amenaza (decidido por Venegas, implementado por Claude, SPEC v0.8)**
+- En `advanceBossEncounter`, solo en el tick del pull: si el jefe no tiene objetivo y ningún jugador vivo tiene amenaza, `targetId` = jugador vivo más cercano (distancia entre centros, empate por id). Con amenaza, decide `updateEnemyTargets` como antes.
+- Se acotó al tick del pull a propósito: aplicarlo a todo enemigo activo sin amenaza rompía 20 tests que usan `bossActive = true` con temporizadores vacíos para aislar mecánicas.
+- Seis tests viejos esperaban `targetId: null` tras un pull por cercanía; ahora esperan `p1` o silencian el auto-ataque del jefe (`autoAttackRemainingTicks = 100_000`) para seguir aislando lo que prueban.
+- El `castStarted` del Lamento lleva el objetivo actual del jefe (no cambia su efecto).
+
 ## Decisiones de Venegas (2026-10-06)
 
 - **Vuelo:** entra en T1.4. Detalle en SPEC §5.3 (v0.3).
@@ -232,7 +238,7 @@ Ninguna.
 
 ## Hallazgos pendientes
 
-- **Pull sin amenaza (core, T1.7):** si un jugador activa al jefe solo por cercanía, sin haber generado amenaza, el jefe no tiene objetivo: no auto-ataca y el Golpe del Descarnado se castea sin objetivo y no pega. Visto en Chrome con 1 sanador (log: "Mictlantecuhtli prepara Golpe del Descarnado" sin "→"). Propuesta: al hacer pull por cercanía, el jefe toma como objetivo al jugador vivo más cercano. Requiere decisión (SPEC §3/§4) antes de tocar core.
+- ~~Pull sin amenaza~~: resuelto el 2026-10-08 (ver "Corrección: pull sin amenaza").
 - **Log, desconexión:** sale "Tícitl murió (Desconexión · Tícitl)"; quitar el autor cuando es la propia víctima (T3.6).
 
 ## Recordatorios para los próximos prompts

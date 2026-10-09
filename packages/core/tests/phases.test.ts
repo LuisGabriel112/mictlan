@@ -12,6 +12,8 @@ function withBossHealth(state: EncounterState, health: number): EncounterState {
 function beforeFirstPhaseTick(phase: Phase): EncounterState {
   const initial = combatEncounter();
   Object.assign(initial.entities.p1, { x: 11.5, y: 0 });
+  // The proximity pull aims the boss at p1 (SPEC §4); silence its auto-attack to isolate scheduling.
+  initial.entities.boss.autoAttackRemainingTicks = 100_000;
   if (phase === 1) return initial;
   initial.entities.boss.health = phase === 2 ? 15600 : 7200;
   const entered = combatTick(initial);
@@ -110,7 +112,7 @@ test.each([1, 2] as const)(
     const started = combatTick(before.state);
     expect(started.state.phaseElapsedTicks).toBe(200);
     expect(started.events).toContainEqual({
-      type: 'castStarted', sourceId: BOSS.id, abilityId: 'flayedStrike', targetId: null,
+      type: 'castStarted', sourceId: BOSS.id, abilityId: 'flayedStrike', targetId: 'p1',
       durationTicks: 50, tick: initial.tick + 200,
     });
     expect(started.state.bossAbilityTimers.flayedStrike).toBe(BOSS_PHASES[phase].timers.flayedStrike.intervalTicks);
@@ -127,7 +129,7 @@ test('C2: phase 3 Lament starts at 160, queues Strike at 200 and releases it at 
   const lament = combatTick(before.state);
   expect(lament.state.phaseElapsedTicks).toBe(160);
   expect(lament.events).toEqual([{
-    type: 'castStarted', sourceId: BOSS.id, abilityId: 'lamentOfTheDead', targetId: null,
+    type: 'castStarted', sourceId: BOSS.id, abilityId: 'lamentOfTheDead', targetId: 'p1',
     durationTicks: 60, tick: initial.tick + 160,
   }]);
   const almostDue = repeatTick(lament.state, 39);

@@ -47,7 +47,7 @@ test('C7: Flight cancels Arrow without its cost or cooldown and starts 240 ticks
   expect(combatPlayer(result.state)).toMatchObject({ cast: null, mana: 0, cooldowns: { flight: 240 }, gcdRemainingTicks: 9 });
   let current = result.state;
   for (let tick = 0; tick < 40; tick += 1) current = combatTick(current).state;
-  expect(current.entities[BOSS.id]).toBe(state.entities[BOSS.id]);
+  expect(current.entities[BOSS.id].health).toBe(state.entities[BOSS.id].health);
 });
 
 test('Flight itself preserves facing, cancels before resolving, and leaves GCD alone', () => {

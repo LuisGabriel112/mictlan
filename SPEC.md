@@ -1,4 +1,4 @@
-# MICTLÁN — Especificación del MVP (v0.7)
+# MICTLÁN — Especificación del MVP (v0.8)
 
 > Nombre de trabajo. Raid cooperativo en navegador, 3–5 jugadores contra un jefe inspirado en la mitología mexica.
 > Todos los números son **valores iniciales**: se ajustan con el simulador (tareas T1.12–T1.13) y con playtests.
@@ -96,6 +96,7 @@ Cuentas y login, persistencia, botín, niveles y talentos, más de un jefe, chat
 - **Curación:** `amenaza = curación_efectiva × 0.5`, dividida en partes iguales entre todos los enemigos vivos en ese momento.
 - **Amenaza plana** (por ejemplo, la extra de Rugido) no se multiplica por el modificador de clase.
 - El enemigo ataca al jugador con más amenaza. Empate: gana el jugador con id menor.
+- **Pull sin amenaza (v0.8, decisión de Venegas):** si el jefe se activa por cercanía y ningún jugador vivo tiene amenaza sobre él, toma como objetivo al jugador vivo más cercano (distancia entre centros; empate: id menor) y lo conserva hasta que alguien genere amenaza.
 - **Cambio de objetivo:** solo si otro jugador supera al actual en 10 % (si está en cuerpo a cuerpo del enemigo) o en 30 % (si está a más de 4 m).
 - **Provocar:** fija la amenaza del tanque en `max(propia, máxima_actual × 1.1)` y fuerza el objetivo por 3 s.
 
