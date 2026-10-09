@@ -60,3 +60,46 @@ Criterio (manual de Venegas): tras una derrota, el grupo ve cuánto daño hizo c
 Si algo es ambiguo, detente y reporta una propuesta. No inventes.
 Termina con npm.cmd run check en verde y el reporte del formato de AGENTS.md (incluye qué debe revisar Venegas en el navegador).
 ```
+
+---
+
+## T4.6 — Animación de daño al jefe
+
+```
+Tarea T4.6 — Animación de daño al jefe.
+
+Lee AGENTS.md, SPEC.md §9, la tarea T4.6 de PLAN.md y el "Contexto común del cliente" de PROMPTS.md. Implementa SOLO T4.6 en apps/client. No toques core ni server.
+
+IMPORTANTE: NO ejecutes `npm ci`, `npm install`, `npm run dev` ni `npm run start`. Usa npm.cmd. No hagas commit. No crees archivos de reporte en el repo.
+
+1. Módulo puro `hit-flash.ts`: registra golpes (evento damage con targetId, critical) con el tiempo inyectado y devuelve por entidad una intensidad 0..1 y un factor de escala (pulso breve ~200 ms, decae lineal). El crítico dura más, escala más y usa color amarillo (palette). Golpes seguidos reinician sin acumular más allá de 1.
+2. Conectar los eventos que ya llegan por room.onMessage('events') y dibujar en scene/arena-renderer.ts: relleno blanco/amarillo con alpha = intensidad sobre el círculo del jefe y radio * escala. Solo el jefe (no jugadores ni xolos).
+3. No debe tapar la barra de vida ni las marcas de selección.
+
+Tests de lógica pura: decaimiento, reinicio, crítico vs normal, entidad sin golpes, reloj inyectado.
+Criterio (manual de Venegas): cada golpe al jefe se nota; no es un destello constante con 3 atacantes.
+Si algo es ambiguo, detente y reporta una propuesta. No inventes.
+Termina con npm.cmd run check en verde y el reporte del formato de AGENTS.md (incluye qué debe revisar Venegas en el navegador).
+```
+
+---
+
+## T4.7 — Tutorial in-game
+
+```
+Tarea T4.7 — Tutorial in-game.
+
+Lee AGENTS.md, SPEC.md §5.4 y §8, las tareas T4.3 y T4.7 de PLAN.md, role-guide.ts, help-*.ts y el "Contexto común del cliente" de PROMPTS.md. Implementa SOLO T4.7 en apps/client. No toques core ni server.
+
+IMPORTANTE: NO ejecutes `npm ci`, `npm install`, `npm run dev` ni `npm run start`. Usa npm.cmd. No hagas commit. No crees archivos de reporte en el repo.
+
+1. Máquina de estados pura `tutorial-steps.ts`: pasos 1) seleccionar al jefe, 2) moverse (clic derecho), 3) usar la primera habilidad del rol, 4) salir de una zona roja o casteo de peligro. Cada paso se completa solo al detectarlo en snapshot/eventos propios. Entrada: snapshot + eventos + selfId; salida: paso actual, texto y si terminó. Tolera snapshot incompleto (isSyncedSnapshot).
+2. Persistencia inyectada (interfaz con get/set; en producción localStorage con try/catch): se muestra solo si no se completó ni saltó antes. Reabrible con T (H ya abre la ayuda de T4.3).
+3. Vista HTML (panel pequeño arriba-centro, no tapa la barra de acción ni los marcos): texto del paso, "Paso 2/4", botón "Saltar". Textos por rol desde role-guide.ts; en español.
+4. Se reinicia el progreso del paso 4 si el jugador muere; el tutorial no bloquea la entrada ni pausa el combate.
+
+Tests de lógica pura: avance por paso, saltar, persistencia inyectada, snapshot incompleto, muerte.
+Criterio (manual de Venegas): un jugador nuevo completa los 4 pasos sin preguntar; puede saltarlo y repetirlo.
+Si algo es ambiguo, detente y reporta una propuesta. No inventes.
+Termina con npm.cmd run check en verde y el reporte del formato de AGENTS.md (incluye qué debe revisar Venegas en el navegador).
+```

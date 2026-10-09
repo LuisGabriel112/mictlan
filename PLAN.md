@@ -258,10 +258,20 @@
 - **Criterios (manual de Venegas):** un jugador nuevo, tras leer la guía de su rol, sabe qué tecla usar y cuándo sin preguntar.
 - **Opcional después (T4.4):** práctica interactiva de un jugador con pasos guiados, solo si la guía no basta.
 
-### [ ] T4.4 Resumen del intento
+### [x] T4.4 Resumen del intento
 - **Hacer:** en la pantalla de resultado (victoria o derrota), una tabla por jugador con: daño total y DPS, curación efectiva y HPS, casteos cancelados (por movimiento o por otro motivo), habilidades rechazadas con su motivo, golpes recibidos por habilidad del jefe y causa de muerte. El servidor ya envía todos los eventos de combate a todos los clientes (`events`), así que el cálculo es un módulo puro del cliente que acumula los eventos del intento; ni core ni servidor cambian. Se muestra en HTML en la pantalla de resultado.
 - **Criterios (manual de Venegas):** tras una derrota, el grupo puede ver cuánto daño hizo cada uno y por qué murió; los números se pueden comparar con el simulador (DPS de bots: Jaguar 25, Águila 58, Tícitl 27 de HPS).
 - **Motivo:** Checkpoint B: humanos "bajan una miseria"; sin datos no sabemos si es la vida del jefe, los casteos cancelados o las habilidades rechazadas.
+
+### [x] T4.6 Animación de daño al jefe
+- **Hacer:** cuando el jefe recibe daño (evento `damage` con `targetId` del jefe), el círculo del jefe parpadea en blanco y pulsa (escala breve) ~200 ms; el golpe crítico es más fuerte y amarillo. Módulo puro `hit-flash.ts` (id → intensidad 0..1 según tiempo desde el último golpe, reloj inyectado) y `arena-renderer.ts` solo lo dibuja. Sin tocar core ni server.
+- **Criterios (manual de Venegas):** cada golpe al jefe se nota sin mirar los números; con 3 jugadores atacando no se vuelve un destello constante ni tapa la barra de vida.
+- **Nota:** vive en Phaser y se rehace en T5.3 (destello al recibir daño); el módulo puro se conserva.
+
+### [x] T4.7 Tutorial in-game
+- **Hacer:** guía paso a paso sobre el combate (HTML, sobrevive a la Fase 5), activa solo en el primer intento del navegador (`localStorage`, con botón "Saltar" y reabrible con T; H ya abre la ayuda de T4.3). Pasos que avanzan solos al detectar la acción en los eventos/snapshot propios: 1) seleccionar al jefe (clic / Tab), 2) mover con clic derecho, 3) usar la primera habilidad de tu rol, 4) ver un aviso de peligro (zona roja o casteo del jefe) y salir de ella. Textos por rol desde `role-guide.ts`. Máquina de estados pura (`tutorial-steps.ts`) con persistencia inyectada.
+- **Criterios (manual de Venegas):** un jugador nuevo completa los pasos sin preguntar y puede saltarlo o repetirlo.
+- **Alcance:** no hay sala de práctica (requeriría servidor); el tutorial corre dentro del primer intento real.
 
 > **Checkpoint B:** después de 5 intentos reales, anotar qué fue divertido, qué fue injusto y qué no se entendió. Claude convierte eso en cambios al SPEC y en tareas nuevas.
 
