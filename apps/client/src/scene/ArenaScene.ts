@@ -8,7 +8,7 @@ import { groupFrameAt } from '../frames';
 import { latestRejection, rejectionText } from '../hud-text';
 import { PositionHistory, type Positions } from '../interpolation';
 import { keyAction, type KeyAction } from '../keyboard';
-import type { RoomSnapshot } from '../snapshot';
+import { readRoomSnapshot, type RoomSnapshot } from '../snapshot';
 import { allyAt, entityAtPoint, nextEnemyTarget } from '../targeting';
 import { screenToWorld, PIXELS_PER_METER } from '../world-view';
 import { drawArena, drawDestination, drawEntities, drawZones } from './arena-renderer';
@@ -17,6 +17,7 @@ import { FloatingTextView } from './floating-text-view';
 
 export interface ArenaRoom {
   readonly sessionId: string;
+  readonly state?: { toJSON(): unknown };
   send(type: string, payload?: unknown): void;
   onStateChange(callback: (state: { toJSON(): unknown }) => void): unknown;
   onMessage(type: string, callback: (payload: CombatEvent[]) => void): unknown;
@@ -51,6 +52,8 @@ export class ArenaScene extends Phaser.Scene {
     this.fitCamera(hudCamera);
     this.scale.on('resize', () => this.fitCamera(hudCamera));
     this.listen();
+    const initial = readRoomSnapshot(this.room.state?.toJSON());
+    if (initial) this.receiveState(initial);
   }
 
   update(time: number, delta: number): void {
@@ -68,7 +71,10 @@ export class ArenaScene extends Phaser.Scene {
   }
 
   private listen(): void {
-    this.room.onStateChange((state) => this.receiveState(state.toJSON() as RoomSnapshot));
+    this.room.onStateChange((state) => {
+      const snapshot = readRoomSnapshot(state.toJSON());
+      if (snapshot) this.receiveState(snapshot);
+    });
     this.room.onMessage('events', (events) => this.receiveEvents(events));
     const onKeyDown = (event: KeyboardEvent) => this.handleKey(event);
     window.addEventListener('keydown', onKeyDown);
@@ -80,6 +86,7 @@ export class ArenaScene extends Phaser.Scene {
 
   private receiveState(snapshot: RoomSnapshot): void {
     if (snapshot.status === 'lobby' || (snapshot.status === 'combat' && this.snapshot?.status !== 'combat')) {
+      this.destination.clear();
       this.hud.clearLog();
       this.floatingTexts = { ...this.floatingTexts, texts: [] };
     }
@@ -111,6 +118,7 @@ export class ArenaScene extends Phaser.Scene {
   }
 
   private handleKey(event: KeyboardEvent): void {
+    if (this.snapshot?.status !== 'combat') return;
     const { action, preventDefault } = keyAction(event);
     if (preventDefault) event.preventDefault();
     if (action && this.snapshot && !event.repeat) this.perform(action, this.snapshot);
@@ -143,7 +151,7 @@ export class ArenaScene extends Phaser.Scene {
   }
 
   private handleClick(pointer: Phaser.Input.Pointer): void {
-    if (!this.snapshot) return;
+    if (this.snapshot?.status !== 'combat') return;
     if (pointer.rightButtonDown()) return this.walkTo(pointer);
     // Group frames live in screen space and take priority over the world under them.
     const framed = groupFrameAt(this.snapshot, this.room.sessionId, { x: pointer.x, y: pointer.y });

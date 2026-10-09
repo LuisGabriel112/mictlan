@@ -230,7 +230,7 @@
 - **Criterios (manual):** un jugador nuevo entiende qué lo mató leyendo el log.
 - **Verificación:** `npm run dev` y prueba manual
 
-### [ ] T3.5 Lobby jugable
+### [x] T3.5 Lobby jugable
 - **Hacer:** pantalla para crear o unirse con código, elegir clase (mostrando qué roles faltan), botón de listo y pantalla de victoria o derrota.
 - **Criterios (manual):** 3 pestañas completan el flujo lobby → combate → resultado → lobby.
 - **Verificación:** `npm run dev` y prueba manual

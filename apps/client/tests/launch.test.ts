@@ -44,4 +44,12 @@ describe('connectToRaid', () => {
     expect(client.create).toHaveBeenCalledWith('raid');
     expect(client.joinOrCreate).not.toHaveBeenCalled();
   });
+
+  test('a failed join propagates to the start screen without creating another room', async () => {
+    const { client, room } = fakeClient();
+    client.joinById.mockRejectedValueOnce(new Error('room not found'));
+    await expect(connectToRaid(parseLaunchParams('?code=abcd'), client)).rejects.toThrow('room not found');
+    expect(client.create).not.toHaveBeenCalled();
+    expect(room.send).not.toHaveBeenCalled();
+  });
 });

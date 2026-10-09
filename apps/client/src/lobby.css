@@ -1,0 +1,15 @@
+#lobby-ui { position: fixed; inset: 0; z-index: 1; overflow: auto; box-sizing: border-box; padding: 5vh max(24px, calc((100vw - 640px) / 2)); background: #14101c; }
+#lobby-ui[hidden], #lobby-ui [hidden] { display: none; }
+#lobby-ui h1 { margin: 0 0 20px; font-size: 36px; }
+#lobby-ui button, #lobby-ui input { font: inherit; padding: 12px 18px; border: 1px solid #a48e6e; border-radius: 6px; background: #282031; color: #f2e9dc; }
+#lobby-ui button { cursor: pointer; }
+#lobby-ui button:hover, #lobby-ui button[aria-pressed="true"] { border-color: #49d6c6; background: #21423f; }
+#lobby-ui button:disabled { opacity: 0.6; cursor: default; }
+#lobby-ui :focus-visible { outline: 3px solid #49d6c6; outline-offset: 3px; }
+#lobby-ui form { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 28px; }
+#lobby-ui label { width: 100%; }
+#lobby-ui input { width: 7em; text-transform: uppercase; letter-spacing: 0.2em; }
+#lobby-ui .room-code { font-size: 56px; font-weight: bold; letter-spacing: 0.18em; margin: 0; color: #49d6c6; user-select: all; }
+#lobby-ui ul { padding-left: 22px; line-height: 1.9; }
+#lobby-ui .class-options { display: flex; flex-wrap: wrap; gap: 10px; margin: 24px 0; }
+#lobby-ui .lobby-error { color: #ffd166; }

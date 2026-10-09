@@ -81,7 +81,8 @@ export class Hud {
     this.panels.clear();
     this.drawFrames(snapshot, selfId);
     this.drawCastBars(snapshot, selfId, width, height);
-    this.status.setText(statusText(snapshot)).setPosition(width / 2, LAYOUT.margin);
+    // The DOM result screen owns victory/defeat; the HUD only labels the dev lobby.
+    this.status.setVisible(snapshot.status === 'lobby').setText(statusText(snapshot)).setPosition(width / 2, LAYOUT.margin);
     this.clock.setText(encounterClockText(snapshot)).setPosition(width / 2, LAYOUT.clockTop);
     this.flash.setVisible(nowMs < this.flashUntilMs).setPosition(width / 2, this.actionTop(height) - 44);
     this.drawSlots(actionSlots(snapshot, selfId), width, height);
