@@ -35,3 +35,28 @@ Criterio (manual de Venegas): un jugador nuevo, tras leer la guía de su rol, sa
 Si algo es ambiguo, detente y reporta una propuesta. No inventes.
 Termina con npm.cmd run check en verde y el reporte del formato de AGENTS.md (incluye qué debe revisar Venegas en el navegador).
 ```
+
+---
+
+## T4.4 — Resumen del intento
+
+```
+Tarea T4.4 — Resumen del intento.
+
+Lee AGENTS.md, SPEC.md §7 (mensajes) y §8, la tarea T4.4 de PLAN.md, NOTAS.md (T3.4, T3.5) y el "Contexto común del cliente" de PROMPTS.md. Implementa SOLO T4.4 en apps/client. No toques core ni server.
+
+IMPORTANTE: NO ejecutes `npm ci`, `npm install`, `npm run dev` ni `npm run start`. Usa npm.cmd. No hagas commit. No crees archivos de reporte en el repo.
+
+Motivo (Checkpoint B): el grupo perdió y dijo "le bajo una miseria, no veo los ataques". Sin números no sabemos si falla la vida del jefe, los casteos cancelados o las habilidades rechazadas.
+
+1. Módulo puro `attempt-summary.ts`: acumula los CombatEvent del intento (los que ya llegan por room.onMessage('events')) y produce, por jugador: daño total y DPS (daño / segundos del intento), curación efectiva total y HPS, casteos cancelados (castCancelled, por motivo: moving, interrupted, etc.), habilidades rechazadas (abilityRejected, por motivo), golpes recibidos por habilidad del jefe (damage con abilityId y total), y causa de muerte (evento death: habilidad y autor). Los segundos salen de elapsedTicks del snapshot (COMBAT_RULES.ticksPerSecond). Se reinicia al empezar cada intento (status pasa a 'combat') y se conserva hasta que el servidor vuelve al lobby.
+2. Pantalla de resultado (HTML, la de T3.5: result-screen en index.html y lobby-view.ts): bajo "¡Victoria!"/"Derrota" y la duración, una tabla por jugador con esas columnas, nombres de habilidad en español (abilityName de combat-names.ts) y nombre del jugador como en el log (entityName). El propio jugador resaltado. Debe caber en pantallas angostas (tabla con scroll horizontal si hace falta).
+3. Comparación con bots: bajo la tabla, una línea fija "Referencia de bots perfectos (3 jugadores): Jaguar 25 DPS · Águila 58 DPS · Tícitl 27 HPS". Sale de constantes del cliente con un comentario que cite el simulador (npm run sim).
+4. El acumulador debe tolerar eventos antes del primer estado y no truena con estado incompleto (usa isSyncedSnapshot).
+
+Lógica pura con tests: acumulación de cada tipo de evento, DPS/HPS, reinicio por intento, causa de muerte, y el formateo de la fila.
+
+Criterio (manual de Venegas): tras una derrota, el grupo ve cuánto daño hizo cada uno, cuántos casteos y habilidades se perdieron y por qué murió cada quien.
+Si algo es ambiguo, detente y reporta una propuesta. No inventes.
+Termina con npm.cmd run check en verde y el reporte del formato de AGENTS.md (incluye qué debe revisar Venegas en el navegador).
+```
