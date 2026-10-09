@@ -305,22 +305,22 @@ Objetivo: el ambiente de SPEC §9 con cámara isométrica. Core, servidor y red 
 
 ## Fase 6 — Raid ágil (SPEC §11, v0.11)
 
-### [ ] T6.1 WASD y tecla X
+### [x] T6.1 WASD y tecla X
 - **Hacer:** cliente: WASD relativo a la cámara isométrica envía `move { dx, dy }` (ya existe en servidor); soltar envía (0,0); X detiene; S deja de detener. Actualizar guías y tutorial (paso 2).
 - **Criterios (manual de Venegas):** se camina con WASD sin pensar en la cámara; el clic derecho sigue funcionando.
 
-### [ ] T6.2 Esquiva para todos
+### [x] T6.2 Esquiva para todos
 - **Hacer:** core: habilidad Esquiva (4 m, CD 8 s, off-GCD, cancela casteo, recorte al muro) para todas las clases, mensaje `dodge` en el servidor, tecla Espacio y su recarga visible en el HUD.
 - **Criterios:** tests de core y servidor; Venegas esquiva un Viento con Espacio.
 
-### [ ] T6.3 Auto-ataques y casteos cortos
+### [x] T6.3 Auto-ataques y casteos cortos
 - **Hacer:** core: auto-ataque del Águila (15/2 s, 30 m) y del Tícitl (10/2 s, 30 m); Flecha 1.5 s; Gran remedio 2.0 s. Textos de ayuda.
 - **Criterios:** tests de core con los números de SPEC §11.
 
-### [ ] T6.4 Golpe del Descarnado en cono
+### [x] T6.4 Golpe del Descarnado en cono
 - **Hacer:** core: cono frontal de 90° y 8 m fijado al empezar el casteo; daño a cada jugador dentro al terminar. Estado sincronizado del cono y dibujo en el suelo (rojo, se llena con el casteo).
 - **Criterios:** tests de core (dentro/fuera/borde, Escudo, objetivo que se mueve); Venegas ve y esquiva el cono.
 
-### [ ] T6.5 Rebalance
+### [x] T6.5 Rebalance
 - **Hacer:** simulador con las reglas nuevas; ajustar la vida del jefe y el test de duración.
 - **Criterios:** test de balance en verde; propuesta de números a Venegas antes de cambiar el SPEC.

@@ -36,6 +36,8 @@
 | T4.7 Tutorial in-game | `a60b6a9` | 0 | **Claude** (ahorrar cupo de Codex). 4 pasos en el primer intento, tecla T repite. Probado por Venegas. Para probar solo: `MICTLAN_DEV_MIN_PLAYERS=1` + `npm run dev` (`npm run start` lo ignora) |
 | T5.1 Escena 3D y entrada | `9f6682c` | 0 | **Claude** (cupo de Codex agotado). Three.js para el mundo, Phaser transparente encima con HUD e input. Cámara ortográfica fija desde el sureste a 35°; clic izquierdo elige por el eje del cuerpo proyectado (en iso el suelo cae detrás de la unidad). Probado por Venegas |
 
+| T6.1–T6.5 Raid ágil (SPEC v0.11) | ver git log | 0 | **Claude** (cupo de Codex agotado). WASD, habilidades en 1-4, X detiene, Esquiva con Espacio, auto-ataques a distancia, Flecha 1.5 s, Gran remedio 2 s, cono del Golpe. **Vida del jefe 9500/15500/21500 propuesta por Claude, pendiente de que Venegas la confirme** |
+
 Siguiente: **Checkpoint B** (5 intentos reales; anotar qué fue divertido, qué fue injusto y qué no se entendió) y luego la Fase 5 (Three.js). Para jugar con amigos: `npm.cmd run start` y en otra terminal `cloudflared tunnel --url http://localhost:2567` (guía en `apps/server/README.md`).
 
 **Para continuar en otra máquina:**
@@ -242,3 +244,10 @@ Ninguna.
 
 - **Todas:** `step` reutiliza por referencia las entidades sin cambios; está prohibido mutar el estado.
 - **T2.2:** un `move` con `NaN` o `Infinity` deja la posición en `NaN`; el servidor debe validarlo.
+
+
+**Traspaso a otra máquina (2026-10-09):**
+1. `git pull` y `npm.cmd ci`; `npm.cmd run check` debe dar 492 core, 243 servidor y 436 cliente en verde.
+2. Probar solo: `$env:MICTLAN_DEV_MIN_PLAYERS='2'; npm.cmd run dev`, abrir `http://127.0.0.1:5173/?dev=1&class=jaguar` y `...class=eagle` en dos pestañas. `npm run start` ignora esa variable.
+3. Teclas: WASD camina, 1 2 3 4 habilidades, Espacio esquiva, X detiene, Tab/F1–F5 objetivos, H guía, T repite tutorial.
+4. Pendiente: Venegas confirma la vida del jefe; T5.2 (HUD en HTML) y T5.4 (modelos CC0) para Codex cuando vuelva su cupo; Checkpoint B con amigos.
