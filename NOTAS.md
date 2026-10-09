@@ -32,10 +32,12 @@
 Siguiente: **T3.6** (pulido visual), T3.6 (pulido visual) y T4.1 (playtest). Prompts listos en `PROMPTS.md`; lanzarlos con `/codex:rescue --wait --fresh --model gpt-6-astra --effort high`.
 
 **Para continuar en otra máquina:**
-1. `git pull` y `npm.cmd ci` (instala también Phaser, Vite y el SDK del cliente).
+1. `git pull` y `npm.cmd ci`. **Obligatorio:** si `node_modules` es más viejo que el lockfile falta Phaser y `check` falla con "Cannot find module 'phaser'" (pasó el 2026-10-08).
 2. `npm.cmd run check` debe dar 843 tests en verde (466 core, 177 servidor, 200 cliente).
-3. Jugar: `npm.cmd run dev` y abrir la URL que imprima Vite con `?dev=1&class=eagle` (o `jaguar` / `healer`). Controles en `apps/client/README.md` (clic derecho, S, Q W E R, Tab, F1–F5).
-4. En Claude Code: "lee NOTAS.md y lanza T3.6 con PROMPTS.md". Si Codex no tiene créditos, Claude puede implementarla (T3.1–T3.3 y T3.7 las hizo Claude).
+3. Jugar solo: `npm.cmd run dev` y abrir `http://localhost:5173/?dev=1&class=eagle` (o `jaguar` / `healer`). Con lobby real: sin `?dev=1`, "Crear sala" y abrir otras pestañas con `?code=XXXX`; con `MICTLAN_DEV_MIN_PLAYERS=3` (en PowerShell: `$env:MICTLAN_DEV_MIN_PLAYERS=3; npm.cmd run dev`) la partida espera a 3 listos. Controles en `apps/client/README.md`.
+4. En Claude Code: "lee NOTAS.md y lanza T3.6 con PROMPTS.md" (el prompt ya incluye los pendientes del log). Luego T4.1 (playtest).
+5. **Decisión pendiente de Venegas** antes o después de T3.6: ampliar la regla del jefe sin objetivo (ver "Hallazgos pendientes").
+6. Para verificar en Chrome con Claude: las pestañas quedan ocultas y la animación se pausa (números flotantes "congelados" en capturas; no es bug).
 
 ## Configuración de Codex
 
@@ -243,7 +245,7 @@ Unas 1 500 peleas simuladas: bots perfectos y un modelo "humano" desechable (fue
 
 ## Decisiones pendientes (de Venegas)
 
-Ninguna.
+- ¿Extender "jefe sin amenaza → jugador vivo más cercano" a todo momento del combate, no solo al pull? (ver "Hallazgos pendientes").
 
 ## Hallazgos pendientes
 

@@ -17,7 +17,7 @@ Claude borra de aquí cada prompt cuando su tarea queda aprobada.
 ```
 Tarea T3.6 — Pulido visual procedural.
 
-Lee AGENTS.md, SPEC.md (§8 y §9 Dirección de arte), la tarea T3.6 de PLAN.md y el "Contexto común del cliente" de PROMPTS.md. Implementa SOLO T3.6 en apps/client.
+Lee AGENTS.md, SPEC.md (§8 y §9 Dirección de arte), la tarea T3.6 de PLAN.md, NOTAS.md (T3.x) y el "Contexto común del cliente" de PROMPTS.md. Implementa SOLO T3.6 en apps/client (no toques packages/core ni apps/server).
 
 IMPORTANTE: NO ejecutes `npm ci` ni `npm install`. Sin assets externos ni dependencias nuevas: todo generado con Phaser (Graphics, texturas con generateTexture, tweens, partículas si existen en 3.90). Usa solo APIs de los tipos instalados (node_modules/phaser/types/phaser.d.ts). No hagas commit.
 
@@ -25,7 +25,8 @@ Objetivo: que el combate se lea mejor que con círculos planos, con la paleta de
 1. Arena: piso con textura (ruido o losas) y muro con patrón de grecas.
 2. Unidades: sombra, borde y una letra o ícono simple por clase; el jefe más grande, con un aura que pulsa mientras castea; los muertos como restos (no solo transparentes).
 3. Nombres pequeños sobre las unidades y barras de vida con mejor estilo.
-4. Círculos de Viento con borde animado y destello breve al recibir daño (eventos damage).
+4. Destello breve en la unidad al recibir daño (eventos damage). Los círculos de Viento ya tienen borde pulsante desde T3.4 (`danger-view.ts`): mejóralo solo si encaja con el estilo.
+7. Pendientes de T3.4/T3.5 (ver "Hallazgos pendientes" en NOTAS.md): en ventanas angostas el panel del log tapa la zona sur de la arena, donde aparecen los jugadores; reubícalo o redúcelo para que no tape unidades. En `combat-log.ts`, la muerte por desconexión no debe repetir a la víctima como autor ("Tícitl murió (Desconexión)").
 5. Barra de acción con un ícono generado por habilidad y la recarga como barrido circular.
 6. Rendimiento: 60 fps con 5 jugadores, 4 xolos y 3 zonas (mídelo con el fps de Phaser y repórtalo).
 
