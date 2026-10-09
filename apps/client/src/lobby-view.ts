@@ -1,5 +1,6 @@
 import { CLASSES, type ClassId } from '@mictlan/core';
 import type { LobbyModel } from './lobby-controller';
+import { BOT_REFERENCE_TEXT, type AttemptSummaryRow } from './attempt-summary-row';
 
 interface LobbyActions {
   createRoom(): Promise<void>;
@@ -70,6 +71,21 @@ export class LobbyView {
   private renderResult(model: LobbyModel): void {
     this.element('result-title').textContent = model.title;
     this.element('result-duration').textContent = `Duración: ${model.duration}`;
+    this.element('attempt-rows').replaceChildren(...model.summaryRows.map((row) => this.summaryRow(row)));
+    this.element('bot-reference').textContent = BOT_REFERENCE_TEXT;
+  }
+
+  private summaryRow(summary: AttemptSummaryRow): HTMLTableRowElement {
+    const row = this.document.createElement('tr');
+    row.setAttribute('class', summary.self ? 'attempt-self' : '');
+    row.replaceChildren(...summary.cells.map((label) => this.summaryCell(label)));
+    return row;
+  }
+
+  private summaryCell(label: string): HTMLTableCellElement {
+    const cell = this.document.createElement('td');
+    cell.textContent = label;
+    return cell;
   }
 
   private element<Element extends HTMLElement>(id: string): Element {

@@ -8,7 +8,8 @@ export function domElement() {
 export function lobbyDocument() {
   const ids = ['game', 'overlay', 'start-screen', 'lobby-screen', 'result-screen', 'create-room', 'join-room',
     'join-form', 'room-code', 'shared-code', 'players', 'missing-roles', 'capacity', 'ready',
-    'class-jaguar', 'class-healer', 'class-eagle', 'result-title', 'result-duration', 'error', 'connection-status'];
+    'class-jaguar', 'class-healer', 'class-eagle', 'result-title', 'result-duration', 'error', 'connection-status',
+    'attempt-rows', 'bot-reference'];
   const elements = new Map(ids.map((id) => [id, domElement()]));
   const document = { getElementById: vi.fn((id: string) => elements.get(id)), createElement: vi.fn(() => domElement()) };
   const element = (id: string) => elements.get(id)!;

@@ -1,4 +1,6 @@
-import { PARTY_RULES, type ClassId } from '@mictlan/core';
+import { PARTY_RULES, type ClassId, type CombatEvent } from '@mictlan/core';
+import { accumulateAttemptEvents, createAttemptSummary, syncAttemptSnapshot } from './attempt-summary';
+import { attemptSummaryRows, type AttemptSummaryRow } from './attempt-summary-row';
 import { connectToRaid, type RaidClient } from './connection';
 import { formatElapsedTicks } from './encounter-clock';
 import type { LaunchParams } from './launch-params';
@@ -24,6 +26,7 @@ export interface LobbyModel {
   missing: string[];
   title: string;
   duration: string;
+  summaryRows: AttemptSummaryRow[];
   busy: boolean;
   error: string;
 }
@@ -31,6 +34,7 @@ export interface LobbyModel {
 export class LobbyController {
   private room?: LobbyRoom;
   private snapshot?: RoomSnapshot;
+  private attempt = createAttemptSummary();
   private selectedClass: ClassId;
   private busy = false;
   private error = '';
@@ -92,17 +96,24 @@ export class LobbyController {
     this.room = room;
     room.onStateChange((state) => this.receive(state.toJSON()));
     room.onMessage<unknown>('rejected', (payload) => this.reject(payload));
+    room.onMessage<CombatEvent[]>('events', (events) => this.receiveEvents(events));
     this.connected(room);
     if (room.state) this.receive(room.state.toJSON());
   }
 
   private receive(snapshot: unknown): void {
     if (!isSyncedSnapshot(snapshot)) return;
+    this.attempt = syncAttemptSnapshot(this.attempt, snapshot);
     if (snapshot.status !== this.snapshot?.status) {
       this.error = '';
       if (snapshot.status === 'lobby') this.restoreClass(snapshot);
     }
     this.snapshot = snapshot;
+    this.publish();
+  }
+
+  private receiveEvents(events: readonly CombatEvent[]): void {
+    this.attempt = accumulateAttemptEvents(this.attempt, events);
     this.publish();
   }
 
@@ -136,7 +147,7 @@ export class LobbyController {
 
   private result() {
     return { title: this.snapshot?.status === 'victory' ? '¡Victoria!' : 'Derrota',
-      duration: formatElapsedTicks(this.snapshot?.elapsedTicks ?? 0) };
+      duration: formatElapsedTicks(this.snapshot?.elapsedTicks ?? 0), summaryRows: attemptSummaryRows(this.attempt, this.selfId) };
   }
 
   private publish(): void {

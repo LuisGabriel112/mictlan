@@ -42,3 +42,16 @@
 #error { color: #ffb1a9; min-height: 1.5em; }
 #connection-status { min-height: 1.5em; }
 #result-screen { text-align: center; }
+.lobby-panel:has(#result-screen:not([hidden])) { width: min(100%, 1280px); min-width: 0; }
+.attempt-scroll { max-width: 100%; overflow-x: auto; text-align: left; }
+.attempt-table { width: 100%; min-width: 1080px; border-collapse: collapse; font-variant-numeric: tabular-nums; }
+.attempt-table caption { text-align: left; font-weight: bold; margin-bottom: 12px; }
+.attempt-table th, .attempt-table td { padding: 12px; border: 1px solid #8e714c; vertical-align: top; }
+.attempt-table th { background: #14101c; }
+.attempt-table .attempt-self { background: #23413f; }
+.attempt-self td:first-child { color: #54d6c7; font-weight: bold; }
+#bot-reference { color: #e6c18a; }
+@media (max-width: 600px) {
+  #overlay { padding: 12px; }
+  .lobby-panel { padding: 16px; }
+}

@@ -49,6 +49,19 @@
         <section id="result-screen" aria-labelledby="result-title" hidden>
           <h1 id="result-title"></h1>
           <p id="result-duration"></p>
+          <div class="attempt-scroll" role="region" aria-label="Resumen del intento" tabindex="0">
+            <table class="attempt-table">
+              <caption>Resumen del intento por jugador</caption>
+              <thead><tr>
+                <th scope="col">Jugador</th><th scope="col">Daño total</th><th scope="col">DPS</th>
+                <th scope="col">Curación efectiva</th><th scope="col">HPS</th>
+                <th scope="col">Casteos cancelados · motivos</th><th scope="col">Habilidades rechazadas · motivos</th>
+                <th scope="col">Golpes del jefe · daño recibido</th><th scope="col">Causa de muerte · autor</th>
+              </tr></thead>
+              <tbody id="attempt-rows"></tbody>
+            </table>
+          </div>
+          <p id="bot-reference"></p>
           <p>Volviendo a la sala para el siguiente intento…</p>
         </section>
         <p id="error" role="alert"></p>
