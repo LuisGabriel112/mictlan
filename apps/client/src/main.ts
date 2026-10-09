@@ -5,6 +5,8 @@ import { LobbyController } from './lobby-controller';
 import { LobbyView } from './lobby-view';
 import { HelpView } from './help-view';
 import { ArenaScene, type ArenaRoom } from './scene/ArenaScene';
+import { TutorialController, browserTutorialStore } from './tutorial-controller';
+import { TutorialView } from './tutorial-view';
 import './lobby.css';
 import './help.css';
 
@@ -16,6 +18,7 @@ function createArena(room: ArenaRoom): void {
     scale: { mode: Phaser.Scale.RESIZE, width: window.innerWidth, height: window.innerHeight },
     scene: [new ArenaScene(room)],
   });
+  new TutorialController(room, browserTutorialStore(() => window.localStorage), new TutorialView(document), window);
 }
 
 function start(): void {
