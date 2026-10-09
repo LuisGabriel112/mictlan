@@ -38,3 +38,8 @@ export function freezeCombat(value: unknown): void {
   Object.values(value).forEach(freezeCombat);
   Object.freeze(value);
 }
+
+// Ability-focused tests predate the SPEC §11 ranged auto-attacks; muting one keeps the event list about the rule under test.
+export function muteAutoAttack(state: EncounterState, playerId: string): void {
+  state.entities[playerId].autoAttackRemainingTicks = 1_000_000;
+}

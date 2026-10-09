@@ -109,3 +109,18 @@ test('dispose frees the pooled effect and cast meshes', () => {
   expect(slashMaterial).toHaveBeenCalled();
   expect(castMaterial).toHaveBeenCalled();
 });
+
+test('a telegraphed cone is drawn where it was aimed, pointing along its direction and filling with the cast', () => {
+  const { draw } = fixture();
+  const cast = { abilityId: 'flayedStrike', targetId: 'eagle', durationTicks: 50, remainingTicks: 25, interruptible: false,
+    aimX: 1, aimY: 2, aimDx: 0, aimDy: 1 };
+  const scene = draw({ snapshot: room(caster(cast)) });
+  const [edge] = visible(scene, 'cone-edge:');
+  const [fill] = visible(scene, 'cone-fill:');
+  expect([edge.position.x, edge.position.z]).toEqual([1, -2]);
+  expect(edge.rotation.z).toBeCloseTo(Math.PI / 2, 6);
+  expect(edge.scale.x).toBe(8);
+  expect(fill.scale.x).toBeCloseTo(4, 6);
+  expect(edge.material.color.getHex()).toBe(0xff4444);
+  expect(visible(draw({ snapshot: room(caster({ ...cast, aimDx: 0, aimDy: 0 })) }), 'cone-edge:')).toEqual([]);
+});

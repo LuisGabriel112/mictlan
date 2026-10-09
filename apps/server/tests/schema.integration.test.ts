@@ -35,10 +35,13 @@ async function observeCastProgress(eagle: Connection): Promise<void> {
   await vi.waitFor(() => expect(eagle.state.entities.get(eagle.sessionId)?.cast?.abilityId).toBe('obsidianArrow'));
   const cast = eagle.state.entities.get(eagle.sessionId)!.cast!;
   const previous = cast.remainingTicks;
-  expect(cast).toMatchObject({ targetId: 'boss', durationTicks: 40, interruptible: false });
+  expect(cast).toMatchObject({ targetId: 'boss', durationTicks: 30, interruptible: false });
   await vi.waitFor(() => expect(eagle.state.entities.get(eagle.sessionId)!.cast!.remainingTicks).toBeLessThan(previous));
   await vi.waitFor(() => expect(eagle.state.entities.get(eagle.sessionId)?.cast).toBeUndefined(), { timeout: 4000 });
-  expect(eagle.state.entities.get('boss')!.health).toBe(BOSS.maxHealthByPlayerCount[3] - 210);
+  // Arrow 140 + Disparo veloz 70, plus whole SPEC §11 auto-attacks of 15.
+  const lost = BOSS.maxHealthByPlayerCount[3] - eagle.state.entities.get('boss')!.health;
+  expect(lost).toBeGreaterThanOrEqual(210);
+  expect((lost - 210) % 15).toBe(0);
 }
 
 afterEach(async () => {

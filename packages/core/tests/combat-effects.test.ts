@@ -2,7 +2,7 @@ import { expect, test } from 'vitest';
 import { resolveCombatEffects } from '../src/combat-effects.js';
 import { BOSS, nextRandom } from '../src/index.js';
 import type { CombatEvent, Input, PlayerAbilityId } from '../src/index.js';
-import { arrowEncounter, combatCast, combatEncounter, combatPlayer, combatTick, freezeCombat, readyCast } from './combat-fixtures.js';
+import { arrowEncounter, combatCast, combatEncounter, combatPlayer, combatTick, freezeCombat, muteAutoAttack, readyCast } from './combat-fixtures.js';
 import { threatEnemy } from './threat-fixtures.js';
 
 test('C2: Arrow with critChance 1 deals 210 using rngState', () => {
@@ -164,6 +164,7 @@ test.each(['warCry'] satisfies PlayerAbilityId[])(
     const state = combatEncounter();
     const playerId = 'p3';
     combatPlayer(state, playerId).targetId = BOSS.id;
+    muteAutoAttack(state, playerId);
     const result = combatTick(state, [combatCast(abilityId, playerId)]);
     expect(result.events).toHaveLength(1);
     expect(result.events[0]).toMatchObject({ type: 'abilityRejected', reason: 'not_casting' });

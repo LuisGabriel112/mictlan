@@ -2,7 +2,7 @@ import { advancePlayerAbilities, cancelPlayerCast, usePlayerAbility } from './ab
 import { advanceAuraEffects, resolveCombatEffects } from './combat-effects.js';
 import type { CombatResult } from './combat-effects.js';
 import { advanceBossAbilities, advanceBossEncounter } from './boss.js';
-import { advanceEnemy, advanceJaguarAutoAttack } from './enemy.js';
+import { advanceEnemy, advancePlayerAutoAttack } from './enemy.js';
 import { BOSS } from './data/boss.js';
 import { CLASSES, COMBAT_RULES } from './data/classes.js';
 import { scaledPlayerCount, validatePartySize } from './party.js';
@@ -192,7 +192,7 @@ export function step(state: EncounterState, inputs: readonly Input[], dtMs: numb
     advancePlayerAbilities(player, current.entities, current.tick));
   const grouped = groupInputs(inputs);
   const processed = runPlayerPhase(advanced.state, (player, current) => processPlayerInput(player, current, grouped.get(player.id)));
-  const attacked = runEntityPhase(processed.state, advanceJaguarAutoAttack);
+  const attacked = runEntityPhase(processed.state, advancePlayerAutoAttack);
   const enraged = advanceBossEnrage(advanceBossEncounter(attacked.state));
   // Existing zones count down and explode after player movement/abilities and enrage,
   // before enemy actions create new zones. A mark at t explodes at t + warningTicks,

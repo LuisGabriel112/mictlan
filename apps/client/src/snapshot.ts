@@ -11,6 +11,11 @@ export interface CastSnapshot {
   durationTicks: number;
   remainingTicks: number;
   interruptible: boolean;
+  // SPEC §11 telegraphed cone (Golpe del Descarnado); a (0, 0) direction or absence means no area.
+  aimX?: number;
+  aimY?: number;
+  aimDx?: number;
+  aimDy?: number;
 }
 
 export interface EntitySnapshot extends Point {

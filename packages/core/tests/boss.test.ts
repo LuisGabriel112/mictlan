@@ -66,24 +66,23 @@ test('first Flayed Strike starts on elapsed tick 200 with a full non-interruptib
   expect(started.state.bossAbilityTimers.flayedStrike).toBe(400);
 });
 
-test('C3: Strike locks its original target and hits after it moves away and aggro changes', () => {
+test('C3 (SPEC §11): the Strike cone stays where it was marked, so a target that walks out is spared', () => {
   const initial = enemyEncounter('p1', 4.5);
   initial.bossAbilityTimers = { flayedStrike: 1 };
   const started = advanceBossAbilities(initial);
+  expect(started.state.entities.boss.cast?.aim).toMatchObject({ dx: 1, dy: 0 });
   Object.assign(started.state.entities.p1, { x: 19, y: 0 });
   threatEnemy(started.state).targetId = 'p3';
   const waiting = repeatBoss(started.state, 49);
   expect(waiting.events).toEqual([]);
-  expect(waiting.state.entities.boss.cast?.remainingTicks).toBe(1);
   const finished = advanceBossAbilities(waiting.state);
-  expect(finished.events.map(({ type }) => type)).toEqual(['castFinished', 'abilityResolved', 'damage']);
-  expect(finished.events[2]).toMatchObject({ sourceId: BOSS.id, abilityId: 'flayedStrike', targetId: 'p1', amount: 280, critical: false });
-  expect(finished.state.entities.p3).toBe(initial.entities.p3);
+  expect(finished.events.map(({ type }) => type)).toEqual(['castFinished', 'abilityResolved']);
+  expect(finished.state.entities.p1.health).toBe(initial.entities.p1.health);
   expect(finished.state.entities.boss.cast).toBeNull();
 });
 
 test('Strike resolves for 140 against the Jaguar using a real active Shield', () => {
-  const initial = enemyEncounter('p1', 15);
+  const initial = enemyEncounter('p1', 4.5);
   initial.bossAbilityTimers = { flayedStrike: 1 };
   initial.entities.boss.autoAttackRemainingTicks = 100;
   const started = combatTick(initial, [combatCast('obsidianShield', 'p1')]);

@@ -56,7 +56,7 @@ export function advanceEnemy(state: EncounterState, enemyId: string): CombatResu
   return resolveAutoAttack(replaceCombatEntity(state, moved), moved, definition);
 }
 
-export function advanceJaguarAutoAttack(state: EncounterState, playerId: string): CombatResult {
+export function advancePlayerAutoAttack(state: EncounterState, playerId: string): CombatResult {
   const player = state.entities[playerId];
   if (!player || player.type !== 'player' || player.health <= 0) return { state, events: [] };
   const definition = CLASSES[player.classId].autoAttack;

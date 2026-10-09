@@ -109,7 +109,7 @@ export interface ClassDefinition {
 }
 
 export type BossAbilityEffect =
-  | { readonly type: 'damage'; readonly baseDamage: number }
+  | { readonly type: 'cone'; readonly baseDamage: number; readonly angleDegrees: number; readonly lengthMeters: number }
   | { readonly type: 'raidDamage'; readonly baseDamage: number }
   | {
     readonly type: 'wind';
@@ -158,12 +158,19 @@ export interface Aura {
   ticksUntilNextEffect: number | null;
 }
 
+// Origin plus unit direction of a telegraphed area, fixed when the cast starts (SPEC §11).
+export interface CastAim extends Position {
+  dx: number;
+  dy: number;
+}
+
 export interface CastState {
   abilityId: PlayerAbilityId | BossAbilityId;
   targetId: string | null;
   durationTicks: number;
   remainingTicks: number;
   interruptible: boolean;
+  aim?: CastAim;
 }
 
 interface EntityState extends Position {

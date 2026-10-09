@@ -18,7 +18,7 @@ describe('T1.1 acceptance values from SPEC', () => {
 
   test('Great Remedy costs 110 mana', () => {
     expect(CLASSES.healer.abilities[1]).toMatchObject({
-      id: 'greatRemedy', manaCost: 110, castTicks: 60,
+      id: 'greatRemedy', manaCost: 110, castTicks: 40,
     });
   });
 
@@ -33,8 +33,8 @@ describe('T1.1 acceptance values from SPEC', () => {
     expect(CLASSES.healer.maxMana).toBe(1000);
   });
 
-  test('T4.5 (temporary playtest tuning): boss health is 7500, 12500 and 17500 for 3, 4 and 5 players', () => {
-    expect(BOSS.maxHealthByPlayerCount).toEqual({ 3: 7500, 4: 12500, 5: 17500 });
+  test('T4.5 (temporary playtest tuning): boss health is 9500, 15500 and 21500 (v0.11) for 3, 4 and 5 players', () => {
+    expect(BOSS.maxHealthByPlayerCount).toEqual({ 3: 9500, 4: 15500, 5: 21500 });
   });
 
   test('xolo health is 300 for 3 players and 600 for 5 players', () => {
@@ -92,12 +92,13 @@ describe('complete SPEC §3, §5 and §6 data', () => {
     });
     expect(CLASSES.healer).toMatchObject({
       id: 'healer', name: 'Tícitl', role: 'healer',
-      armorBps: 0, threatMultiplierBps: 10000, autoAttack: null,
+      armorBps: 0, threatMultiplierBps: 10000,
+      autoAttack: { abilityId: 'autoAttack', baseDamage: 10, intervalTicks: 40, rangeMeters: 30 },
     });
     expect(CLASSES.eagle).toMatchObject({
       id: 'eagle', name: 'Guerrero Águila', role: 'damage',
       armorBps: 0, threatMultiplierBps: 10000, maxMana: 0, manaRegenPerSecond: 0,
-      autoAttack: null,
+      autoAttack: { abilityId: 'autoAttack', baseDamage: 15, intervalTicks: 40, rangeMeters: 30 },
     });
   });
 
@@ -123,7 +124,7 @@ describe('complete SPEC §3, §5 and §6 data', () => {
         id: 'healer',
         abilities: [
           ['remedy', 'Remedio', 'ally', 40, 0, 30, true, 30],
-          ['greatRemedy', 'Gran remedio', 'ally', 110, 0, 60, true, 30],
+          ['greatRemedy', 'Gran remedio', 'ally', 110, 0, 40, true, 30],
           ['copal', 'Copal', 'ally', 50, 0, 0, true, 30],
           ['offering', 'Ofrenda', 'none', 150, 900, 0, true, 30],
         ],
@@ -131,7 +132,7 @@ describe('complete SPEC §3, §5 and §6 data', () => {
       {
         id: 'eagle',
         abilities: [
-          ['obsidianArrow', 'Flecha de obsidiana', 'enemy', 0, 0, 40, true, 30],
+          ['obsidianArrow', 'Flecha de obsidiana', 'enemy', 0, 0, 30, true, 30],
           ['quickShot', 'Disparo veloz', 'enemy', 0, 120, 0, true, 30],
           ['warCry', 'Grito de guerra', 'enemy', 0, 300, 0, false, 30],
           ['flight', 'Vuelo', 'none', 0, 240, 0, false, null],
@@ -209,7 +210,7 @@ describe('complete SPEC §3, §5 and §6 data', () => {
       flayedStrike: {
         id: 'flayedStrike', name: 'Golpe del Descarnado', castTicks: 50,
         interruptible: false, canUseWhileCasting: false,
-        effect: { type: 'damage', baseDamage: 400 },
+        effect: { type: 'cone', baseDamage: 400, angleDegrees: 90, lengthMeters: 8 },
       },
       obsidianWind: {
         id: 'obsidianWind', name: 'Viento de obsidiana', castTicks: 0,

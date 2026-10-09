@@ -1,5 +1,5 @@
 import { advanceBossAbilities } from '../src/boss.js';
-import { advanceEnemy, advanceJaguarAutoAttack } from '../src/enemy.js';
+import { advanceEnemy, advancePlayerAutoAttack } from '../src/enemy.js';
 import type { CombatResult } from '../src/combat-effects.js';
 import type { EncounterState } from '../src/types.js';
 import { combatEncounter, combatTick } from './combat-fixtures.js';
@@ -28,7 +28,7 @@ export function repeatEnemy(state: EncounterState, ticks: number): CombatResult 
 }
 
 export function repeatJaguar(state: EncounterState, ticks: number): CombatResult {
-  return repeatUpdate(state, ticks, (current) => advanceJaguarAutoAttack(current, 'p1'));
+  return repeatUpdate(state, ticks, (current) => advancePlayerAutoAttack(current, 'p1'));
 }
 
 export function repeatBoss(state: EncounterState, ticks: number): CombatResult {

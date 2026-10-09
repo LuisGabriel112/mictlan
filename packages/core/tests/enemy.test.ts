@@ -1,5 +1,5 @@
 import { expect, test } from 'vitest';
-import { advanceEnemy, advanceJaguarAutoAttack } from '../src/enemy.js';
+import { advanceEnemy, advancePlayerAutoAttack } from '../src/enemy.js';
 import { BOSS, XOLO } from '../src/data/boss.js';
 import { CLASSES } from '../src/data/classes.js';
 import { applyAura } from '../src/auras.js';
@@ -118,13 +118,13 @@ test('enemy damage applies Shield, never crits and never consumes RNG', () => {
 test('C5: Jaguar deals 20 every 40 ticks at the body boundary and generates 60 threat per hit', () => {
   const initial = enemyEncounter('p1', 5.5);
   combatPlayer(initial, 'p1').targetId = BOSS.id;
-  const first = advanceJaguarAutoAttack(initial, 'p1');
+  const first = advancePlayerAutoAttack(initial, 'p1');
   expect(first.events[0]).toMatchObject({ sourceId: 'p1', targetId: BOSS.id, abilityId: 'autoAttack', amount: 20 });
   expect(threatEnemy(first.state).threat.p1).toBe(61);
   expect(first.state.entities.p1.autoAttackRemainingTicks).toBe(40);
   const waiting = repeatJaguar(first.state, 39);
   expect(waiting.events).toEqual([]);
-  const second = advanceJaguarAutoAttack(waiting.state, 'p1');
+  const second = advancePlayerAutoAttack(waiting.state, 'p1');
   expect(second.events[0]).toMatchObject({ amount: 20 });
   expect(threatEnemy(second.state).threat.p1).toBe(121);
 });
@@ -133,9 +133,9 @@ test('Jaguar waits at zero outside range and crits using exactly one seeded draw
   const initial = enemyEncounter('p1', 5.5001);
   initial.critChance = 1;
   combatPlayer(initial, 'p1').targetId = BOSS.id;
-  expect(advanceJaguarAutoAttack(initial, 'p1')).toEqual({ state: initial, events: [] });
+  expect(advancePlayerAutoAttack(initial, 'p1')).toEqual({ state: initial, events: [] });
   initial.entities.p1.x = 5.5;
-  const result = advanceJaguarAutoAttack(initial, 'p1');
+  const result = advancePlayerAutoAttack(initial, 'p1');
   expect(result.events[0]).toMatchObject({ amount: 30, critical: true });
   expect(result.state.rngState).toBe(nextRandom(initial.rngState).rngState);
   expect(threatEnemy(result.state).threat.p1).toBe(91);
@@ -146,25 +146,26 @@ test.each([null, 'missing', 'p2', 'dead'])(
     const initial = enemyEncounter();
     initial.entities.dead = { ...threatEnemy(initial), id: 'dead', health: 0 };
     combatPlayer(initial, 'p1').targetId = targetId;
-    expect(advanceJaguarAutoAttack(initial, 'p1')).toEqual({ state: initial, events: [] });
+    expect(advancePlayerAutoAttack(initial, 'p1')).toEqual({ state: initial, events: [] });
   },
 );
 
-test.each(['p2', 'p3', BOSS.id, 'missing'])('non-Jaguar %s never auto-attacks', (id) => {
+// SPEC §11: Águila and Tícitl now auto-attack too (agile-raid.test); only non-players stay silent here.
+test.each([BOSS.id, 'missing'])('non-player %s never auto-attacks through the player path', (id) => {
   const initial = enemyEncounter();
   initial.entities.p2.targetId = BOSS.id;
   initial.entities.p3.targetId = BOSS.id;
-  expect(advanceJaguarAutoAttack(initial, id)).toEqual({ state: initial, events: [] });
+  expect(advancePlayerAutoAttack(initial, id)).toEqual({ state: initial, events: [] });
 });
 
 test('Jaguar does not act when dead or casting and decrements a waiting timer', () => {
   const initial = enemyEncounter();
   Object.assign(initial.entities.p1, { targetId: BOSS.id, health: 0 });
-  expect(advanceJaguarAutoAttack(initial, 'p1').state).toBe(initial);
+  expect(advancePlayerAutoAttack(initial, 'p1').state).toBe(initial);
   initial.entities.p1.health = 1200;
   initial.entities.p1.cast = { abilityId: 'remedy', targetId: 'p1', durationTicks: 30, remainingTicks: 10, interruptible: true };
   initial.entities.p1.autoAttackRemainingTicks = 2;
-  const result = advanceJaguarAutoAttack(initial, 'p1');
+  const result = advancePlayerAutoAttack(initial, 'p1');
   expect(result.events).toEqual([]);
   expect(result.state.entities.p1.autoAttackRemainingTicks).toBe(1);
 });

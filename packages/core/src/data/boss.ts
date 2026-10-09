@@ -15,7 +15,7 @@ export const BOSS_ABILITIES = {
     castTicks: 50,
     interruptible: false,
     canUseWhileCasting: false,
-    effect: { type: 'damage', baseDamage: 400 },
+    effect: { type: 'cone', baseDamage: 400, angleDegrees: 90, lengthMeters: 8 },
   },
   obsidianWind: {
     id: 'obsidianWind',
@@ -85,9 +85,9 @@ export const BOSS = {
   id: 'boss',
   name: 'Mictlantecuhtli, Señor del Mictlán',
   maxHealthByPlayerCount: {
-    3: 7500,
-    4: 12500,
-    5: 17500,
+    3: 9500,
+    4: 15500,
+    5: 21500,
   } satisfies Record<PlayerCount, number>,
   armorBps: 0,
   bodyRadiusMeters: 1.5,

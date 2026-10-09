@@ -1,4 +1,4 @@
-import { BOSS } from '@mictlan/core';
+import { BOSS, CLASSES } from '@mictlan/core';
 import { afterEach, expect, test, vi } from 'vitest';
 import { IntegrationServer } from './integration-fixture.js';
 
@@ -21,8 +21,11 @@ test('C1: an eagle in range casts Obsidian Arrow and the boss loses exactly 140'
   const { eagle, room } = await startEagleCombat();
   eagle.send('target', { entityId: 'boss' });
   eagle.send('cast', { abilityId: 'obsidianArrow' });
-  await vi.waitFor(() => expect(room().encounter?.entities.boss.health).toBeLessThan(BOSS.maxHealthByPlayerCount[3]), { timeout: 4000 });
-  expect(room().encounter?.entities.boss.health).toBe(BOSS.maxHealthByPlayerCount[3] - 140);
+  const maxHealth = BOSS.maxHealthByPlayerCount[3];
+  await vi.waitFor(() => expect(room().encounter?.entities.boss.health).toBeLessThanOrEqual(maxHealth - 140), { timeout: 4000 });
+  // SPEC §11: the Águila also auto-attacks for 15, so the remainder is the arrow plus whole auto-attacks.
+  const lost = maxHealth - (room().encounter?.entities.boss.health ?? maxHealth);
+  expect((lost - 140) % CLASSES.eagle.autoAttack!.baseDamage).toBe(0);
 });
 
 test('C2: malformed messages are ignored and the room keeps advancing', async () => {

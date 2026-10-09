@@ -18,7 +18,9 @@ function syncCast(view: EntityState, cast: CastState | null): void {
     return;
   }
   const current = view.cast ?? new CombatCastState();
-  syncFields(current, { ...cast, targetId: cast.targetId ?? '' });
+  const { aim, ...fields } = cast;
+  syncFields(current, { ...fields, targetId: cast.targetId ?? '',
+    aimX: aim?.x ?? 0, aimY: aim?.y ?? 0, aimDx: aim?.dx ?? 0, aimDy: aim?.dy ?? 0 });
   syncFields(view, { cast: current });
 }
 

@@ -7,6 +7,11 @@ export const CombatCastState = schema({
   durationTicks: t.number(),
   remainingTicks: t.number(),
   interruptible: t.boolean(),
+  // SPEC §11: telegraphed cone origin and unit direction; (0, 0) direction means no area.
+  aimX: t.number().default(0),
+  aimY: t.number().default(0),
+  aimDx: t.number().default(0),
+  aimDy: t.number().default(0),
 }, 'CombatCastState');
 export type CombatCastState = SchemaType<typeof CombatCastState>;
 

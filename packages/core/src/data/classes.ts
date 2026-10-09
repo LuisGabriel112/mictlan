@@ -113,7 +113,12 @@ export const CLASSES = {
     // Kept in mana/second; conversion to per-tick regeneration belongs to T1.3.
     manaRegenPerSecond: 18,
     threatMultiplierBps: 10000,
-    autoAttack: null,
+    autoAttack: {
+      abilityId: 'autoAttack',
+      baseDamage: 10,
+      intervalTicks: 40,
+      rangeMeters: COMBAT_RULES.rangedRangeMeters,
+    },
     abilities: [
       {
         id: 'remedy',
@@ -132,7 +137,7 @@ export const CLASSES = {
         targetType: 'ally',
         manaCost: 110,
         cooldownTicks: 0,
-        castTicks: 60,
+        castTicks: 40,
         triggersGcd: true,
         rangeMeters: COMBAT_RULES.rangedRangeMeters,
         effect: { type: 'heal', baseHealing: 350 },
@@ -183,7 +188,12 @@ export const CLASSES = {
     maxMana: 0,
     manaRegenPerSecond: 0,
     threatMultiplierBps: 10000,
-    autoAttack: null,
+    autoAttack: {
+      abilityId: 'autoAttack',
+      baseDamage: 15,
+      intervalTicks: 40,
+      rangeMeters: COMBAT_RULES.rangedRangeMeters,
+    },
     abilities: [
       {
         id: 'obsidianArrow',
@@ -191,7 +201,7 @@ export const CLASSES = {
         targetType: 'enemy',
         manaCost: 0,
         cooldownTicks: 0,
-        castTicks: 40,
+        castTicks: 30,
         triggersGcd: true,
         rangeMeters: COMBAT_RULES.rangedRangeMeters,
         effect: { type: 'damage', baseDamage: 140 },

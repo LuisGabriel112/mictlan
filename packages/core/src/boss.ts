@@ -2,9 +2,10 @@ import { replaceCombatEntity, resolveDamageEffect } from './combat-effects.js';
 import type { CombatResult } from './combat-effects.js';
 import { BOSS, BOSS_ABILITIES, BOSS_PHASES } from './data/boss.js';
 import { createPhaseAbilityTimers } from './phases.js';
+import { aimCone, insideCone } from './mechanics/cone.js';
 import { createWindZones } from './mechanics/wind.js';
 import { summonXolos } from './mechanics/xolos.js';
-import type { BossAbilityId, CombatEvent, EncounterState, EnemyEntity, PhaseTimers } from './types.js';
+import type { BossAbilityId, CastAim, CombatEvent, EncounterState, EnemyEntity, Entity, PhaseTimers } from './types.js';
 
 function livingBoss(state: EncounterState): EnemyEntity | undefined {
   const boss = state.entities[BOSS.id];
@@ -43,24 +44,35 @@ export function advanceBossEncounter(state: EncounterState): EncounterState {
   return targetId === null ? advanced : { ...advanced, entities: { ...state.entities, [boss.id]: { ...boss, targetId } } };
 }
 
-function resolveBossAbility(state: EncounterState, event: Extract<CombatEvent, { type: 'abilityResolved' | 'castFinished' }>): CombatResult {
+type ResolvedEvent = Extract<CombatEvent, { type: 'abilityResolved' | 'castFinished' }>;
+
+function damageLivingPlayers(state: EncounterState, event: ResolvedEvent, baseDamage: number,
+  hits: (player: Entity) => boolean): CombatResult {
+  const events: CombatEvent[] = [event];
+  for (const id of Object.keys(state.entities).sort()) {
+    const player = state.entities[id];
+    if (player.type !== 'player' || player.health <= 0 || !hits(player)) continue;
+    const result = resolveDamageEffect(state, event, player, baseDamage);
+    state = result.state;
+    events.push(...result.events);
+  }
+  return { state, events };
+}
+
+// SPEC §11: the strike hits whoever stands in the cone marked at cast start, not just its target.
+function resolveConeStrike(state: EncounterState, event: ResolvedEvent, aim: CastAim | undefined): CombatResult {
+  const cone = BOSS_ABILITIES.flayedStrike.effect;
+  if (!aim) return { state, events: [event] };
+  return damageLivingPlayers(state, event, cone.baseDamage, (player) => insideCone(aim, cone, player, player.bodyRadiusMeters));
+}
+
+function resolveBossAbility(state: EncounterState, event: ResolvedEvent, aim?: CastAim): CombatResult {
   if (event.abilityId === 'callOfTheXolos') return { state: summonXolos(state), events: [event] };
   if (event.abilityId === 'obsidianWind') return { state: createWindZones(state, event.sourceId), events: [event] };
   if (event.abilityId === 'lamentOfTheDead') {
-    const events: CombatEvent[] = [event];
-    for (const id of Object.keys(state.entities).sort()) {
-      const player = state.entities[id];
-      if (player.type !== 'player' || player.health <= 0) continue;
-      const result = resolveDamageEffect(state, event, player, BOSS_ABILITIES.lamentOfTheDead.effect.baseDamage);
-      state = result.state;
-      events.push(...result.events);
-    }
-    return { state, events };
+    return damageLivingPlayers(state, event, BOSS_ABILITIES.lamentOfTheDead.effect.baseDamage, () => true);
   }
-  const target = event.targetId === null ? undefined : state.entities[event.targetId];
-  if (event.abilityId !== 'flayedStrike' || !target || target.health <= 0) return { state, events: [event] };
-  const result = resolveDamageEffect(state, event, target, BOSS_ABILITIES.flayedStrike.effect.baseDamage);
-  return { state: result.state, events: [event, ...result.events] };
+  return event.abilityId === 'flayedStrike' ? resolveConeStrike(state, event, aim) : { state, events: [event] };
 }
 
 function advanceBossCast(state: EncounterState, boss: EnemyEntity): CombatResult {
@@ -71,7 +83,7 @@ function advanceBossCast(state: EncounterState, boss: EnemyEntity): CombatResult
   state = replaceCombatEntity(state, advanced);
   if (remainingTicks > 0) return { state, events: [] };
   const attribution = { sourceId: boss.id, abilityId: cast.abilityId, targetId: cast.targetId, tick: state.tick };
-  const resolved = resolveBossAbility(state, { type: 'abilityResolved', ...attribution });
+  const resolved = resolveBossAbility(state, { type: 'abilityResolved', ...attribution }, cast.aim);
   return { state: resolved.state, events: [{ type: 'castFinished', ...attribution }, ...resolved.events] };
 }
 
@@ -95,8 +107,10 @@ function startBossAbility(state: EncounterState, boss: EnemyEntity, abilityId: B
   if (ability.castTicks === 0) {
     return resolveBossAbility(state, { type: 'abilityResolved', ...attribution });
   }
+  const target = boss.targetId === null ? undefined : state.entities[boss.targetId];
+  const aim = ability.effect.type === 'cone' ? { aim: aimCone(boss, target) } : {};
   const cast = { abilityId, targetId: boss.targetId, durationTicks: ability.castTicks,
-    remainingTicks: ability.castTicks, interruptible: ability.interruptible };
+    remainingTicks: ability.castTicks, interruptible: ability.interruptible, ...aim };
   return { state: replaceCombatEntity(state, { ...boss, cast }), events: [started] };
 }
 

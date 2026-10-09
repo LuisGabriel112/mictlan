@@ -13,14 +13,14 @@ const ROLE_GUIDES = {
   ],
   healer: [
     { title: 'Tu trabajo', text: 'mantener vivos a todos, sobre todo al Jaguar. Selecciona aliados con F1–F5 o con clic en su marco.' },
-    { title: 'Rotación', text: 'Copal (3) siempre activo en el Jaguar. Remedio (1) para el daño normal. Gran remedio (2) cuando alguien esté bajo y tengas 3 s. Ofrenda (4) justo después de un Lamento de los muertos, que golpea a todos.' },
+    { title: 'Rotación', text: 'Copal (3) siempre activo en el Jaguar. Remedio (1) para el daño normal. Gran remedio (2) cuando alguien esté bajo y tengas 2 s. Ofrenda (4) justo después de un Lamento de los muertos, que golpea a todos.' },
     { title: 'Maná', text: 'regenera 18 por segundo; no gastes Gran remedio en alguien casi lleno.' },
     { title: 'Evita', text: 'los círculos rojos de Viento; sal antes de empezar un casteo largo. En la fase 2 los xolos van por ti: acércate al Jaguar.' },
     { title: 'Con tu grupo', text: 'avisa cuando te quedes sin maná.' },
   ],
   eagle: [
     { title: 'Tu trabajo', text: 'hacer daño desde lejos y cortar el Lamento de los muertos.' },
-    { title: 'Rotación', text: 'Disparo veloz (2) cada vez que esté listo; Flecha de obsidiana (1) el resto del tiempo (2 s de casteo).' },
+    { title: 'Rotación', text: 'Disparo veloz (2) cada vez que esté listo; Flecha de obsidiana (1) el resto del tiempo (1.5 s de casteo).' },
     { title: 'Lo más importante', text: 'cuando el jefe castee Lamento de los muertos (borde turquesa: se puede interrumpir), usa Grito de guerra (3) con el jefe seleccionado: lo cancela y nadie recibe daño. Si hay varios Águilas, túrnense.' },
     { title: 'Evita', text: 'los círculos rojos de Viento: sal caminando o con Vuelo (4, 8 m). En la fase 3, quédate dentro del círculo seguro.' },
     { title: 'Con tu grupo', text: 'en la fase 2, mata primero a los xolos (Tab para seleccionarlos).' },

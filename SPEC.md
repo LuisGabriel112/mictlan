@@ -121,20 +121,22 @@ Teclas (v0.11): `1` `2` `3` `4` para habilidades (fila superior o teclado numér
 
 ### 5.2 Tícitl — Sanador
 - **Vida:** 700. **Maná:** 1000, regenera 18/s. **Armadura:** 0.
+- **Auto-ataque (v0.11):** 10 de daño cada 2.0 s si su objetivo enemigo está a ≤ 30 m.
 
 | # | Habilidad | Tipo | Objetivo | Costo/CD | Efecto |
 |---|---|---|---|---|---|
 | 1 | Remedio | Casteo 1.5 s, GCD, 30 m | `ally` | 40 maná | Cura 120 |
-| 2 | Gran remedio | Casteo 3.0 s, GCD, 30 m | `ally` | 110 maná | Cura 350 |
+| 2 | Gran remedio | Casteo 2.0 s (v0.11), GCD, 30 m | `ally` | 110 maná | Cura 350 |
 | 3 | Copal | Instantánea, GCD, 30 m | `ally` | 50 maná | Cura 20 cada 1.0 s durante 10 s (10 ticks, el primero 1 s después de aplicarlo). Recargarlo reinicia la duración y el ritmo de los ticks, no se acumula |
 | 4 | Ofrenda | Instantánea, GCD, aliados vivos a ≤ 30 m (incluido uno mismo) | `none` | 150 maná, CD 45 s | Cura 150 a cada uno |
 
 ### 5.3 Guerrero Águila — Daño (a distancia)
 - **Vida:** 750. **Armadura:** 0.
+- **Auto-ataque (v0.11):** 15 de daño cada 2.0 s si su objetivo enemigo está a ≤ 30 m.
 
 | # | Habilidad | Tipo | Objetivo | Costo/CD | Efecto |
 |---|---|---|---|---|---|
-| 1 | Flecha de obsidiana | Casteo 2.0 s, GCD, 30 m | `enemy` | — | 140 de daño |
+| 1 | Flecha de obsidiana | Casteo 1.5 s (v0.11), GCD, 30 m | `enemy` | — | 140 de daño |
 | 2 | Disparo veloz | Instantánea, GCD, 30 m | `enemy` | CD 6 s | 70 de daño |
 | 3 | Grito de guerra | Instantánea, off-GCD, 30 m | `enemy` | CD 15 s | Interrumpe el casteo interrumpible del objetivo. Si el objetivo no está casteando algo interrumpible, se rechaza con motivo `not_casting` y no gasta el CD |
 | 4 | Vuelo | Instantánea, off-GCD | `none` | CD 12 s | Desplaza 8 m en la dirección de movimiento (o hacia donde mira si está quieto). Se recorta al muro de la arena (no al radio seguro). Cancela el casteo propio |
@@ -162,14 +164,14 @@ Teclas (v0.11): `1` `2` `3` `4` para habilidades (fila superior o teclado numér
 
 **Guía del Tícitl (sanador)**
 - **Tu trabajo:** mantener vivos a todos, sobre todo al Jaguar. Selecciona aliados con F1–F5 o con clic en su marco.
-- **Rotación:** Copal (3) siempre activo en el Jaguar. Remedio (1) para el daño normal. Gran remedio (2) cuando alguien esté bajo y tengas 3 s. Ofrenda (4) justo después de un Lamento de los muertos, que golpea a todos.
+- **Rotación:** Copal (3) siempre activo en el Jaguar. Remedio (1) para el daño normal. Gran remedio (2) cuando alguien esté bajo y tengas 2 s. Ofrenda (4) justo después de un Lamento de los muertos, que golpea a todos.
 - **Maná:** regenera 18 por segundo; no gastes Gran remedio en alguien casi lleno.
 - **Evita:** los círculos rojos de Viento; sal antes de empezar un casteo largo. En la fase 2 los xolos van por ti: acércate al Jaguar.
 - **Con tu grupo:** avisa cuando te quedes sin maná.
 
 **Guía del Guerrero Águila (daño a distancia)**
 - **Tu trabajo:** hacer daño desde lejos y cortar el Lamento de los muertos.
-- **Rotación:** Disparo veloz (2) cada vez que esté listo; Flecha de obsidiana (1) el resto del tiempo (2 s de casteo).
+- **Rotación:** Disparo veloz (2) cada vez que esté listo; Flecha de obsidiana (1) el resto del tiempo (1.5 s de casteo).
 - **Lo más importante:** cuando el jefe castee **Lamento de los muertos** (borde turquesa: se puede interrumpir), usa Grito de guerra (3) con el jefe seleccionado: lo cancela y nadie recibe daño. Si hay varios Águilas, túrnense.
 - **Evita:** los círculos rojos de Viento: sal caminando o con Vuelo (4, 8 m). En la fase 3, quédate dentro del círculo seguro.
 - **Con tu grupo:** en la fase 2, mata primero a los xolos (Tab para seleccionarlos).
@@ -178,7 +180,7 @@ Teclas (v0.11): `1` `2` `3` `4` para habilidades (fila superior o teclado numér
 
 ## 6. El jefe: Mictlantecuhtli, Señor del Mictlán
 
-- **Vida según número de jugadores:** 3 → 7 500, 4 → 12 500, 5 → 17 500 (v0.10, **temporal** para el playtest: con 15 000/25 000/35 000 (v0.9) y 24 000/40 000/56 000 (v0.7) los humanos no pasaban de la fase 1 y la partida no era divertida; se fija el valor definitivo con los datos de T4.4). **Armadura:** 0. **Radio de cuerpo:** 1.5 m.
+- **Vida según número de jugadores:** 3 → 9 500, 4 → 15 500, 5 → 21 500 (v0.11, **temporal y pendiente de que Venegas lo confirme**; con el DPS nuevo del raid ágil los bots ganaban en 1:24 y esto los devuelve a ~1:42. Antes, v0.10: 7 500/12 500/17 500, y: con 15 000/25 000/35 000 (v0.9) y 24 000/40 000/56 000 (v0.7) los humanos no pasaban de la fase 1 y la partida no era divertida; se fija el valor definitivo con los datos de T4.4). **Armadura:** 0. **Radio de cuerpo:** 1.5 m.
 - **Modo dev (1–2 jugadores):** solo para pruebas. El jefe y los xolos usan los valores de 3 jugadores. Ver §7.
 - **Auto-ataque:** 60 de daño cada 2.0 s a su objetivo, si está a ≤ 4 m. Si no, camina hacia él a 5 m/s.
 - **Enfurecer:** a los 480 s del pull, todo el daño del jefe ×5 (auto-ataque, Golpe, Lamento y Viento). No afecta a los xolos ni al daño por salir del radio seguro.

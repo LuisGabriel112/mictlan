@@ -136,3 +136,14 @@ test('players expose their GCD and running cooldowns; finished cooldowns disappe
   expect(view.entities.get('eagle')?.cooldowns.size).toBe(0);
   expect(view.entities.get('boss')?.cooldowns.size).toBe(0);
 });
+
+test('SPEC §11: a cone cast syncs its fixed aim and a plain cast clears it', () => {
+  const encounter = activeFixture();
+  const view = new LobbyState();
+  encounter.entities.healer.cast = castFixture({ abilityId: 'flayedStrike', aim: { x: 1, y: 2, dx: 0.6, dy: 0.8 } });
+  syncEncounter(view, encounter);
+  expect(view.entities.get('healer')!.cast).toMatchObject({ aimX: 1, aimY: 2, aimDx: 0.6, aimDy: 0.8 });
+  encounter.entities.healer.cast = castFixture();
+  syncEncounter(view, encounter);
+  expect(view.entities.get('healer')!.cast).toMatchObject({ aimX: 0, aimY: 0, aimDx: 0, aimDy: 0 });
+});

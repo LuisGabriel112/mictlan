@@ -194,7 +194,7 @@ describe('T1.3 timers and resolution', () => {
         { type: 'castCancelled', tick: 2, sourceId: BOSS.id, abilityId: 'lamentOfTheDead', reason: 'interrupted' },
       ]);
       expect(player(result.state, 'p3')).toMatchObject({
-        gcdRemainingTicks: 19, cast: { abilityId: 'obsidianArrow', remainingTicks: 39 },
+        gcdRemainingTicks: 19, cast: { abilityId: 'obsidianArrow', remainingTicks: 29 },
         cooldowns: { [abilityId]: 300 },
       });
       expect(player(result.state, 'p3').x).toBe(player(started.state, 'p3').x);
@@ -248,11 +248,11 @@ describe('T1.3 timers and resolution', () => {
     const initial = scenario();
     initial.entities.add = { ...threatEnemy(initial), id: 'add', type: 'xolo' };
     let state = tick(initial, [target('add', 'p3'), cast('obsidianArrow', 'p3')]).state;
-    state = advance(state, 39);
+    state = advance(state, 29);
     state.entities.add = { ...state.entities.add, ...(change === 'dead' ? { health: 0 } : { y: 20 }) };
     const result = tick(state);
     expect(result.events).toEqual([
-      { type: 'castCancelled', tick: 41, sourceId: 'p3', abilityId: 'obsidianArrow', reason: change === 'dead' ? 'invalid_target' : 'out_of_range' },
+      { type: 'castCancelled', tick: 31, sourceId: 'p3', abilityId: 'obsidianArrow', reason: change === 'dead' ? 'invalid_target' : 'out_of_range' },
     ]);
     expect(player(result.state, 'p3')).toMatchObject({ cast: null, cooldowns: {} });
   });

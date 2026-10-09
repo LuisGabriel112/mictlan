@@ -1,7 +1,7 @@
 import { expect, test } from 'vitest';
 import { BOSS } from '../src/data/boss.js';
 import type { Input } from '../src/types.js';
-import { combatCast, combatEncounter, combatPlayer, combatTick, freezeCombat, readyCast } from './combat-fixtures.js';
+import { combatCast, combatEncounter, combatPlayer, combatTick, freezeCombat, muteAutoAttack, readyCast } from './combat-fixtures.js';
 import { threatEnemy } from './threat-fixtures.js';
 
 test('C1: step respects melee and ranged switching thresholds', () => {
@@ -101,6 +101,7 @@ test('target selection runs only after all players instead of applying intermedi
   const state = combatEncounter();
   Object.assign(combatPlayer(state, 'p1'), { x: 0, y: 0, targetId: BOSS.id, autoAttackRemainingTicks: 40 });
   combatPlayer(state).targetId = BOSS.id;
+  muteAutoAttack(state, 'p3');
   threatEnemy(state).threat = { p3: 51 };
   const inputs: Input[] = [combatCast('quickShot'), combatCast('claw', 'p1')];
   const result = combatTick(state, inputs);
@@ -129,6 +130,7 @@ test('dead sources cannot create damage, flat, healing or forced threat through 
 test('frozen state is deterministic and unchanged entities are reused when damage pulls the boss', () => {
   const state = combatEncounter();
   combatPlayer(state).targetId = BOSS.id;
+  muteAutoAttack(state, 'p3');
   const original = structuredClone(state);
   const inputs = [combatCast('quickShot')];
   freezeCombat(state);

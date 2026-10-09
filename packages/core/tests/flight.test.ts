@@ -2,7 +2,7 @@ import { expect, test } from 'vitest';
 import { usePlayerAbility } from '../src/abilities.js';
 import { BOSS } from '../src/index.js';
 import type { Input } from '../src/index.js';
-import { combatCast, combatEncounter, combatPlayer, combatTick, freezeCombat, readyCast } from './combat-fixtures.js';
+import { combatCast, combatEncounter, combatPlayer, combatTick, freezeCombat, muteAutoAttack, readyCast } from './combat-fixtures.js';
 
 test.each([[], [{ type: 'move', playerId: 'p3', dx: 0, dy: 0 }]] satisfies Input[][])(
   'C5: stationary Flight travels 8 meters along facing', (...inputs) => {
@@ -75,6 +75,7 @@ test('rejected Flight does not cancel an active cast or displace the player', ()
 test('the first cast wins over Flight and a completing Arrow resolves before Flight', () => {
   const state = combatEncounter();
   combatPlayer(state).targetId = BOSS.id;
+  muteAutoAttack(state, 'p3');
   const first = combatTick(state, [combatCast('obsidianArrow'), combatCast('flight')]);
   expect(combatPlayer(first.state).cooldowns.flight).toBeUndefined();
   readyCast(state, 'obsidianArrow', 'p3', BOSS.id);

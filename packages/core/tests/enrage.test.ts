@@ -1,6 +1,7 @@
 import { expect, test } from 'vitest';
 import { resolveDamageEffect } from '../src/combat-effects.js';
 import { BOSS, BOSS_ABILITIES, XOLO } from '../src/data/boss.js';
+import { aimCone } from '../src/mechanics/cone.js';
 import { advanceBossEnrage, enrageDamageModifiers } from '../src/phases.js';
 import { combatCast, combatEncounter, combatTick, freezeCombat } from './combat-fixtures.js';
 import { enemyEncounter, repeatTick } from './enemy-fixtures.js';
@@ -86,6 +87,7 @@ test('a Strike completing on the enrage tick uses enrage together with a real Sh
   initial.entities.boss.autoAttackRemainingTicks = 10;
   initial.entities.boss.cast = {
     abilityId: 'flayedStrike', targetId: 'p1', durationTicks: 50, remainingTicks: 1, interruptible: false,
+    aim: aimCone(initial.entities.boss, initial.entities.p1),
   };
   const result = combatTick(initial, [combatCast('obsidianShield', 'p1')]);
   expect(result.events.filter(({ type }) => type === 'damage')).toEqual([

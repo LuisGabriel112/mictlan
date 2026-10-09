@@ -5,7 +5,7 @@ import { BOSS, BOSS_ABILITIES, BOSS_PHASES } from '../src/data/boss.js';
 import { CLASSES } from '../src/data/classes.js';
 import { interruptCast } from '../src/mechanics/interrupt.js';
 import type { AbilityRejectionReason, BossAbilityId, EncounterState, PlayerEntity } from '../src/types.js';
-import { combatCast, combatEncounter, combatPlayer, combatTick, freezeCombat } from './combat-fixtures.js';
+import { combatCast, combatEncounter, combatPlayer, combatTick, freezeCombat, muteAutoAttack } from './combat-fixtures.js';
 import { repeatTick } from './enemy-fixtures.js';
 
 const lament = BOSS_ABILITIES.lamentOfTheDead;
@@ -16,6 +16,7 @@ function startLament(): EncounterState {
   initial.bossActive = true;
   initial.bossAbilityTimers = { lamentOfTheDead: 1 };
   combatPlayer(initial).targetId = BOSS.id;
+  muteAutoAttack(initial, 'p3');
   return combatTick(initial).state;
 }
 
@@ -74,6 +75,7 @@ test.each([null, 'flayedStrike'] satisfies (BossAbilityId | null)[])(
   'C4: War Cry rejects %s with not_casting and no cooldown', (abilityId) => {
     const initial = combatEncounter();
     combatPlayer(initial).targetId = BOSS.id;
+    muteAutoAttack(initial, 'p3');
     if (abilityId !== null) {
       const ability = BOSS_ABILITIES[abilityId];
       initial.entities.boss.cast = { abilityId, targetId: 'p1', interruptible: ability.interruptible,
@@ -84,7 +86,8 @@ test.each([null, 'flayedStrike'] satisfies (BossAbilityId | null)[])(
     expect(result.events).toEqual([{ type: 'abilityRejected', tick: 1, sourceId: 'p3',
       abilityId: 'warCry', reason: 'not_casting' }]);
     expect(combatPlayer(result.state).cooldowns.warCry).toBeUndefined();
-    expect(result.state.entities.p3).toBe(initial.entities.p3);
+    // Only the muted SPEC §11 auto-attack timer ticks; the rejection itself leaves the player untouched.
+    expect(result.state.entities.p3).toEqual({ ...initial.entities.p3, autoAttackRemainingTicks: expect.any(Number) });
     expect(result.state.entities.boss).toBe(initial.entities.boss);
   },
 );
