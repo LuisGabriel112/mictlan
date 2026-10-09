@@ -26,7 +26,7 @@
 | T3.2 Objetivo y barra de acción | `bbdecd0` | 0 | **Implementada por Claude**. Verificado en Chrome: Tab, clic, 2 (Disparo veloz: −70 al jefe), F5 bloqueado, barra en gris al morir |
 | T3.3 Marcos y barras de casteo | `f3445f7` | 0 | **Implementada por Claude**. Verificado en Chrome: marcos propio/objetivo/grupo, clic en marco de grupo, F1, barra del jefe con borde turquesa en el Lamento. La barra de casteo propia no se pudo capturar (ventana oculta) |
 | T3.7 Movimiento con clic derecho | `5600940` | 0 | Pedida por Venegas e **implementada por Claude**. Verificada en Chrome: clic derecho, llegada, y Flecha lanzada a media caminata (−140 al jefe) |
-| T3.4 Lectura del combate | (pendiente) | 0 | `high`, ~9 min. Antes hubo que correr `npm ci` (faltaba Phaser). Codex no tuvo navegador; Claude verificó en Chrome: números flotantes, log con la línea de muerte, temporizador y "Derrota". Sin verificar en pantalla: contorno animado de Viento, sombreado de fase 3 y desvanecido (pestaña oculta, rAF en pausa) |
+| T3.4 Lectura del combate | `733af6b` | 0 | `high`, ~9 min. Antes hubo que correr `npm ci` (faltaba Phaser). Codex no tuvo navegador; Claude verificó en Chrome: números flotantes, log con la línea de muerte, temporizador y "Derrota". Sin verificar en pantalla: contorno animado de Viento, sombreado de fase 3 y desvanecido (pestaña oculta, rAF en pausa) |
 
 Siguiente: **T3.5** (lobby), T3.6 (pulido visual) y T4.1 (playtest). Prompts listos en `PROMPTS.md`; lanzarlos con `/codex:rescue --wait --fresh --model gpt-6-astra --effort high`.
 
