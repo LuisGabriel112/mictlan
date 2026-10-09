@@ -293,7 +293,7 @@ Objetivo: el ambiente de SPEC §9 con cámara isométrica. Core, servidor y red 
 - **Hacer:** marcos propio/objetivo/grupo, barras de casteo, barra de acción con recarga, log, temporizador, avisos y números flotantes (proyectados del mundo a pantalla) en HTML sobre el canvas, reusando los módulos puros de T3.2–T3.4.
 - **Criterios (manual de Venegas):** misma información que el HUD de Phaser; los números no tapan el HUD.
 
-### [ ] T5.3 Ambiente y efectos (adelantada, estilo V Rising)
+### [x] T5.3 Ambiente y efectos (adelantada, estilo V Rising)
 - **Hacer:** luz, sombras, bloom, viñeta, áreas de daño que brillan con borde animado, aura del jefe al castear, barras sobre las unidades estilo LoL, partículas y destello al recibir daño (SPEC §9).
 - **Criterios (manual de Venegas):** se parece en ambiente a las referencias, el peligro se lee mejor que en Phaser y sigue a 60 fps con 5 jugadores, 4 xolos y 3 zonas.
 
