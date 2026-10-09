@@ -5,7 +5,7 @@ import { effectsFromEvents, liveEffects, type AttackEffect } from '../attack-eff
 import { DestinationMarker } from '../click-move';
 import { groupFrameAt } from '../frames';
 import { recordHitFlashes, type HitFlashes } from '../hit-flash';
-import { latestRejection, rejectionText } from '../hud-text';
+import { latestRejection, rejectionFlash } from '../hud-text';
 import { PositionHistory, type Positions } from '../interpolation';
 import { keyAction, type KeyAction } from '../keyboard';
 import { isSyncedSnapshot, type Point, type RoomSnapshot } from '../snapshot';
@@ -101,7 +101,7 @@ export class ArenaScene extends Phaser.Scene {
   private receiveEvents(events: readonly CombatEvent[]): void {
     this.hitFlashes = recordHitFlashes(this.hitFlashes, events, this.time.now);
     const reason = latestRejection(events, this.room.sessionId);
-    if (reason) this.hud.showFlash(rejectionText(reason), this.time.now);
+    if (reason) this.hud.showFlash(rejectionFlash(reason, this.snapshot, this.room.sessionId), this.time.now);
     if (!this.snapshot) return;
     const positions = this.history.sample(performance.now() - INTERPOLATION_DELAY_MS);
     this.effects.push(...effectsFromEvents(events, this.snapshot, positions, this.time.now));

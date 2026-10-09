@@ -1,5 +1,5 @@
-import { expect, test } from 'vitest';
-import { entityName, latestRejection, rejectionText, slotLabel, statusText } from '../src/hud-text';
+import { describe, expect, test } from 'vitest';
+import { entityName, latestRejection, rejectionFlash, rejectionText, slotLabel, statusText } from '../src/hud-text';
 import { entity, room } from './fixtures';
 
 test.each([
@@ -48,4 +48,21 @@ test('the latest rejection of the local player is reported, others are ignored',
   expect(latestRejection(events, 'p1')).toBe('out_of_range');
   expect(latestRejection(events, 'p9')).toBeUndefined();
   expect(latestRejection([], 'p1')).toBeUndefined();
+});
+
+describe('rejectionFlash', () => {
+  const cast = (interruptible: boolean) => ({ abilityId: 'flayedStrike', targetId: 'me', durationTicks: 50, remainingTicks: 20, interruptible });
+  const scene = (bossCast?: ReturnType<typeof cast>) => room([entity({ id: 'me', targetId: 'boss' }),
+    entity({ id: 'boss', type: 'boss', classId: '', cast: bossCast })]);
+
+  test('an uninterruptible cast explains why the interrupt failed', () => {
+    expect(rejectionFlash('not_casting', scene(cast(false)), 'me')).toBe('Ese casteo no se puede interrumpir');
+  });
+
+  test('no cast on the target keeps the original message; other reasons are unchanged', () => {
+    expect(rejectionFlash('not_casting', scene(), 'me')).toBe('El objetivo no está casteando');
+    expect(rejectionFlash('not_casting', scene(cast(true)), 'me')).toBe('El objetivo no está casteando');
+    expect(rejectionFlash('not_casting', undefined, 'me')).toBe('El objetivo no está casteando');
+    expect(rejectionFlash('cooldown', scene(cast(false)), 'me')).toBe('En recarga');
+  });
 });

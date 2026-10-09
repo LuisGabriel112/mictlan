@@ -22,6 +22,14 @@ export function rejectionText(reason: string): string {
   return Object.hasOwn(REJECTION_TEXT, reason) ? REJECTION_TEXT[reason] : 'No se puede usar';
 }
 
+// The server only says "not_casting"; the snapshot tells the player when the cast exists but cannot be cut (SPEC §6).
+export function rejectionFlash(reason: string, snapshot: RoomSnapshot | undefined, selfId: string): string {
+  const targetId = snapshot?.entities[selfId]?.targetId ?? '';
+  const cast = snapshot?.entities[targetId]?.cast;
+  if (reason === 'not_casting' && cast && !cast.interruptible) return 'Ese casteo no se puede interrumpir';
+  return rejectionText(reason);
+}
+
 export function statusText(snapshot: RoomSnapshot): string {
   if (snapshot.status === 'lobby') return `Esperando jugadores · Código ${snapshot.code}`;
   return STATUS_TEXT[snapshot.status];
