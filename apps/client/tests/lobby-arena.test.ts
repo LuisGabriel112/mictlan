@@ -30,7 +30,7 @@ test.each(['lobby', 'victory', 'defeat'] as const)('combat input is silent durin
   const fixture = combatControls(room([], { status }));
   const preventDefault = vi.fn();
   fixture.key({ code: 'Tab', preventDefault });
-  fixture.key({ code: 'KeyQ', preventDefault });
+  fixture.key({ code: 'Digit1', preventDefault });
   fixture.click({ rightButtonDown: () => true, x: 10, y: 10 });
   expect(fixture.connection.send).not.toHaveBeenCalled();
   expect(preventDefault).not.toHaveBeenCalled();
@@ -40,7 +40,7 @@ test('arena reads a state that arrived before Phaser boot and still accepts comb
   const fixture = combatControls(room([entity({ id: 'self' })]));
   const preventDefault = vi.fn();
   fixture.key({ code: 'Tab', preventDefault });
-  fixture.key({ code: 'KeyS', preventDefault });
+  fixture.key({ code: 'KeyX', preventDefault });
   fixture.click({ rightButtonDown: () => true, x: 32, y: 32 });
   expect(preventDefault).toHaveBeenCalledOnce();
   expect(fixture.connection.send).toHaveBeenCalledWith('stop', {});
@@ -57,7 +57,7 @@ test('controls wait for the first snapshot and ignore repeated combat keys', () 
   fixture.click({ rightButtonDown: () => true, x: 0, y: 0 });
   expect(preventDefault).not.toHaveBeenCalled();
   fixture.states[0]({ toJSON: () => room([entity({ id: 'self' })]) });
-  fixture.key({ code: 'KeyS', repeat: true, preventDefault });
+  fixture.key({ code: 'KeyX', repeat: true, preventDefault });
   expect(fixture.connection.send).not.toHaveBeenCalled();
 });
 

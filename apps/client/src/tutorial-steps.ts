@@ -24,8 +24,8 @@ interface TutorialStep {
 
 const STEPS: readonly TutorialStep[] = [
   { text: () => 'Selecciona al jefe: haz clic sobre él o pulsa Tab.', check: checkBossSelected },
-  { text: () => 'Camina: haz clic derecho en el suelo. S te detiene.', check: checkMoved },
-  { text: (classId) => `Lanza ${CLASSES[classId].abilities[0].name} con Q. Pulsa H para ver tu rotación.`, check: checkAbilityUsed },
+  { text: () => 'Camina con W A S D (o clic derecho en el suelo). X te detiene.', check: checkMoved },
+  { text: (classId) => `Lanza ${CLASSES[classId].abilities[0].name} con 1. Pulsa H para ver tu rotación.`, check: checkAbilityUsed },
   { text: () => 'Si un círculo rojo de Viento de obsidiana te alcanza, sal caminando antes de que estalle.', check: checkLeftZone },
 ];
 

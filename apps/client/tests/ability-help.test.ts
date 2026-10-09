@@ -14,7 +14,7 @@ test.each(expectations)('%s presents every ability in core order with all its de
   const panel = classHelp(CLASSES[classId]);
   expect(panel.name).toBe(CLASSES[classId].name);
   expect(panel.health).toBe(`Vida: ${CLASSES[classId].maxHealth}`);
-  expect(panel.abilities.map((ability) => ability.key)).toEqual(['Q', 'W', 'E', 'R']);
+  expect(panel.abilities.map((ability) => ability.key)).toEqual(['1', '2', '3', '4']);
   panel.abilities.forEach((help, index) => {
     const ability = CLASSES[classId].abilities[index];
     expect(help).toMatchObject({ id: ability.id, name: ability.name, type: types[index], cost: costs[index] });

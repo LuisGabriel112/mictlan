@@ -15,7 +15,7 @@ test('lobby panel changes class before ready, renders all metadata and caches un
   const f = fixture();
   f.view.render('lobby', 'healer');
   const text = descendants(f.element('class-panel')).map((node) => node.textContent).join(' ');
-  for (const fragment of ['Sanador', 'Vida: 700', 'Maná: 1000', 'Q · Remedio', 'cura', 'Costo: 40 maná', 'Casteo: 1.5 s', 'Recarga: 0 s', 'Alcance: 30 m']) {
+  for (const fragment of ['Sanador', 'Vida: 700', 'Maná: 1000', '1 · Remedio', 'cura', 'Costo: 40 maná', 'Casteo: 1.5 s', 'Recarga: 0 s', 'Alcance: 30 m']) {
     expect(text).toContain(fragment);
   }
   const calls = f.document.createElement.mock.calls.length;
@@ -63,7 +63,7 @@ test('combat hover and focus reveal the corresponding tooltip, leave hides it, r
     slot.listeners.get('blur')!(helpEvent());
     expect(tooltip.hidden).toBe(true);
   });
-  expect(descendants(slots[2]).map((node) => node.textContent).join(' ')).toContain('E · Escudo de obsidiana');
+  expect(descendants(slots[2]).map((node) => node.textContent).join(' ')).toContain('3 · Escudo de obsidiana');
   f.window.innerWidth = 1000;
   f.window.innerHeight = 600;
   f.resize();

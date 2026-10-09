@@ -106,7 +106,7 @@ Cuentas y login, persistencia, botín, niveles y talentos, más de un jefe, chat
 
 **Composición obligatoria:** exactamente 1 Guerrero Jaguar, 1 Tícitl y el resto Guerreros Águila (de 1 a 3).
 
-Teclas: `Q` `W` `E` `R` para habilidades (los números no castean; decisión de Venegas, v0.7), `Tab` cicla enemigos, clic selecciona, `F1`–`F5` (o `Shift+1`–`Shift+5`) seleccionan aliados. El cliente debe bloquear la acción por defecto del navegador para `Tab` y `F1`–`F5`.
+Teclas (v0.11): `1` `2` `3` `4` para habilidades (fila superior o teclado numérico; reemplaza a `Q` `W` `E` `R` de v0.7 porque WASD camina), `Tab` cicla enemigos, clic selecciona, `F1`–`F5` (o `Shift+1`–`Shift+5`) seleccionan aliados. El cliente debe bloquear la acción por defecto del navegador para `Tab` y `F1`–`F5`.
 
 ### 5.1 Guerrero Jaguar — Tanque
 - **Vida:** 1200. **Armadura:** 30 %. **Amenaza:** ×3.
@@ -151,27 +151,27 @@ Teclas: `Q` `W` `E` `R` para habilidades (los números no castean; decisión de 
 
 **Tipo de cada habilidad** (etiqueta en la barra de acción y en el panel de clase): Zarpazo, Flecha de obsidiana y Disparo veloz → **daño**; Remedio, Gran remedio, Copal y Ofrenda → **cura**; Escudo de obsidiana → **defensa**; Provocar, Rugido y Grito de guerra → **control**; Vuelo → **movilidad**.
 
-**Controles comunes** (en todas las guías): clic derecho camina, S se detiene, Tab cambia de enemigo, clic selecciona, F1–F5 seleccionan aliados, Q W E R lanzan habilidades.
+**Controles comunes** (en todas las guías): W A S D caminan (o clic derecho), X se detiene, Tab cambia de enemigo, clic selecciona, F1–F5 seleccionan aliados, 1 2 3 4 lanzan habilidades.
 
 **Guía del Guerrero Jaguar (tanque)**
 - **Tu trabajo:** que el jefe te pegue a ti y no a los demás. Ponte frente a él (a 4 m o menos) y no te alejes.
-- **Rotación:** Zarpazo (Q) cada vez que esté listo. Rugido (R) al empezar y cuando aparezcan xolos. Provocar (W) si el jefe o un xolo se va con otro jugador.
-- **Lo más importante:** cuando el jefe castee **Golpe del Descarnado** sobre ti (no se puede interrumpir), usa Escudo de obsidiana (E) antes de que termine: sin Escudo recibes 280, con Escudo 140.
+- **Rotación:** Zarpazo (1) cada vez que esté listo. Rugido (4) al empezar y cuando aparezcan xolos. Provocar (2) si el jefe o un xolo se va con otro jugador.
+- **Lo más importante:** cuando el jefe castee **Golpe del Descarnado** sobre ti (no se puede interrumpir), usa Escudo de obsidiana (3) antes de que termine: sin Escudo recibes 280, con Escudo 140.
 - **Evita:** los círculos rojos de Viento de obsidiana; en la fase 3, salir del círculo seguro.
 - **Con tu grupo:** mantén al jefe cerca del centro; en la fase 2 atrae a los xolos, que van por el Tícitl.
 
 **Guía del Tícitl (sanador)**
 - **Tu trabajo:** mantener vivos a todos, sobre todo al Jaguar. Selecciona aliados con F1–F5 o con clic en su marco.
-- **Rotación:** Copal (E) siempre activo en el Jaguar. Remedio (Q) para el daño normal. Gran remedio (W) cuando alguien esté bajo y tengas 3 s. Ofrenda (R) justo después de un Lamento de los muertos, que golpea a todos.
+- **Rotación:** Copal (3) siempre activo en el Jaguar. Remedio (1) para el daño normal. Gran remedio (2) cuando alguien esté bajo y tengas 3 s. Ofrenda (4) justo después de un Lamento de los muertos, que golpea a todos.
 - **Maná:** regenera 18 por segundo; no gastes Gran remedio en alguien casi lleno.
 - **Evita:** los círculos rojos de Viento; sal antes de empezar un casteo largo. En la fase 2 los xolos van por ti: acércate al Jaguar.
 - **Con tu grupo:** avisa cuando te quedes sin maná.
 
 **Guía del Guerrero Águila (daño a distancia)**
 - **Tu trabajo:** hacer daño desde lejos y cortar el Lamento de los muertos.
-- **Rotación:** Disparo veloz (W) cada vez que esté listo; Flecha de obsidiana (Q) el resto del tiempo (2 s de casteo).
-- **Lo más importante:** cuando el jefe castee **Lamento de los muertos** (borde turquesa: se puede interrumpir), usa Grito de guerra (E) con el jefe seleccionado: lo cancela y nadie recibe daño. Si hay varios Águilas, túrnense.
-- **Evita:** los círculos rojos de Viento: sal caminando o con Vuelo (R, 8 m). En la fase 3, quédate dentro del círculo seguro.
+- **Rotación:** Disparo veloz (2) cada vez que esté listo; Flecha de obsidiana (1) el resto del tiempo (2 s de casteo).
+- **Lo más importante:** cuando el jefe castee **Lamento de los muertos** (borde turquesa: se puede interrumpir), usa Grito de guerra (3) con el jefe seleccionado: lo cancela y nadie recibe daño. Si hay varios Águilas, túrnense.
+- **Evita:** los círculos rojos de Viento: sal caminando o con Vuelo (4, 8 m). En la fase 3, quédate dentro del círculo seguro.
 - **Con tu grupo:** en la fase 2, mata primero a los xolos (Tab para seleccionarlos).
 
 ---
@@ -367,3 +367,5 @@ Motivo: tras probar el cliente 3D, Venegas pidió un raid "más ágil": menos cl
 
 **Balance**
 - Tras el cambio, rebalancear la vida del jefe con el simulador (los bots usan WASD/Esquiva solo si el cambio de reglas lo exige) y mantener el test de duración de T4.5 en rango.
+
+**Teclas (decisión de Venegas, v0.11):** WASD choca con la `W` de las habilidades, así que las habilidades pasan a `1` `2` `3` `4` (fila superior o teclado numérico). `Shift+1`–`Shift+5` siguen seleccionando aliados. Las guías de §5.4 usan los números.

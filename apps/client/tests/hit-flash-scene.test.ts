@@ -115,3 +115,52 @@ test('combat events become attack effects in the world frame until they expire o
   arena.update(1300, 16);
   expect(lastFrame().effects).toEqual([]);
 });
+
+function windowListener(name: string) {
+  const calls = vi.mocked(window.addEventListener).mock.calls as unknown as [string, (event?: unknown) => void][];
+  return calls.find(([type]) => type === name)![1];
+}
+
+test('WASD walks camera-relative, clears the click marker and stops on release or blur', () => {
+  const { arena, connection, receiveState, click, lastFrame } = worldScene();
+  receiveState({ toJSON: () => room([entity({ id: 'eagle' })]) });
+  click({ rightButtonDown: () => true, x: 64, y: -96 });
+  const keydown = windowListener('keydown');
+  const keyup = windowListener('keyup');
+  const preventDefault = vi.fn();
+  keydown({ code: 'KeyW', repeat: false, preventDefault });
+  keydown({ code: 'KeyW', repeat: true, preventDefault });
+  const moves = () => connection.send.mock.calls.filter(([type]) => type === 'move').map(([, payload]) => payload);
+  expect(moves()).toHaveLength(1);
+  expect(moves()[0].dx).toBeCloseTo(-Math.SQRT1_2, 6);
+  expect(moves()[0].dy).toBeCloseTo(Math.SQRT1_2, 6);
+  arena.update(0, 16);
+  expect(lastFrame().destination).toBeUndefined();
+  keyup({ code: 'KeyW' });
+  expect(moves().at(-1)).toEqual({ dx: 0, dy: 0 });
+  keydown({ code: 'KeyD', repeat: false, preventDefault });
+  windowListener('blur')();
+  expect(moves().at(-1)).toEqual({ dx: 0, dy: 0 });
+  expect(preventDefault).not.toHaveBeenCalled();
+});
+
+test('WASD is ignored outside combat and the held keys reset when combat ends', () => {
+  const { connection, receiveState } = worldScene();
+  receiveState({ toJSON: () => room([entity({ id: 'eagle' })], { status: 'lobby' }) });
+  windowListener('keydown')({ code: 'KeyA', repeat: false, preventDefault: vi.fn() });
+  expect(connection.send).not.toHaveBeenCalled();
+  receiveState({ toJSON: () => room([entity({ id: 'eagle' })]) });
+  windowListener('keydown')({ code: 'KeyA', repeat: false, preventDefault: vi.fn() });
+  receiveState({ toJSON: () => room([entity({ id: 'eagle' })], { status: 'defeat' }) });
+  receiveState({ toJSON: () => room([entity({ id: 'eagle' })]) });
+  windowListener('keydown')({ code: 'KeyA', repeat: false, preventDefault: vi.fn() });
+  expect(connection.send.mock.calls.filter(([type]) => type === 'move')).toHaveLength(2);
+});
+
+test('shutting the scene down removes every keyboard and focus listener', () => {
+  const { surface } = worldScene();
+  const shutdown = surface.events.once.mock.calls.find(([name]) => name === 'shutdown')![1] as () => void;
+  shutdown();
+  const removed = vi.mocked(window.removeEventListener).mock.calls.map(([type]) => type);
+  expect(removed).toEqual(['keydown', 'keyup', 'blur']);
+});
