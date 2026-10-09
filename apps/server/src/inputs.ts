@@ -1,4 +1,4 @@
-import { CLASSES, type Input, type PlayerAbilityId } from '@mictlan/core';
+import { CLASSES, COMMON_ABILITIES, type Input, type PlayerAbilityId } from '@mictlan/core';
 
 export const INPUT_RULES = {
   // Core keeps only the last move and first cast per tick, so 16 covers any honest client.
@@ -11,9 +11,10 @@ const CAST_TIME_ABILITY_IDS: ReadonlySet<string> = new Set(
   Object.values(CLASSES).flatMap((definition) => definition.abilities.filter(({ castTicks }) => castTicks > 0).map(({ id }) => id)),
 );
 
-const PLAYER_ABILITY_IDS: ReadonlySet<string> = new Set(
-  Object.values(CLASSES).flatMap((definition) => definition.abilities.map(({ id }) => id)),
-);
+const PLAYER_ABILITY_IDS: ReadonlySet<string> = new Set([
+  ...Object.values(CLASSES).flatMap((definition) => definition.abilities.map(({ id }) => id)),
+  ...COMMON_ABILITIES.map(({ id }) => id),
+]);
 
 function isRecord(payload: unknown): payload is Record<string, unknown> {
   return typeof payload === 'object' && payload !== null && !Array.isArray(payload);

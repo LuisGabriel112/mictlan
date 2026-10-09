@@ -23,6 +23,7 @@ describe('keyAction', () => {
     [{ code: 'KeyA', shiftKey: false }, { action: null, preventDefault: false }],
     [{ code: 'KeyS', shiftKey: false }, { action: null, preventDefault: false }],
     [{ code: 'KeyX', shiftKey: false }, { action: { type: 'stop' }, preventDefault: false }],
+    [{ code: 'Space', shiftKey: false }, { action: { type: 'dodge' }, preventDefault: true }],
   ])('%j', (event, expected) => {
     expect(keyAction(event)).toEqual(expected);
   });

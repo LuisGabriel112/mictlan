@@ -1,6 +1,6 @@
 import { BOSS } from '@mictlan/core';
-import { expect, test } from 'vitest';
-import { actionSlots } from '../src/action-bar';
+import { describe, expect, test } from 'vitest';
+import { actionSlots, dodgeSlot } from '../src/action-bar';
 import { entity, room } from './fixtures';
 
 const boss = entity({ id: 'boss', type: 'boss', classId: '', x: 0, y: 0,
@@ -75,4 +75,19 @@ test('a missing self or an enemy self has no action bar', () => {
 test('self and area abilities ignore the current target', () => {
   const jaguar = entity({ id: 'p1', classId: 'jaguar', targetId: '' });
   expect(states(room([jaguar, boss]))).toEqual(['no_target', 'no_target', 'ready', 'ready']);
+});
+
+describe('dodgeSlot', () => {
+  test('Esquiva sits on Space with its own cooldown and no target rules', () => {
+    const ready = dodgeSlot(room([entity({ id: 'me', classId: 'jaguar' })]), 'me');
+    expect(ready).toMatchObject({ slot: 5, key: 'Espacio', abilityId: 'dodge', name: 'Esquiva', hasCastTime: false, state: 'ready' });
+    const cooling = dodgeSlot(room([entity({ id: 'me', cooldowns: { dodge: { id: 'dodge', remainingTicks: 50 } } })]), 'me');
+    expect(cooling).toMatchObject({ state: 'cooldown', cooldownSeconds: 2.5 });
+    expect(dodgeSlot(room([entity({ id: 'me', health: 0 })]), 'me')?.state).toBe('dead');
+  });
+
+  test('there is no dodge slot without a classed player', () => {
+    expect(dodgeSlot(room([]), 'me')).toBeUndefined();
+    expect(dodgeSlot(room([entity({ id: 'me', classId: '' })]), 'me')).toBeUndefined();
+  });
 });

@@ -16,7 +16,8 @@ export type PlayerAbilityId =
   | 'obsidianArrow'
   | 'quickShot'
   | 'warCry'
-  | 'flight';
+  | 'flight'
+  | 'dodge';
 
 export type BossAbilityId =
   | 'flayedStrike'
@@ -252,6 +253,7 @@ export type AbilityRejectionReason =
 export type CastCancellationReason =
   | 'moving'
   | 'flight'
+  | 'dodge'
   | 'interrupted'
   | 'invalid_target'
   | 'out_of_range';

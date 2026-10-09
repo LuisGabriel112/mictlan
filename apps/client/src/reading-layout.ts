@@ -17,6 +17,12 @@ export function actionSlotRects(width: number, height: number): Rect[] {
   }));
 }
 
+export function dodgeSlotRect(width: number, height: number): Rect {
+  const { slotWidth, slotGap, slotHeight, margin } = HUD_LAYOUT;
+  const totalWidth = 4 * slotWidth + 3 * slotGap;
+  return { x: (width + totalWidth) / 2 + 2 * slotGap, y: height - slotHeight - margin, width: slotWidth, height: slotHeight };
+}
+
 export function unitFrameRects(): readonly [Rect, Rect, Rect] {
   const { margin, unitFrame } = HUD_LAYOUT;
   return [{ x: margin, y: margin, ...unitFrame }, { x: 2 * margin + unitFrame.width, y: margin, ...unitFrame },
@@ -27,7 +33,7 @@ function actionRects(width: number, height: number): Rect[] {
   const { slotHeight, margin, castBar, slotWidth, slotGap } = HUD_LAYOUT;
   const top = height - slotHeight - margin;
   const actionWidth = 4 * slotWidth + 3 * slotGap;
-  return [{ x: (width - actionWidth) / 2, y: top, width: actionWidth, height: slotHeight },
+  return [{ x: (width - actionWidth) / 2, y: top, width: actionWidth, height: slotHeight }, dodgeSlotRect(width, height),
     { x: (width - castBar.width) / 2, y: top - castBar.height - 10, ...castBar },
     { x: (width - 600) / 2, y: top - 66, width: 600, height: 22 }];
 }

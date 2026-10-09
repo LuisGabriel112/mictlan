@@ -1,4 +1,4 @@
-import { CLASSES, COMBAT_RULES } from './data/classes.js';
+import { CLASSES, COMBAT_RULES, findPlayerAbility } from './data/classes.js';
 import { THREAT_RULES } from './data/threat.js';
 import type { AbilityEffect, CombatEvent, EncounterState, EnemyEntity, PlayerEntity } from './types.js';
 
@@ -67,7 +67,7 @@ function tauntEnemy(state: EncounterState, enemy: EnemyEntity, sourceId: string,
 }
 
 function applyTauntThreat(state: EncounterState, source: PlayerEntity, event: ResolvedEvent): EncounterState {
-  const effect = CLASSES[source.classId].abilities.find(({ id }) => id === event.abilityId)?.effect;
+  const effect = findPlayerAbility(source.classId, event.abilityId)?.effect;
   if (effect?.type !== 'taunt') return state;
   const enemy = enemyTarget(state, event.targetId);
   if (!enemy || enemy.health <= 0) return state;

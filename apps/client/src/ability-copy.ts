@@ -14,4 +14,5 @@ export const ABILITY_COPY: Record<PlayerAbilityId, { type: AbilityKind; descript
   quickShot: { type: 'daño', description: 'Daña al enemigo seleccionado al instante, incluso mientras caminas.' },
   warCry: { type: 'control', description: 'Interrumpe el casteo interrumpible del enemigo seleccionado.' },
   flight: { type: 'movilidad', description: 'Avanza hacia donde caminas o miras y cancela tu casteo.' },
+  dodge: { type: 'movilidad', description: 'Esquiva 4 m hacia donde caminas o miras y cancela tu casteo (Espacio).' },
 };

@@ -29,11 +29,11 @@ test('no rows before synchronization or in the lobby', () => {
   expect(attemptSummaryRows(summary, 'self')).toEqual([]);
 });
 
-test.each<CastCancellationReason>(['moving', 'flight', 'interrupted', 'invalid_target', 'out_of_range'])(
+test.each<CastCancellationReason>(['moving', 'flight', 'dodge', 'interrupted', 'invalid_target', 'out_of_range'])(
   'formats cancellation %s in Spanish', (reason) => {
     const initial = syncAttemptSnapshot(createAttemptSummary(), attemptSnapshot);
     const summary = accumulateAttemptEvents(initial, [{ type: 'castCancelled', tick: 1, sourceId: 'self', abilityId: 'obsidianArrow', reason }]);
-    const labels = { moving: 'Movimiento', flight: 'Vuelo', interrupted: 'Interrupción', invalid_target: 'Objetivo inválido', out_of_range: 'Fuera de alcance' };
+    const labels = { moving: 'Movimiento', flight: 'Vuelo', dodge: 'Esquiva', interrupted: 'Interrupción', invalid_target: 'Objetivo inválido', out_of_range: 'Fuera de alcance' };
     expect(attemptSummaryRows(summary, 'self')[0].cells[5]).toBe(`1 · ${labels[reason]}: 1`);
   },
 );

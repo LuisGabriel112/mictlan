@@ -10,7 +10,7 @@ export const BOT_REFERENCE_TEXT = `Referencia de bots perfectos (${BOT_REFERENCE
   + `Jaguar ${BOT_REFERENCE.jaguarDps} DPS · Águila ${BOT_REFERENCE.eagleDps} DPS · Tícitl ${BOT_REFERENCE.healerHps} HPS`;
 
 const CANCELLATION_LABELS: Record<CastCancellationReason, string> = {
-  moving: 'Movimiento', flight: 'Vuelo', interrupted: 'Interrupción',
+  moving: 'Movimiento', flight: 'Vuelo', dodge: 'Esquiva', interrupted: 'Interrupción',
   invalid_target: 'Objetivo inválido', out_of_range: 'Fuera de alcance',
 };
 

@@ -1,7 +1,7 @@
 import { expect, test } from 'vitest';
 import type { CombatEvent } from '@mictlan/core';
 import { ageFloatingTexts, enqueueFloatingTexts, floatingTextFor, floatingTextPose } from '../src/floating-texts';
-import { floatingTextVisible, projectFloatingText, readingLayout, unitFrameRects } from '../src/reading-layout';
+import { dodgeSlotRect, floatingTextVisible, projectFloatingText, readingLayout, unitFrameRects } from '../src/reading-layout';
 import { entity, room } from './fixtures';
 
 const damage: CombatEvent = { type: 'damage', tick: 1, sourceId: 'boss', targetId: 'h', abilityId: 'autoAttack', amount: 60, critical: false };
@@ -82,4 +82,9 @@ test('floatingTextVisible rejects any overlap with HUD or viewport and accepts o
   expect(floatingTextVisible({ x: 600, y: 710, width: 40, height: 26 }, viewport, [])).toBe(false);
   expect(floatingTextVisible({ x: 0, y: 0, width: 40, height: 26 }, viewport, [])).toBe(true);
   expect(floatingTextVisible({ x: 560, y: 300, width: 40, height: 26 }, viewport, [{ x: 600, y: 300, width: 10, height: 10 }])).toBe(true);
+});
+
+test('the Space dodge slot sits right of the action bar and is protected from floating numbers', () => {
+  expect(dodgeSlotRect(1280, 720)).toEqual({ x: 932, y: 650, width: 132, height: 54 });
+  expect(readingLayout(1280, 720).protectedRects).toContainEqual(dodgeSlotRect(1280, 720));
 });

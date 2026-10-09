@@ -164,3 +164,12 @@ test('shutting the scene down removes every keyboard and focus listener', () => 
   const removed = vi.mocked(window.removeEventListener).mock.calls.map(([type]) => type);
   expect(removed).toEqual(['keydown', 'keyup', 'blur']);
 });
+
+test('Space dodges through the cast message without scrolling the page', () => {
+  const { connection, receiveState } = worldScene();
+  receiveState({ toJSON: () => room([entity({ id: 'eagle' })]) });
+  const preventDefault = vi.fn();
+  windowListener('keydown')({ code: 'Space', repeat: false, preventDefault });
+  expect(connection.send).toHaveBeenCalledWith('cast', { abilityId: 'dodge' });
+  expect(preventDefault).toHaveBeenCalledOnce();
+});

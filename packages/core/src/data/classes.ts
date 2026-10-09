@@ -1,4 +1,4 @@
-import type { ClassDefinition, ClassId } from '../types.js';
+import type { Ability, ClassDefinition, ClassId, PlayerAbilityId } from '../types.js';
 
 export const COMBAT_RULES = {
   tickDurationMs: 50,
@@ -238,3 +238,22 @@ export const CLASSES = {
     ],
   },
 } as const satisfies Record<ClassId, ClassDefinition>;
+
+// SPEC §11 (v0.11): every class dodges with Space; it is not one of the four action bar abilities.
+export const DODGE: Ability = {
+  id: 'dodge',
+  name: 'Esquiva',
+  targetType: 'none',
+  manaCost: 0,
+  cooldownTicks: 8 * COMBAT_RULES.ticksPerSecond,
+  castTicks: 0,
+  triggersGcd: false,
+  rangeMeters: null,
+  effect: { type: 'dash', distanceMeters: 4, direction: 'movementOrFacing', boundary: 'arenaWall', cancelsOwnCast: true },
+};
+
+export const COMMON_ABILITIES: readonly Ability[] = [DODGE];
+
+export function findPlayerAbility(classId: ClassId, abilityId: PlayerAbilityId | string): Ability | undefined {
+  return [...CLASSES[classId].abilities, ...COMMON_ABILITIES].find(({ id }) => id === abilityId);
+}

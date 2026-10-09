@@ -1,4 +1,4 @@
-import { CLASSES, COMBAT_RULES } from './data/classes.js';
+import { CLASSES, COMBAT_RULES, findPlayerAbility } from './data/classes.js';
 import { displace } from './movement.js';
 import { hasInterruptibleCast } from './mechanics/interrupt.js';
 import type {
@@ -107,7 +107,7 @@ export function cancelPlayerCast(
 function finishPlayerCast(player: PlayerEntity, entities: Entities, tick: number): AbilityResult {
   const cast = player.cast;
   if (cast === null || cast.remainingTicks > 0) return { player, events: [] };
-  const ability = CLASSES[player.classId].abilities.find(({ id }) => id === cast.abilityId);
+  const ability = findPlayerAbility(player.classId, cast.abilityId);
   if (!ability) return { player: { ...player, cast: null }, events: [] };
   const reason = validateTarget(player, ability, cast.targetId, entities);
   if (reason !== null) return cancelPlayerCast(player, reason, tick);
@@ -138,7 +138,7 @@ export function advancePlayerAbilities(player: PlayerEntity, entities: Entities,
 
 function resolveInstantAbility(player: PlayerEntity, ability: Ability, targetId: string | null, tick: number): AbilityResult {
   if (ability.effect.type !== 'dash') return resolveAbility(player, ability, targetId, tick);
-  const cancelled = cancelPlayerCast(player, 'flight', tick);
+  const cancelled = cancelPlayerCast(player, ability.id === 'dodge' ? 'dodge' : 'flight', tick);
   const position = displace(cancelled.player, player.facing, ability.effect.distanceMeters);
   const resolved = resolveAbility({ ...cancelled.player, ...position }, ability, targetId, tick);
   return { player: resolved.player, events: [...cancelled.events, ...resolved.events] };
@@ -162,7 +162,7 @@ function startPlayerAbility(player: PlayerEntity, ability: Ability, tick: number
 export function usePlayerAbility(
   player: PlayerEntity, abilityId: PlayerAbilityId, entities: Entities, moving: boolean, tick: number,
 ): AbilityResult {
-  const ability = CLASSES[player.classId].abilities.find(({ id }) => id === abilityId);
+  const ability = findPlayerAbility(player.classId, abilityId);
   if (!ability) return { player, events: [] };
   const reason = validateAbility(player, ability, entities, moving);
   if (reason !== null) {

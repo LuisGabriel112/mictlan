@@ -34,7 +34,7 @@ test('Hud connects reading events, clock, relocated boss cast and reset', () => 
   hud.update(snapshot, 'h', 0, 0, { width: 1280, height: 720, project: legacyProjection });
   expect(scene.labels.some((label) => label.text === '¡Enfurecido!')).toBe(true);
   expect(scene.labels.some((label) => label.text === '00:00 · Fase 1: Los nueve ríos')).toBe(true);
-  expect(hud.objects).toHaveLength(47);
+  expect(hud.objects).toHaveLength(50);
   hud.resetReading();
   hud.update(room([], { status: 'lobby' }), 'h', 0, 0, { width: 1280, height: 720, project: legacyProjection });
   expect(scene.labels.some((label) => label.visible && label.text === '¡Enfurecido!')).toBe(false);

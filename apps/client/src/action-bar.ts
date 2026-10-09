@@ -1,5 +1,5 @@
-import { CLASSES, COMBAT_RULES, type Ability } from '@mictlan/core';
-import { ABILITY_KEYS } from './keyboard';
+import { CLASSES, COMBAT_RULES, DODGE, type Ability, type ClassId } from '@mictlan/core';
+import { ABILITY_KEYS, DODGE_KEY } from './keyboard';
 import { centerDistance, entityRadius, isLiving, type EntitySnapshot, type RoomSnapshot } from './snapshot';
 
 export type SlotState = 'ready' | 'cooldown' | 'gcd' | 'casting' | 'no_mana' | 'no_target' | 'out_of_range' | 'dead';
@@ -36,17 +36,28 @@ function slotState(snapshot: RoomSnapshot, self: EntitySnapshot, ability: Abilit
   return targetState(snapshot, self, ability);
 }
 
-function slotFor(snapshot: RoomSnapshot, self: EntitySnapshot, ability: Ability, index: number): ActionSlot {
+function slotFor(snapshot: RoomSnapshot, self: EntitySnapshot, ability: Ability, index: number, key: string): ActionSlot {
   const cooldownTicks = self.cooldowns[ability.id]?.remainingTicks ?? 0;
   return {
-    slot: index + 1, key: ABILITY_KEYS[index], abilityId: ability.id, name: ability.name, hasCastTime: ability.castTicks > 0,
+    slot: index + 1, key, abilityId: ability.id, name: ability.name, hasCastTime: ability.castTicks > 0,
     state: slotState(snapshot, self, ability, cooldownTicks),
     cooldownSeconds: cooldownTicks / COMBAT_RULES.ticksPerSecond,
   };
 }
 
-export function actionSlots(snapshot: RoomSnapshot, selfId: string): ActionSlot[] {
+function playerSelf(snapshot: RoomSnapshot, selfId: string): (EntitySnapshot & { classId: ClassId }) | undefined {
   const self = snapshot.entities[selfId];
-  if (!self || self.type !== 'player' || self.classId === '') return [];
-  return CLASSES[self.classId].abilities.map((ability, index) => slotFor(snapshot, self, ability, index));
+  return self && self.type === 'player' && self.classId !== '' ? self as EntitySnapshot & { classId: ClassId } : undefined;
+}
+
+export function actionSlots(snapshot: RoomSnapshot, selfId: string): ActionSlot[] {
+  const self = playerSelf(snapshot, selfId);
+  if (!self) return [];
+  return CLASSES[self.classId].abilities.map((ability, index) => slotFor(snapshot, self, ability, index, ABILITY_KEYS[index]));
+}
+
+// SPEC §11: Esquiva lives outside the four-slot bar, on Space.
+export function dodgeSlot(snapshot: RoomSnapshot, selfId: string): ActionSlot | undefined {
+  const self = playerSelf(snapshot, selfId);
+  return self ? slotFor(snapshot, self, DODGE, ABILITY_KEYS.length, DODGE_KEY) : undefined;
 }

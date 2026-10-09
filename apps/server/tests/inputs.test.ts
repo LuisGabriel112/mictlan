@@ -59,3 +59,7 @@ test('draining returns inputs in arrival order and empties the queue', () => {
   expect(queue.drain()).toEqual([first, second]);
   expect(queue.drain()).toEqual([]);
 });
+
+test('SPEC §11: every class may request the common Esquiva through cast', () => {
+  expect(parsePlayerInput('p1', 'cast', { abilityId: 'dodge' })).toEqual({ playerId: 'p1', type: 'cast', abilityId: 'dodge' });
+});

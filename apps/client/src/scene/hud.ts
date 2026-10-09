@@ -1,11 +1,11 @@
 import type * as Phaser from 'phaser';
 import type { CombatEvent } from '@mictlan/core';
-import { actionSlots, type ActionSlot } from '../action-bar';
+import { actionSlots, dodgeSlot, type ActionSlot } from '../action-bar';
 import { bossCastBar, groupFrameRect, groupFrames, selfFrame, targetFrame, type Rect } from '../frames';
 import { slotLabel, statusText } from '../hud-text';
 import type { RoomSnapshot } from '../snapshot';
 import type { Positions } from '../interpolation';
-import { HUD_LAYOUT as LAYOUT, actionSlotRects, readingLayout, unitFrameRects, type ReadingViewport } from '../reading-layout';
+import { HUD_LAYOUT as LAYOUT, actionSlotRects, dodgeSlotRect, readingLayout, unitFrameRects, type ReadingViewport } from '../reading-layout';
 import { CombatReadingView } from './combat-reading-view';
 import { CastBarWidget, FrameWidget } from './frame-view';
 
@@ -57,7 +57,8 @@ export class Hud {
 
   private createGroupAndSlots(track: (object: Phaser.GameObjects.GameObject) => void): void {
     for (let index = 0; index < LAYOUT.maxGroup; index += 1) this.groupWidgets.push(new FrameWidget(this.scene, track));
-    for (let index = 0; index < 4; index += 1) this.slots.push(this.slotView());
+    // Four action bar slots plus Esquiva on Space (SPEC §11).
+    for (let index = 0; index < 5; index += 1) this.slots.push(this.slotView());
   }
 
   showFlash(message: string, nowMs: number): void {
@@ -81,7 +82,9 @@ export class Hud {
     this.drawCastBars(snapshot, selfId, width, height);
     this.status.setText(statusText(snapshot)).setPosition(width / 2, LAYOUT.margin);
     this.flash.setVisible(nowMs < this.flashUntilMs).setPosition(width / 2, this.actionTop(height) - 44);
-    this.drawSlots(actionSlots(snapshot, selfId), width, height);
+    const bar = actionSlots(snapshot, selfId);
+    const slots: (ActionSlot | undefined)[] = [bar[0], bar[1], bar[2], bar[3], dodgeSlot(snapshot, selfId)];
+    this.drawSlots(slots, width, height);
   }
 
   private drawFrames(snapshot: RoomSnapshot, selfId: string): void {
@@ -104,8 +107,8 @@ export class Hud {
     return height - LAYOUT.slotHeight - LAYOUT.margin;
   }
 
-  private drawSlots(slots: readonly ActionSlot[], width: number, height: number): void {
-    const rectangles = actionSlotRects(width, height);
+  private drawSlots(slots: readonly (ActionSlot | undefined)[], width: number, height: number): void {
+    const rectangles = [...actionSlotRects(width, height), dodgeSlotRect(width, height)];
     this.slots.forEach((view, index) => {
       const { x, y } = rectangles[index];
       this.drawSlot(view, slots[index], x, y);

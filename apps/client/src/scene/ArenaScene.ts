@@ -1,5 +1,5 @@
 import * as Phaser from 'phaser';
-import type { CombatEvent } from '@mictlan/core';
+import { DODGE, type CombatEvent } from '@mictlan/core';
 import { actionSlots } from '../action-bar';
 import { effectsFromEvents, liveEffects, type AttackEffect } from '../attack-effects';
 import { DestinationMarker } from '../click-move';
@@ -137,6 +137,8 @@ export class ArenaScene extends Phaser.Scene {
       this.selectTarget(allyAt(snapshot, selfId, action.index));
     } else if (action.type === 'stop') {
       this.stopWalking();
+    } else if (action.type === 'dodge') {
+      this.room.send('cast', { abilityId: DODGE.id });
     } else {
       this.cast(snapshot, action.slot);
     }
