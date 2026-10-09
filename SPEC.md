@@ -1,4 +1,4 @@
-# MICTLÁN — Especificación del MVP (v0.10)
+# MICTLÁN — Especificación del MVP (v0.11)
 
 > Nombre de trabajo. Raid cooperativo en navegador, 3–5 jugadores contra un jefe inspirado en la mitología mexica.
 > Todos los números son **valores iniciales**: se ajustan con el simulador (tareas T1.12–T1.13) y con playtests.
@@ -334,3 +334,36 @@ Estas reglas no cambian ningún número; cierran huecos que el texto anterior de
 - Un `moveTo` reemplaza al destino anterior y a cualquier `move` sostenido; un `move` olvida el destino.
 - El jugador se detiene a menos de un paso (0.35 m) del destino; morir o desconectarse olvida el destino.
 - Pedir una habilidad con tiempo de casteo detiene el movimiento antes del tick, así el casteo empieza en vez de rechazarse por `moving`. Las instantáneas (incluido Vuelo) no lo detienen.
+
+---
+
+## 11. Raid ágil (v0.11, aprobado por Venegas el 2026-10-09)
+
+Motivo: tras probar el cliente 3D, Venegas pidió un raid "más ágil": menos clic y casteo largo, más movimiento y mecánicas que se esquivan. Estas reglas **reemplazan** a las anteriores donde choquen.
+
+**Movimiento**
+- WASD mueve al jugador en dirección relativa a la cámara isométrica (W = arriba en pantalla). El cliente convierte la tecla a una dirección del core y envía el `move { dx, dy }` existente; soltar todas las teclas envía `move { 0, 0 }`. El clic derecho (`moveTo`) se conserva. Moverse sigue cancelando los casteos.
+- `S` deja de ser "detener" (ahora es mover abajo). Detener = soltar WASD o la tecla `X`.
+
+**Esquiva (todas las clases)**
+- `Espacio` = **Esquiva**: desplaza 4 m en la dirección de movimiento (o hacia donde mira si está quieto), instantánea, off-GCD, sin costo, recarga 8 s. Cancela el casteo propio. Se recorta al muro como Vuelo. No es una de las 4 habilidades de la barra.
+- Vuelo del Águila no cambia (8 m, CD 12 s).
+
+**Auto-ataque para todos** (además del Jaguar, sin cambios)
+- Guerrero Águila: 15 de daño cada 2.0 s si su objetivo enemigo está a ≤ 30 m.
+- Tícitl: 10 de daño cada 2.0 s si su objetivo enemigo está a ≤ 30 m.
+- Los auto-ataques se pausan mientras castea, igual que el del Jaguar.
+
+**Casteos más cortos**
+- Flecha de obsidiana: casteo 2.0 s → **1.5 s**.
+- Gran remedio: casteo 3.0 s → **2.0 s**.
+
+**Golpe del Descarnado telegrafiado**
+- Ya no golpea solo a su objetivo: al empezar el casteo (2.5 s, no interrumpible) fija un **cono frontal de 90° y 8 m** hacia su objetivo, visible en el suelo. Al terminar, 400 de daño a **cada jugador dentro del cono** (Escudo lo reduce igual). El Jaguar lo recibe con Escudo; los demás salen del cono.
+- Si el objetivo muere o se aleja durante el casteo, el cono no gira: queda fijo donde se marcó.
+
+**Lamento de los muertos**
+- Mismas reglas (3.0 s, interrumpible, 250 a todos); el cliente lo anuncia con un aviso grande en pantalla y el anillo turquesa de T5.1b.
+
+**Balance**
+- Tras el cambio, rebalancear la vida del jefe con el simulador (los bots usan WASD/Esquiva solo si el cambio de reglas lo exige) y mantener el test de duración de T4.5 en rango.

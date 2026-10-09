@@ -293,10 +293,34 @@ Objetivo: el ambiente de SPEC §9 con cámara isométrica. Core, servidor y red 
 - **Hacer:** marcos propio/objetivo/grupo, barras de casteo, barra de acción con recarga, log, temporizador, avisos y números flotantes (proyectados del mundo a pantalla) en HTML sobre el canvas, reusando los módulos puros de T3.2–T3.4.
 - **Criterios (manual de Venegas):** misma información que el HUD de Phaser; los números no tapan el HUD.
 
-### [ ] T5.3 Ambiente y efectos
+### [ ] T5.3 Ambiente y efectos (adelantada, estilo V Rising)
 - **Hacer:** luz, sombras, bloom, viñeta, áreas de daño que brillan con borde animado, aura del jefe al castear, barras sobre las unidades estilo LoL, partículas y destello al recibir daño (SPEC §9).
 - **Criterios (manual de Venegas):** se parece en ambiente a las referencias, el peligro se lee mejor que en Phaser y sigue a 60 fps con 5 jugadores, 4 xolos y 3 zonas.
 
 ### [ ] T5.4 Modelos y animaciones
 - **Hacer:** modelos glTF del jefe, las tres clases y los xolos, más escenario, con animaciones (caminar, atacar, castear, morir). Antes de delegar: elegir la fuente (packs CC0 como Quaternius o KayKit, generados o encargados) y registrar la licencia (SPEC §9).
 - **Criterios (manual de Venegas):** cada clase y el jefe se reconocen sin leer nombres; sigue a 60 fps.
+
+---
+
+## Fase 6 — Raid ágil (SPEC §11, v0.11)
+
+### [ ] T6.1 WASD y tecla X
+- **Hacer:** cliente: WASD relativo a la cámara isométrica envía `move { dx, dy }` (ya existe en servidor); soltar envía (0,0); X detiene; S deja de detener. Actualizar guías y tutorial (paso 2).
+- **Criterios (manual de Venegas):** se camina con WASD sin pensar en la cámara; el clic derecho sigue funcionando.
+
+### [ ] T6.2 Esquiva para todos
+- **Hacer:** core: habilidad Esquiva (4 m, CD 8 s, off-GCD, cancela casteo, recorte al muro) para todas las clases, mensaje `dodge` en el servidor, tecla Espacio y su recarga visible en el HUD.
+- **Criterios:** tests de core y servidor; Venegas esquiva un Viento con Espacio.
+
+### [ ] T6.3 Auto-ataques y casteos cortos
+- **Hacer:** core: auto-ataque del Águila (15/2 s, 30 m) y del Tícitl (10/2 s, 30 m); Flecha 1.5 s; Gran remedio 2.0 s. Textos de ayuda.
+- **Criterios:** tests de core con los números de SPEC §11.
+
+### [ ] T6.4 Golpe del Descarnado en cono
+- **Hacer:** core: cono frontal de 90° y 8 m fijado al empezar el casteo; daño a cada jugador dentro al terminar. Estado sincronizado del cono y dibujo en el suelo (rojo, se llena con el casteo).
+- **Criterios:** tests de core (dentro/fuera/borde, Escudo, objetivo que se mueve); Venegas ve y esquiva el cono.
+
+### [ ] T6.5 Rebalance
+- **Hacer:** simulador con las reglas nuevas; ajustar la vida del jefe y el test de duración.
+- **Criterios:** test de balance en verde; propuesta de números a Venegas antes de cambiar el SPEC.
