@@ -117,6 +117,7 @@ test('death at exactly zero invalidates a later instant action in the same tick'
   state.entities.add = { ...threatEnemy(state), id: 'add', type: 'xolo', health: 40 };
   Object.assign(combatPlayer(state, 'p1'), { x: 0, y: 0, targetId: 'add' });
   combatPlayer(state).targetId = 'add';
+  state.entities[BOSS.id].autoAttackRemainingTicks = 100_000;
   const result = combatTick(state, [combatCast('quickShot'), combatCast('claw', 'p1')]);
   expect(result.events.map(({ type }) => type)).toEqual(['abilityResolved', 'damage', 'death', 'abilityRejected']);
   expect(result.events.at(-1)).toMatchObject({ reason: 'invalid_target' });

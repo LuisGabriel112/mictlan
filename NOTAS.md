@@ -35,7 +35,7 @@ Siguiente: **Checkpoint B** (5 intentos reales; anotar qué fue divertido, qué 
 
 **Para continuar en otra máquina:**
 1. `git pull` y `npm.cmd ci` (instala también Phaser, Vite y el SDK del cliente).
-2. `npm.cmd run check` debe dar 941 tests en verde (465 core, 241 servidor, 235 cliente).
+2. `npm.cmd run check` debe dar 943 tests en verde (467 core, 241 servidor, 235 cliente).
 3. Jugar: `npm.cmd run dev` (ya abierto a la red local) y abrir la URL que imprima Vite con `?dev=1&class=eagle` (o `jaguar` / `healer`). Controles en `apps/client/README.md` (clic derecho, S, Q W E R, Tab, F1–F5).
 4. En Claude Code: "lee NOTAS.md y sigue con el Checkpoint B". Si Codex no tiene créditos, Claude puede implementarla (T3.1–T3.3 y T3.7 las hizo Claude).
 
@@ -178,6 +178,14 @@ Siguiente: **Checkpoint B** (5 intentos reales; anotar qué fue divertido, qué 
 - Cliente: clic derecho = `moveTo` y marca turquesa; S = `stop`; se desactiva el menú contextual del navegador sobre el juego. Se borró `move-input.ts` (WASD).
 - `move` sigue existiendo en el protocolo (tests y bots del simulador).
 - Teclas de habilidades: **Q W E R** (pedido de Venegas); los números ya no castean. F1–F5 y Shift+1–5 siguen seleccionando aliados.
+
+**Historia paralela (2026-10-08/09):** la noche del 2026-10-08 otra laptop implementó T3.4 y T3.5 por su cuenta (`733af6b`, `7a9bd16`) y el fix del pull (`486b3b0`). Se fusionó con `git merge -s ours` conservando el cliente de esta máquina (T3.4–T4.2, ya probado con amigos) y se trajo solo el fix con cherry-pick. Antes de trabajar en otra máquina: `git pull` primero.
+
+**Corrección: pull sin amenaza (decidido por Venegas, implementado por Claude, SPEC v0.8)**
+- En `advanceBossEncounter`, solo en el tick del pull: si el jefe no tiene objetivo y ningún jugador vivo tiene amenaza, `targetId` = jugador vivo más cercano (distancia entre centros, empate por id). Con amenaza, decide `updateEnemyTargets` como antes.
+- Se acotó al tick del pull a propósito: aplicarlo a todo enemigo activo sin amenaza rompía 20 tests que usan `bossActive = true` con temporizadores vacíos para aislar mecánicas.
+- Seis tests viejos esperaban `targetId: null` tras un pull por cercanía; ahora esperan `p1` o silencian el auto-ataque del jefe (`autoAttackRemainingTicks = 100_000`) para seguir aislando lo que prueban.
+- El `castStarted` del Lamento lleva el objetivo actual del jefe (no cambia su efecto).
 
 ## Decisiones de Venegas (2026-10-06)
 

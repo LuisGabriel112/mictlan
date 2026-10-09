@@ -1,4 +1,4 @@
-# MICTLÁN — Especificación del MVP (v0.7)
+# MICTLÁN — Especificación del MVP (v0.9)
 
 > Nombre de trabajo. Raid cooperativo en navegador, 3–5 jugadores contra un jefe inspirado en la mitología mexica.
 > Todos los números son **valores iniciales**: se ajustan con el simulador (tareas T1.12–T1.13) y con playtests.
@@ -96,6 +96,7 @@ Cuentas y login, persistencia, botín, niveles y talentos, más de un jefe, chat
 - **Curación:** `amenaza = curación_efectiva × 0.5`, dividida en partes iguales entre todos los enemigos vivos en ese momento.
 - **Amenaza plana** (por ejemplo, la extra de Rugido) no se multiplica por el modificador de clase.
 - El enemigo ataca al jugador con más amenaza. Empate: gana el jugador con id menor.
+- **Pull sin amenaza (v0.8, decisión de Venegas):** si el jefe se activa por cercanía y ningún jugador vivo tiene amenaza sobre él, toma como objetivo al jugador vivo más cercano (distancia entre centros; empate: id menor) y lo conserva hasta que alguien genere amenaza.
 - **Cambio de objetivo:** solo si otro jugador supera al actual en 10 % (si está en cuerpo a cuerpo del enemigo) o en 30 % (si está a más de 4 m).
 - **Provocar:** fija la amenaza del tanque en `max(propia, máxima_actual × 1.1)` y fuerza el objetivo por 3 s.
 
@@ -146,7 +147,7 @@ Teclas: `Q` `W` `E` `R` para habilidades (los números no castean; decisión de 
 - Si el jugador estaba casteando, el casteo se cancela (sin costo ni cooldown) antes del desplazamiento.
 - No cambia la orientación por sí mismo: la orientación solo cambia con `move`.
 
-### 5.4 Ayuda en el juego (T4.3, v0.8)
+### 5.4 Ayuda en el juego (T4.3, v0.9)
 
 **Tipo de cada habilidad** (etiqueta en la barra de acción y en el panel de clase): Zarpazo, Flecha de obsidiana y Disparo veloz → **daño**; Remedio, Gran remedio, Copal y Ofrenda → **cura**; Escudo de obsidiana → **defensa**; Provocar, Rugido y Grito de guerra → **control**; Vuelo → **movilidad**.
 
@@ -177,7 +178,7 @@ Teclas: `Q` `W` `E` `R` para habilidades (los números no castean; decisión de 
 
 ## 6. El jefe: Mictlantecuhtli, Señor del Mictlán
 
-- **Vida según número de jugadores:** 3 → 15 000, 4 → 25 000, 5 → 35 000 (v0.8, Checkpoint B: con 24 000/40 000/56 000 los humanos no pasaban de la fase 1 antes del enfurecer). **Armadura:** 0. **Radio de cuerpo:** 1.5 m.
+- **Vida según número de jugadores:** 3 → 15 000, 4 → 25 000, 5 → 35 000 (v0.9, Checkpoint B: con 24 000/40 000/56 000 los humanos no pasaban de la fase 1 antes del enfurecer). **Armadura:** 0. **Radio de cuerpo:** 1.5 m.
 - **Modo dev (1–2 jugadores):** solo para pruebas. El jefe y los xolos usan los valores de 3 jugadores. Ver §7.
 - **Auto-ataque:** 60 de daño cada 2.0 s a su objetivo, si está a ≤ 4 m. Si no, camina hacia él a 5 m/s.
 - **Enfurecer:** a los 480 s del pull, todo el daño del jefe ×5 (auto-ataque, Golpe, Lamento y Viento). No afecta a los xolos ni al daño por salir del radio seguro.

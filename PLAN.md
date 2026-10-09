@@ -250,7 +250,7 @@
 - **Criterios:** 3 personas en redes distintas completan un intento.
 
 ### [x] T4.2 Balance: vida del jefe
-- **Hacer:** vida del jefe a 15 000 / 25 000 / 35 000 (3/4/5 jugadores, SPEC §6 v0.8). Actualizar los tests que dependían de los valores anteriores y correr el simulador.
+- **Hacer:** vida del jefe a 15 000 / 25 000 / 35 000 (3/4/5 jugadores, SPEC §6 v0.9). Actualizar los tests que dependían de los valores anteriores y correr el simulador.
 - **Criterios:** `npm run sim -- --players=3 --runs=50` da 100 % de victorias con duración media de 3:00 a 4:00 (los bots juegan perfecto; los humanos tardarán más).
 
 ### [ ] T4.3 Habilidades y roles legibles

@@ -57,10 +57,11 @@ test('advanceBossEncounter initializes data timers once and leaves dead or missi
 test('first Flayed Strike starts on elapsed tick 200 with a full non-interruptible 50 tick cast', () => {
   const initial = combatEncounter();
   Object.assign(initial.entities.p1, { x: 11.5, y: 0 });
+  initial.entities.boss.autoAttackRemainingTicks = 100_000;
   const before = repeatTick(initial, 199);
   expect(before.events.filter((event) => 'abilityId' in event && event.abilityId === 'flayedStrike')).toEqual([]);
   const started = combatTick(before.state);
-  expect(started.events).toContainEqual({ type: 'castStarted', tick: 200, sourceId: BOSS.id, abilityId: 'flayedStrike', targetId: null, durationTicks: 50 });
+  expect(started.events).toContainEqual({ type: 'castStarted', tick: 200, sourceId: BOSS.id, abilityId: 'flayedStrike', targetId: 'p1', durationTicks: 50 });
   expect(started.state.entities.boss.cast).toMatchObject({ remainingTicks: 50, interruptible: false });
   expect(started.state.bossAbilityTimers.flayedStrike).toBe(400);
 });
@@ -225,4 +226,31 @@ test('scheduler and step are deterministic, immutable and reuse untouched entiti
   expect(initial).toEqual(original);
   expect(result.state.entities.p2).toBe(initial.entities.p2);
   expect(result.state.entities.p3).toBe(initial.entities.p3);
+});
+
+test('a proximity pull without threat aims the boss at the nearest living player, ties by id', () => {
+  const initial = combatEncounter();
+  Object.assign(initial.entities.p1, { x: 11.5, y: 0 });
+  Object.assign(initial.entities.p2, { x: 0, y: -11.5 });
+  Object.assign(initial.entities.p3, { x: 0, y: 18 });
+  const pulled = advanceBossEncounter(initial);
+  expect(pulled).toMatchObject({ bossActive: true, elapsedTicks: 1 });
+  expect(pulled.entities.boss.targetId).toBe('p1');
+  expect(initial.entities.boss.targetId).toBeNull();
+  initial.entities.p1.health = 0;
+  expect(advanceBossEncounter(initial).entities.boss.targetId).toBe('p2');
+  freezeCombat(initial);
+  const ticked = combatTick(initial);
+  expect(ticked.state.entities.boss.targetId).toBe('p2');
+});
+
+test('a pull with threat keeps the threat target and an active boss keeps its target', () => {
+  const initial = combatEncounter();
+  Object.assign(initial.entities.p1, { x: 11.5, y: 0 });
+  threatEnemy(initial).threat = { p3: 10 };
+  expect(advanceBossEncounter(initial).entities).toBe(initial.entities);
+  expect(combatTick(initial).state.entities.boss.targetId).toBe('p3');
+  threatEnemy(initial).threat = {};
+  initial.bossActive = true;
+  expect(advanceBossEncounter(initial).entities).toBe(initial.entities);
 });
