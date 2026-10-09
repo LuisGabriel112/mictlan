@@ -51,3 +51,17 @@ La barra de acción muestra la recarga y por qué una habilidad no está disponi
 
 - `npm.cmd run test --workspace @mictlan/client`: tests de la lógica pura (Vitest).
 - La escena de Phaser (`src/scene/`) solo dibuja y conecta; se prueba a mano en el navegador.
+
+## Lectura del combate
+
+- Arriba al centro: tiempo desde el pull y nombre de fase; debajo, el casteo del jefe.
+- Abajo a la derecha, sobre la zona de acciones: las últimas 12 entradas del combate.
+  Las muertes incluyen la habilidad y su autor; las curaciones muestran solo la cantidad efectiva.
+- Los números duran un segundo y suben: daño blanco, daño crítico amarillo y más grande,
+  curación verde con `+` (también más grande si es crítica). Se ocultan al cruzar los paneles
+  del HUD, para no tapar marcos, casteos, log ni acciones.
+- Viento tiene un contorno pulsante durante el aviso. El área entre el radio seguro y el
+  muro queda sombreada en rojo cuando la arena se contrae.
+
+La lógica pura está en `combat-log.ts`, `floating-text.ts`, `encounter-clock.ts`,
+`danger-view.ts` y `hud-layout.ts`, con tests en `tests/`.

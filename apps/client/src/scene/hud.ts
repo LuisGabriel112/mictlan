@@ -1,14 +1,13 @@
 import type * as Phaser from 'phaser';
 import { actionSlots, type ActionSlot } from '../action-bar';
+import { appendCombatLog } from '../combat-log';
+import { encounterClockText } from '../encounter-clock';
+import { floatingTextPanels, HUD_LAYOUT as LAYOUT } from '../hud-layout';
 import { bossCastBar, groupFrameRect, groupFrames, selfFrame, targetFrame, type Rect } from '../frames';
 import { slotLabel, statusText } from '../hud-text';
 import type { RoomSnapshot } from '../snapshot';
 import { CastBarWidget, FrameWidget } from './frame-view';
 
-const LAYOUT = {
-  margin: 16, slotWidth: 132, slotHeight: 54, slotGap: 8, flashMs: 1500, maxGroup: 5,
-  unitFrame: { width: 260, height: 50 }, castBar: { width: 320, height: 22 },
-} as const;
 const TEXT_STYLE = { fontFamily: 'system-ui, sans-serif', fontSize: '15px', color: '#ffffff' } as const;
 
 interface SlotView {
@@ -37,6 +36,10 @@ export class Hud {
   private readonly bossCast: CastBarWidget;
   private readonly status: Phaser.GameObjects.Text;
   private readonly flash: Phaser.GameObjects.Text;
+  private readonly clock: Phaser.GameObjects.Text;
+  private readonly combatLog: Phaser.GameObjects.Text;
+  private logLines: string[] = [];
+  private logRect: Rect = { x: 0, y: 0, width: 0, height: 0 };
   private flashUntilMs = 0;
 
   constructor(private readonly scene: Phaser.Scene) {
@@ -51,7 +54,21 @@ export class Hud {
     this.bossCast = new CastBarWidget(scene, track);
     this.status = this.text(0, LAYOUT.margin, '28px').setOrigin(0.5, 0);
     this.flash = this.text(0, 0, '18px').setOrigin(0.5, 1).setColor('#ffd166');
+    this.clock = this.text(0, 0).setOrigin(0.5, 0);
+    this.combatLog = this.text(0, 0, '12px').setLineSpacing(3);
     for (let index = 0; index < 4; index += 1) this.slots.push(this.slotView());
+  }
+
+  appendLog(lines: readonly string[]): void {
+    this.logLines = appendCombatLog(this.logLines, lines);
+  }
+
+  clearLog(): void {
+    this.logLines = [];
+  }
+
+  get floatingTextOcclusions(): Rect[] {
+    return floatingTextPanels(this.scene.scale.width, this.scene.scale.height, this.logRect);
   }
 
   showFlash(message: string, nowMs: number): void {
@@ -65,8 +82,28 @@ export class Hud {
     this.drawFrames(snapshot, selfId);
     this.drawCastBars(snapshot, selfId, width, height);
     this.status.setText(statusText(snapshot)).setPosition(width / 2, LAYOUT.margin);
+    this.clock.setText(encounterClockText(snapshot)).setPosition(width / 2, LAYOUT.clockTop);
     this.flash.setVisible(nowMs < this.flashUntilMs).setPosition(width / 2, this.actionTop(height) - 44);
     this.drawSlots(actionSlots(snapshot, selfId), width, height);
+    this.drawCombatLog(snapshot, width, height);
+  }
+
+  private drawCombatLog(snapshot: RoomSnapshot, width: number, height: number): void {
+    this.combatLog.setVisible(snapshot.status !== 'lobby');
+    this.logRect = { x: 0, y: 0, width: 0, height: 0 };
+    if (snapshot.status === 'lobby') return;
+    const padding = LAYOUT.logPadding;
+    const panelWidth = Math.min(560, width * 0.45);
+    this.combatLog.setWordWrapWidth(panelWidth - padding * 2, true)
+      .setText(['Combate', ...this.logLines].join('\n'));
+    this.logRect = {
+      x: width - panelWidth - LAYOUT.margin,
+      y: height - LAYOUT.logBottomGap - this.combatLog.height - padding * 2,
+      width: panelWidth, height: this.combatLog.height + padding * 2,
+    };
+    const rect = this.logRect;
+    this.panels.fillStyle(0x1d1726, 0.94).fillRect(rect.x, rect.y, rect.width, rect.height);
+    this.combatLog.setPosition(rect.x + padding, rect.y + padding);
   }
 
   private drawFrames(snapshot: RoomSnapshot, selfId: string): void {
@@ -81,7 +118,7 @@ export class Hud {
   }
 
   private drawCastBars(snapshot: RoomSnapshot, selfId: string, width: number, height: number): void {
-    this.bossCast.draw(this.panels, bossCastBar(snapshot), centered(width, LAYOUT.margin + 40, LAYOUT.castBar));
+    this.bossCast.draw(this.panels, bossCastBar(snapshot), centered(width, LAYOUT.bossCastTop, LAYOUT.castBar));
     const ownTop = this.actionTop(height) - LAYOUT.castBar.height - 10;
     this.ownCast.draw(this.panels, selfFrame(snapshot, selfId)?.cast, centered(width, ownTop, LAYOUT.castBar));
   }

@@ -2,6 +2,8 @@ import * as Phaser from 'phaser';
 import type { CombatEvent } from '@mictlan/core';
 import { actionSlots } from '../action-bar';
 import { DestinationMarker } from '../click-move';
+import { combatLogLines } from '../combat-log';
+import { ageFloatingTexts, emptyFloatingTexts, enqueueFloatingTexts } from '../floating-text';
 import { groupFrameAt } from '../frames';
 import { latestRejection, rejectionText } from '../hud-text';
 import { PositionHistory, type Positions } from '../interpolation';
@@ -11,6 +13,7 @@ import { allyAt, entityAtPoint, nextEnemyTarget } from '../targeting';
 import { screenToWorld, PIXELS_PER_METER } from '../world-view';
 import { drawArena, drawDestination, drawEntities, drawZones } from './arena-renderer';
 import { Hud } from './hud';
+import { FloatingTextView } from './floating-text-view';
 
 export interface ArenaRoom {
   readonly sessionId: string;
@@ -30,6 +33,9 @@ export class ArenaScene extends Phaser.Scene {
   private readonly destination = new DestinationMarker();
   private world!: Phaser.GameObjects.Graphics;
   private hud!: Hud;
+  private floatingTexts = emptyFloatingTexts();
+  private floatingView!: FloatingTextView;
+  private pendingCombatEvents: CombatEvent[] = [];
 
   constructor(private readonly room: ArenaRoom) {
     super('arena');
@@ -40,22 +46,25 @@ export class ArenaScene extends Phaser.Scene {
     this.hud = new Hud(this);
     const hudCamera = this.cameras.add(0, 0, this.scale.width, this.scale.height);
     hudCamera.ignore(this.world);
+    this.floatingView = new FloatingTextView(this, hudCamera);
     this.cameras.main.ignore(this.hud.objects);
     this.fitCamera(hudCamera);
     this.scale.on('resize', () => this.fitCamera(hudCamera));
     this.listen();
   }
 
-  update(time: number): void {
+  update(time: number, delta: number): void {
     if (!this.snapshot) return;
     const positions: Positions = this.history.sample(performance.now() - INTERPOLATION_DELAY_MS);
     this.world.clear();
     drawArena(this.world, this.snapshot);
-    drawZones(this.world, this.snapshot);
+    drawZones(this.world, this.snapshot, time);
     const marker = this.destination.position;
     if (marker && this.destination.visibleAt(this.snapshot.entities[this.room.sessionId])) drawDestination(this.world, marker);
     drawEntities(this.world, this.snapshot, positions, this.room.sessionId);
     this.hud.update(this.snapshot, this.room.sessionId, time);
+    this.floatingTexts = ageFloatingTexts(this.floatingTexts, delta);
+    this.floatingView.draw(this.floatingTexts, this.hud.floatingTextOcclusions);
   }
 
   private listen(): void {
@@ -70,15 +79,35 @@ export class ArenaScene extends Phaser.Scene {
   }
 
   private receiveState(snapshot: RoomSnapshot): void {
+    if (snapshot.status === 'lobby' || (snapshot.status === 'combat' && this.snapshot?.status !== 'combat')) {
+      this.hud.clearLog();
+      this.floatingTexts = { ...this.floatingTexts, texts: [] };
+    }
     this.snapshot = snapshot;
     const positions: Positions = {};
     for (const entity of Object.values(snapshot.entities)) positions[entity.id] = { x: entity.x, y: entity.y };
     this.history.record(performance.now(), positions);
+    if (snapshot.status !== 'lobby' && this.pendingCombatEvents.length > 0) {
+      this.showCombatEvents(this.pendingCombatEvents, snapshot);
+      this.pendingCombatEvents = [];
+    }
   }
 
   private receiveEvents(events: readonly CombatEvent[]): void {
     const reason = latestRejection(events, this.room.sessionId);
     if (reason) this.hud.showFlash(rejectionText(reason), this.time.now);
+    // Messages may arrive before the first combat schema patch.
+    if (!this.snapshot || this.snapshot.status === 'lobby') {
+      this.pendingCombatEvents.push(...events);
+      return;
+    }
+    this.showCombatEvents(events, this.snapshot);
+  }
+
+  private showCombatEvents(events: readonly CombatEvent[], snapshot: RoomSnapshot): void {
+    this.hud.appendLog(combatLogLines(events, snapshot, this.room.sessionId));
+    this.floatingTexts = enqueueFloatingTexts(this.floatingTexts, events,
+      { ...snapshot.entities, ...this.history.sample(performance.now() - INTERPOLATION_DELAY_MS) });
   }
 
   private handleKey(event: KeyboardEvent): void {
