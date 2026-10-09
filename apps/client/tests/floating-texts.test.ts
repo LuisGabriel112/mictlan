@@ -50,8 +50,9 @@ test('ageFloatingTexts rises, fades and expires exactly at one second without mu
   expect(floatingTextPose({ ...queue[0], ageMs: 1500 })).toEqual({ x: 2, y: 4.5, alpha: 0 });
 });
 
-test('projectFloatingText uses the centered world camera and upward world y', () => {
-  expect(projectFloatingText({ x: 2, y: 3 }, { width: 1000, height: 800, zoom: 0.5 })).toEqual({ x: 532, y: 352 });
+test('projectFloatingText delegates to the injected world camera projection', () => {
+  const project = (world: { x: number; y: number }) => ({ x: world.x * 10 + 1, y: world.y * -10 + 2 });
+  expect(projectFloatingText({ x: 2, y: 3 }, { width: 1000, height: 800, project })).toEqual({ x: 21, y: -28 });
 });
 
 test('readingLayout reserves frames, action/cast bars and a twelve-line lower right log', () => {

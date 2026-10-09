@@ -1,12 +1,10 @@
 import { BOSS_ABILITIES, COMBAT_RULES } from '@mictlan/core';
 import type { RoomSnapshot } from './snapshot';
-import { PIXELS_PER_METER } from './world-view';
 
-export function unsafeRing(snapshot: RoomSnapshot): { radiusPx: number; widthPx: number } | undefined {
+export function unsafeRing(snapshot: RoomSnapshot): { innerRadiusMeters: number; outerRadiusMeters: number } | undefined {
   const wallRadius = COMBAT_RULES.arena.wallRadiusMeters;
   if (snapshot.phase !== 3 || snapshot.safeRadiusMeters >= wallRadius) return undefined;
-  return { radiusPx: (wallRadius + snapshot.safeRadiusMeters) * PIXELS_PER_METER / 2,
-    widthPx: (wallRadius - snapshot.safeRadiusMeters) * PIXELS_PER_METER };
+  return { innerRadiusMeters: snapshot.safeRadiusMeters, outerRadiusMeters: wallRadius };
 }
 
 export function windWarningStyle(remainingTicks: number, nowMs: number) {

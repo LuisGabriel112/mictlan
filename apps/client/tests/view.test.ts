@@ -3,13 +3,7 @@ import { BOSS, XOLO } from '@mictlan/core';
 import { PositionHistory } from '../src/interpolation';
 import { ENTITY_COLORS, entityColor } from '../src/palette';
 import { entityRadius } from '../src/snapshot';
-import { screenToWorld, worldToScreen } from '../src/world-view';
 import { entity } from './fixtures';
-
-test('world meters project to 32 px with north up and back', () => {
-  expect(worldToScreen({ x: 2, y: 3 })).toEqual({ x: 64, y: -96 });
-  expect(screenToWorld({ x: 64, y: -96 })).toEqual({ x: 2, y: 3 });
-});
 
 test('positions are interpolated between bracketing snapshots', () => {
   const history = new PositionHistory();

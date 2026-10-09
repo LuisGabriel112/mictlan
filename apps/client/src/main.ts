@@ -5,18 +5,21 @@ import { LobbyController } from './lobby-controller';
 import { LobbyView } from './lobby-view';
 import { HelpView } from './help-view';
 import { ArenaScene, type ArenaRoom } from './scene/ArenaScene';
+import { createBrowserWorld } from './world-3d/browser-world';
 import { TutorialController, browserTutorialStore } from './tutorial-controller';
 import { TutorialView } from './tutorial-view';
 import './lobby.css';
 import './help.css';
 
 function createArena(room: ArenaRoom): void {
+  const world = createBrowserWorld(document.getElementById('game')!, window.devicePixelRatio);
   new Phaser.Game({
     type: Phaser.AUTO,
     parent: 'game',
-    backgroundColor: '#14101c',
+    // T5.1: the Three.js world draws the background; Phaser only paints the HUD on top.
+    transparent: true,
     scale: { mode: Phaser.Scale.RESIZE, width: window.innerWidth, height: window.innerHeight },
-    scene: [new ArenaScene(room)],
+    scene: [new ArenaScene(room, world)],
   });
   new TutorialController(room, browserTutorialStore(() => window.localStorage), new TutorialView(document), window);
 }

@@ -2,6 +2,7 @@ import { expect, test, vi } from 'vitest';
 import type * as Phaser from 'phaser';
 import { CombatReadingView } from '../src/scene/combat-reading-view';
 import { room, entity } from './fixtures';
+import { legacyProjection } from './world-fixtures';
 import { sceneFixture } from './phaser-fixtures';
 
 function readingFixture() {
@@ -11,7 +12,7 @@ function readingFixture() {
   return { view, labels: scene.labels, panels: scene.graphics[0], track };
 }
 
-const viewport = { width: 1280, height: 720, zoom: 0.5 };
+const viewport = { width: 1280, height: 720, project: legacyProjection };
 const snapshot = room([entity({ id: 'h', classId: 'healer' })]);
 
 test('reading view tracks every HUD object and displays header and ordered log rows', () => {

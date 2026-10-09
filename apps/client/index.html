@@ -6,7 +6,10 @@
     <title>Mictlán</title>
     <style>
       html, body { margin: 0; height: 100%; background: #14101c; color: #f2e9dc; font-family: system-ui, sans-serif; overflow: hidden; }
-      #game { width: 100vw; height: 100vh; }
+      #game { position: relative; width: 100vw; height: 100vh; }
+      /* T5.1: Three.js world below, transparent Phaser HUD above with all input. */
+      #game canvas { position: absolute; inset: 0; }
+      #game canvas.world-canvas { pointer-events: none; }
     </style>
   </head>
   <body>

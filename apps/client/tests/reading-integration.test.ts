@@ -5,6 +5,7 @@ import { ArenaScene } from '../src/scene/ArenaScene';
 import { Hud } from '../src/scene/hud';
 import { room, entity } from './fixtures';
 import { sceneFixture } from './phaser-fixtures';
+import { fakeWorld, legacyProjection } from './world-fixtures';
 
 vi.mock('phaser', async () => {
   const { sceneFixture: makeScene } = await import('./phaser-fixtures');
@@ -18,7 +19,7 @@ function arenaFixture() {
     onStateChange: (callback: typeof receiveState) => { receiveState = callback; },
     onMessage: (_type: string, callback: typeof receiveEvents) => { receiveEvents = callback; } };
   vi.stubGlobal('window', { addEventListener: vi.fn(), removeEventListener: vi.fn() });
-  const arena = new ArenaScene(connection);
+  const arena = new ArenaScene(connection, fakeWorld());
   arena.create();
   const surface = arena as unknown as ReturnType<typeof sceneFixture>;
   return { arena, surface, state: (snapshot: unknown) => receiveState({ toJSON: () => snapshot }),
@@ -30,16 +31,16 @@ test('Hud connects reading events, clock, relocated boss cast and reset', () => 
   const hud = new Hud(scene as unknown as Phaser.Scene);
   const snapshot = room([entity({ id: 'h', classId: 'healer' })]);
   hud.receiveCombatEvents([{ type: 'enraged', tick: 1, sourceId: 'boss' }], snapshot, 'h', {});
-  hud.update(snapshot, 'h', 0, 0, { width: 1280, height: 720, zoom: 0.5 });
+  hud.update(snapshot, 'h', 0, 0, { width: 1280, height: 720, project: legacyProjection });
   expect(scene.labels.some((label) => label.text === '¡Enfurecido!')).toBe(true);
   expect(scene.labels.some((label) => label.text === '00:00 · Fase 1: Los nueve ríos')).toBe(true);
   expect(hud.objects).toHaveLength(47);
   hud.resetReading();
-  hud.update(room([], { status: 'lobby' }), 'h', 0, 0, { width: 1280, height: 720, zoom: 0.5 });
+  hud.update(room([], { status: 'lobby' }), 'h', 0, 0, { width: 1280, height: 720, project: legacyProjection });
   expect(scene.labels.some((label) => label.visible && label.text === '¡Enfurecido!')).toBe(false);
 });
 
-test('ArenaScene wires received events, dynamic camera exclusion, animated zones and lobby reset', () => {
+test('ArenaScene wires received events into projected floating texts and resets them in the lobby', () => {
   const { arena, surface, state, events } = arenaFixture();
   events([{ type: 'enraged', tick: 0, sourceId: 'boss' }]);
   const snapshot = room([entity({ id: 'h' })]);
@@ -47,7 +48,6 @@ test('ArenaScene wires received events, dynamic camera exclusion, animated zones
   events([{ type: 'damage', tick: 1, sourceId: 'boss', targetId: 'h', abilityId: 'autoAttack', amount: 60, critical: false }]);
   arena.update(200, 500);
   expect(surface.labels.some((label) => label.text === '60' && label.visible)).toBe(true);
-  expect(surface.cameras.main.ignore).toHaveBeenCalledTimes(2);
   state(room([], { status: 'lobby' }));
   arena.update(300, 0);
   expect(surface.labels.some((label) => label.visible && label.text === '60')).toBe(false);

@@ -1,12 +1,12 @@
 import { groupFrameRect, type Rect } from './frames';
 import type { Point } from './snapshot';
-import { worldToScreen } from './world-view';
 
 export const HUD_LAYOUT = {
   margin: 16, slotWidth: 132, slotHeight: 54, slotGap: 8, flashMs: 1500, maxGroup: 5,
   unitFrame: { width: 260, height: 50 }, castBar: { width: 320, height: 22 },
 } as const;
-export interface ReadingViewport { width: number; height: number; zoom: number }
+// project maps world meters to screen pixels; T5.1 injects the 3D camera projection here.
+export interface ReadingViewport { width: number; height: number; project(world: Point): Point }
 
 export function actionSlotRects(width: number, height: number): Rect[] {
   const { slotWidth, slotGap, slotHeight, margin } = HUD_LAYOUT;
@@ -42,8 +42,7 @@ export function readingLayout(width: number, height: number) {
 }
 
 export function projectFloatingText(position: Point, viewport: ReadingViewport): Point {
-  const world = worldToScreen(position);
-  return { x: viewport.width / 2 + world.x * viewport.zoom, y: viewport.height / 2 + world.y * viewport.zoom };
+  return viewport.project(position);
 }
 
 function overlaps(first: Rect, second: Rect): boolean {

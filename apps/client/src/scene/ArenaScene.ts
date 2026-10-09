@@ -7,11 +7,12 @@ import { recordHitFlashes, type HitFlashes } from '../hit-flash';
 import { latestRejection, rejectionText } from '../hud-text';
 import { PositionHistory, type Positions } from '../interpolation';
 import { keyAction, type KeyAction } from '../keyboard';
-import { isSyncedSnapshot, type RoomSnapshot } from '../snapshot';
-import { allyAt, entityAtPoint, nextEnemyTarget } from '../targeting';
-import { screenToWorld, PIXELS_PER_METER } from '../world-view';
-import { drawArena, drawDestination, drawEntities, drawZones } from './arena-renderer';
+import { isSyncedSnapshot, type Point, type RoomSnapshot } from '../snapshot';
+import { allyAt, nextEnemyTarget } from '../targeting';
+import type { ArenaWorld } from '../world-3d/arena-world';
+import { unitAtPixel } from '../world-3d/unit-pick';
 import { Hud } from './hud';
+import { drawUnitBars } from './unit-bars';
 
 export interface ArenaRoom {
   readonly sessionId: string;
@@ -23,45 +24,43 @@ export interface ArenaRoom {
 
 // SPEC §3: ~100 ms of interpolation delay hides the 20 Hz server tick.
 const INTERPOLATION_DELAY_MS = 100;
-const VIEW_MARGIN_METERS = 2;
-const ARENA_DIAMETER_METERS = 2 * (20 + VIEW_MARGIN_METERS);
 
+// T5.1: the world renders in Three.js behind; this Phaser scene keeps input and the HUD on top.
 export class ArenaScene extends Phaser.Scene {
   private snapshot?: RoomSnapshot;
   private readonly history = new PositionHistory();
   private readonly destination = new DestinationMarker();
   private hitFlashes: HitFlashes = new Map();
-  private world!: Phaser.GameObjects.Graphics;
+  private bars!: Phaser.GameObjects.Graphics;
   private hud!: Hud;
+  private readonly project = (world: Point, heightMeters?: number): Point => this.world.project(world, heightMeters);
 
-  constructor(private readonly room: ArenaRoom) {
+  constructor(private readonly room: ArenaRoom, private readonly world: ArenaWorld) {
     super('arena');
   }
 
   create(): void {
-    this.world = this.add.graphics();
+    this.bars = this.add.graphics();
     this.hud = new Hud(this);
-    const hudCamera = this.cameras.add(0, 0, this.scale.width, this.scale.height);
-    hudCamera.ignore(this.world);
-    this.cameras.main.ignore(this.hud.objects);
-    this.fitCamera(hudCamera);
-    this.scale.on('resize', () => this.fitCamera(hudCamera));
+    this.fitWorld();
+    this.scale.on('resize', () => this.fitWorld());
     this.listen();
   }
 
   update(time: number, deltaMs: number): void {
     if (!this.snapshot) return;
     const positions: Positions = this.history.sample(performance.now() - INTERPOLATION_DELAY_MS);
-    this.world.clear();
-    drawArena(this.world, this.snapshot);
-    drawZones(this.world, this.snapshot, time);
-    const marker = this.destination.position;
-    if (marker && this.destination.visibleAt(this.snapshot.entities[this.room.sessionId])) drawDestination(this.world, marker);
-    drawEntities(this.world, this.snapshot, positions, this.room.sessionId,
-      { hits: this.hitFlashes, nowMs: this.time.now });
-    const viewport = { width: this.scale.width, height: this.scale.height, zoom: this.cameras.main.zoom };
+    this.world.render({ snapshot: this.snapshot, positions, selfId: this.room.sessionId,
+      destination: this.visibleDestination(this.snapshot), hits: this.hitFlashes, nowMs: this.time.now });
+    this.bars.clear();
+    drawUnitBars(this.bars, this.snapshot, positions, this.project);
+    const viewport = { width: this.scale.width, height: this.scale.height, project: this.project };
     this.hud.update(this.snapshot, this.room.sessionId, time, deltaMs, viewport);
-    this.cameras.main.ignore(this.hud.objects);
+  }
+
+  private visibleDestination(snapshot: RoomSnapshot): Point | undefined {
+    const marker = this.destination.position;
+    return marker && this.destination.visibleAt(snapshot.entities[this.room.sessionId]) ? marker : undefined;
   }
 
   private listen(): void {
@@ -70,7 +69,10 @@ export class ArenaScene extends Phaser.Scene {
     this.room.onMessage('events', (events) => this.receiveEvents(events));
     const onKeyDown = (event: KeyboardEvent) => this.handleKey(event);
     window.addEventListener('keydown', onKeyDown);
-    this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => window.removeEventListener('keydown', onKeyDown));
+    this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
+      window.removeEventListener('keydown', onKeyDown);
+      this.world.dispose();
+    });
     // Right click moves (T3.7), so the browser menu must not open over the arena.
     this.input.mouse?.disableContextMenu();
     this.input.on('pointerdown', (pointer: Phaser.Input.Pointer) => this.handleClick(pointer));
@@ -135,12 +137,12 @@ export class ArenaScene extends Phaser.Scene {
     if (pointer.rightButtonDown()) return this.walkTo(pointer);
     // Group frames live in screen space and take priority over the world under them.
     const framed = groupFrameAt(this.snapshot, this.room.sessionId, { x: pointer.x, y: pointer.y });
-    const point = this.cameras.main.getWorldPoint(pointer.x, pointer.y);
-    this.selectTarget(framed ?? entityAtPoint(this.snapshot, screenToWorld(point)));
+    const positions = this.history.sample(performance.now() - INTERPOLATION_DELAY_MS);
+    this.selectTarget(framed ?? unitAtPixel(this.snapshot, positions, { x: pointer.x, y: pointer.y }, this.project));
   }
 
   private walkTo(pointer: Phaser.Input.Pointer): void {
-    const destination = screenToWorld(this.cameras.main.getWorldPoint(pointer.x, pointer.y));
+    const destination = this.world.pick({ x: pointer.x, y: pointer.y });
     this.destination.set(destination);
     this.room.send('moveTo', destination);
   }
@@ -149,11 +151,7 @@ export class ArenaScene extends Phaser.Scene {
     if (entityId !== undefined) this.room.send('target', { entityId });
   }
 
-  private fitCamera(hudCamera: Phaser.Cameras.Scene2D.Camera): void {
-    const { width, height } = this.scale;
-    this.cameras.main.setSize(width, height);
-    hudCamera.setSize(width, height);
-    this.cameras.main.setZoom(Math.min(width, height) / (ARENA_DIAMETER_METERS * PIXELS_PER_METER));
-    this.cameras.main.centerOn(0, 0);
+  private fitWorld(): void {
+    this.world.resize(this.scale.width, this.scale.height);
   }
 }
