@@ -135,7 +135,9 @@ test('units that leave the snapshot are removed and freed; kept units reuse thei
 
 test('the arena floor and stone wall use the core wall radius', () => {
   const scene = fixture().draw({ snapshot: room([]) });
-  expect((named(scene, 'floor').geometry as THREE.CircleGeometry).parameters.radius).toBe(COMBAT_RULES.arena.wallRadiusMeters);
+  named(scene, 'floor').geometry.computeBoundingSphere();
+  expect(named(scene, 'floor').geometry.boundingSphere!.radius).toBeCloseTo(COMBAT_RULES.arena.wallRadiusMeters, 3);
+  expect(named(scene, 'floor').receiveShadow).toBe(true);
   expect((named(scene, 'wall').geometry as THREE.TorusGeometry).parameters.radius).toBe(COMBAT_RULES.arena.wallRadiusMeters);
   expect(named(scene, 'wall').material.color.getHex()).toBe(0xd9c08c);
 });

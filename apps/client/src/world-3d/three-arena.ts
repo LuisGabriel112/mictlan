@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import type { Point } from '../snapshot';
 import type { ArenaWorld, WorldFrame } from './arena-world';
+import { Atmosphere } from './atmosphere';
 import { CastLayer } from './cast-layer';
 import { EffectLayer } from './effect-layer';
 import { GroundLayer } from './ground-layer';
@@ -15,18 +16,10 @@ export interface WorldRenderer {
 }
 
 const CAMERA_DEPTH = { near: 1, far: 200 } as const;
-const LIGHTS = { ambient: 0.65, sun: 1.1 } as const;
-
-function litScene(): THREE.Scene {
-  const scene = new THREE.Scene();
-  const sun = new THREE.DirectionalLight(0xffffff, LIGHTS.sun);
-  sun.position.set(10, 30, 15);
-  scene.add(new THREE.AmbientLight(0xffffff, LIGHTS.ambient), sun);
-  return scene;
-}
 
 export class ThreeArenaWorld implements ArenaWorld {
-  private readonly scene = litScene();
+  private readonly scene = new THREE.Scene();
+  private readonly atmosphere = new Atmosphere(this.scene);
   private readonly camera = new THREE.OrthographicCamera();
   private readonly units = new UnitLayer(this.scene);
   private readonly ground = new GroundLayer(this.scene);
@@ -61,6 +54,7 @@ export class ThreeArenaWorld implements ArenaWorld {
     this.ground.update(frame);
     this.casts.update(frame);
     this.effects.update(frame);
+    this.atmosphere.update(frame);
     this.renderer.render(this.scene, this.camera);
   }
 
@@ -69,6 +63,7 @@ export class ThreeArenaWorld implements ArenaWorld {
     this.ground.dispose();
     this.casts.dispose();
     this.effects.dispose();
+    this.atmosphere.dispose();
     this.renderer.dispose();
   }
 }

@@ -4,11 +4,12 @@ import { unsafeRing, windWarningStyle } from '../danger-reading';
 import { entityRadius, type ZoneSnapshot } from '../snapshot';
 import type { WorldFrame } from './arena-world';
 import { flat, overlay, placeFlat, type BasicMesh } from './flat-mesh';
+import { stoneFloorGeometry } from './stone-floor';
 
 interface ZoneMeshes { disc: BasicMesh; border: BasicMesh }
 
 const WALL_RADIUS = COMBAT_RULES.arena.wallRadiusMeters;
-const COLORS = { floor: 0x2a2233, wall: 0xd9c08c, unsafe: 0xff4444, zone: 0xff2222, self: 0xffffff,
+const COLORS = { wall: 0xd9c08c, unsafe: 0xff4444, zone: 0xff2222, self: 0xffffff,
   target: 0xffe066, destination: 0x2ec4b6 } as const;
 // Stacked decal heights avoid z-fighting between ground overlays.
 const LAYER_Y = { unsafe: 0.01, zone: 0.02, zoneBorder: 0.03, ring: 0.04, destination: 0.05 } as const;
@@ -27,12 +28,21 @@ function free(mesh: THREE.Mesh<THREE.BufferGeometry, THREE.Material>): void {
 }
 
 function stoneWall() {
-  return flat(new THREE.TorusGeometry(WALL_RADIUS, WALL_THICKNESS_METERS, 8, 96),
-    new THREE.MeshLambertMaterial({ color: COLORS.wall }), 'wall', WALL_THICKNESS_METERS);
+  const wall = flat(new THREE.TorusGeometry(WALL_RADIUS, WALL_THICKNESS_METERS, 8, 96),
+    new THREE.MeshStandardMaterial({ color: COLORS.wall, roughness: 0.85 }), 'wall', WALL_THICKNESS_METERS);
+  wall.castShadow = true;
+  return wall;
+}
+
+function stoneFloor() {
+  const floor = new THREE.Mesh(stoneFloorGeometry(WALL_RADIUS), new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 0.95 }));
+  floor.name = 'floor';
+  floor.receiveShadow = true;
+  return floor;
 }
 
 export class GroundLayer {
-  private readonly floor = flat(new THREE.CircleGeometry(WALL_RADIUS, 96), new THREE.MeshLambertMaterial({ color: COLORS.floor }), 'floor', 0);
+  private readonly floor = stoneFloor();
   private readonly wall = stoneWall();
   private readonly unsafeBand: BasicMesh = flat(new THREE.RingGeometry(WALL_RADIUS, WALL_RADIUS, 96), overlay(COLORS.unsafe, UNSAFE_BAND_OPACITY), 'unsafe-band', LAYER_Y.unsafe);
   private readonly safeEdge = flat(new THREE.RingGeometry(0.985, 1, 128), overlay(COLORS.unsafe, 0.9), 'safe-edge', LAYER_Y.unsafe);

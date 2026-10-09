@@ -54,6 +54,7 @@ export class UnitLayer {
     const material = new THREE.MeshLambertMaterial({ color: entityColor(entity), emissiveIntensity: 0 });
     const mesh: UnitMesh = new THREE.Mesh(bodyGeometry(entity), material);
     mesh.name = `unit:${entity.id}`;
+    mesh.castShadow = true;
     this.meshes.set(entity.id, mesh);
     this.scene.add(mesh);
     return mesh;
