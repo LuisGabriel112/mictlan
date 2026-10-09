@@ -6,9 +6,9 @@ Feature: T4.2 boss health balance
 
     Examples:
       | players | health |
-      | 3       | 15000  |
-      | 4       | 25000  |
-      | 5       | 35000  |
+      | 3       | 7500   |
+      | 4       | 12500  |
+      | 5       | 17500  |
 
   Scenario: Existing consumers use configured boss health
     Given an encounter using the configured boss health

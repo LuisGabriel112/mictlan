@@ -258,6 +258,11 @@
 - **Criterios (manual de Venegas):** un jugador nuevo, tras leer la guía de su rol, sabe qué tecla usar y cuándo sin preguntar.
 - **Opcional después (T4.4):** práctica interactiva de un jugador con pasos guiados, solo si la guía no basta.
 
+### [ ] T4.4 Resumen del intento
+- **Hacer:** en la pantalla de resultado (victoria o derrota), una tabla por jugador con: daño total y DPS, curación efectiva y HPS, casteos cancelados (por movimiento o por otro motivo), habilidades rechazadas con su motivo, golpes recibidos por habilidad del jefe y causa de muerte. Datos calculados en el servidor a partir de los eventos (core no cambia) y enviados con el estado de fin de encuentro; el cliente solo los muestra en HTML.
+- **Criterios (manual de Venegas):** tras una derrota, el grupo puede ver cuánto daño hizo cada uno y por qué murió; los números se pueden comparar con el simulador (DPS de bots: Jaguar 25, Águila 58, Tícitl 27 de HPS).
+- **Motivo:** Checkpoint B: humanos "bajan una miseria"; sin datos no sabemos si es la vida del jefe, los casteos cancelados o las habilidades rechazadas.
+
 > **Checkpoint B:** después de 5 intentos reales, anotar qué fue divertido, qué fue injusto y qué no se entendió. Claude convierte eso en cambios al SPEC y en tareas nuevas.
 
 ---
