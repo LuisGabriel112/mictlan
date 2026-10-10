@@ -1,48 +1,19 @@
-import { afterEach, expect, test, vi } from 'vitest';
-import { ArenaScene } from '../src/scene/ArenaScene';
-import { sceneFixture } from './phaser-fixtures';
-import { fakeWorld } from './world-fixtures';
-import { lobbyConnection } from './lobby-fixtures';
+import { expect, test, vi } from 'vitest';
 import { room, entity } from './fixtures';
-import type { RoomSnapshot } from '../src/snapshot';
+import { arenaFixture, press, click } from './arena-dom-fixtures';
 
-vi.mock('phaser', async () => {
-  const { sceneFixture: makeScene } = await import('./phaser-fixtures');
-  return { Scene: class { constructor() { Object.assign(this, makeScene()); } }, Scenes: { Events: { SHUTDOWN: 'shutdown' } } };
-});
-
-afterEach(() => vi.unstubAllGlobals());
-
-function combatControls(initial?: RoomSnapshot) {
-  const transport = lobbyConnection(initial);
-  const keyboard = vi.fn();
-  vi.stubGlobal('window', { addEventListener: keyboard, removeEventListener: vi.fn() });
-  const world = fakeWorld();
-  const arena = new ArenaScene(transport.connection, world);
-  arena.create();
-  const surface = arena as unknown as ReturnType<typeof sceneFixture>;
-  const key = keyboard.mock.calls[0][1] as (event: unknown) => void;
-  const click = surface.input.on.mock.calls[0][1] as (pointer: unknown) => void;
-  return { ...transport, arena, surface, key, click, world };
-}
-
-test.each(['lobby', 'victory', 'defeat'] as const)('combat input is silent during %s and leaves Tab to the form', (status) => {
-  const fixture = combatControls(room([], { status }));
-  const preventDefault = vi.fn();
-  fixture.key({ code: 'Tab', preventDefault });
-  fixture.key({ code: 'Digit1', preventDefault });
-  fixture.click({ rightButtonDown: () => true, x: 10, y: 10 });
+test.each(['lobby', 'victory', 'defeat'] as const)('input is silent during %s and leaves Tab to the form', (status) => {
+  const fixture = arenaFixture(room([], { status }));
+  expect(press(fixture, 'Tab').preventDefault).not.toHaveBeenCalled();
+  press(fixture, 'Digit1'); press(fixture, 'KeyW');
+  click(fixture, 10, 10, 2);
   expect(fixture.connection.send).not.toHaveBeenCalled();
-  expect(preventDefault).not.toHaveBeenCalled();
 });
 
-test('arena reads a state that arrived before Phaser boot and still accepts combat controls', () => {
-  const fixture = combatControls(room([entity({ id: 'self' })]));
-  const preventDefault = vi.fn();
-  fixture.key({ code: 'Tab', preventDefault });
-  fixture.key({ code: 'KeyX', preventDefault });
-  fixture.click({ rightButtonDown: () => true, x: 32, y: 32 });
-  expect(preventDefault).toHaveBeenCalledOnce();
+test('arena reads preexisting state, sizes the world and accepts native combat input', () => {
+  const fixture = arenaFixture(room([entity({ id: 'self' })]));
+  expect(press(fixture, 'Tab').preventDefault).toHaveBeenCalledOnce();
+  press(fixture, 'KeyX'); click(fixture, 32, 32, 2);
   expect(fixture.connection.send).toHaveBeenCalledWith('stop', {});
   expect(fixture.connection.send).toHaveBeenCalledWith('moveTo', { x: 1, y: -1 });
   fixture.arena.update(0, 0);
@@ -50,25 +21,46 @@ test('arena reads a state that arrived before Phaser boot and still accepts comb
   expect(fixture.world.resize).toHaveBeenCalledWith(1280, 720);
 });
 
-test('controls wait for the first snapshot and ignore repeated combat keys', () => {
-  const fixture = combatControls();
-  const preventDefault = vi.fn();
-  fixture.key({ code: 'Tab', preventDefault });
-  fixture.click({ rightButtonDown: () => true, x: 0, y: 0 });
-  expect(preventDefault).not.toHaveBeenCalled();
-  fixture.states[0]({ toJSON: () => room([entity({ id: 'self' })]) });
-  fixture.key({ code: 'KeyX', repeat: true, preventDefault });
+test('unsynchronized states and repeated combat actions are ignored', () => {
+  const fixture = arenaFixture();
+  press(fixture, 'Tab'); click(fixture, 0, 0, 2); fixture.state({}); fixture.arena.update(0, 0);
+  expect(fixture.world.render).not.toHaveBeenCalled();
+  expect(fixture.connection.send).not.toHaveBeenCalled();
+  fixture.state(room([entity({ id: 'self' })])); press(fixture, 'KeyX', true);
+  fixture.arena.update(0, 0);
+  expect(fixture.world.render).toHaveBeenCalledOnce();
   expect(fixture.connection.send).not.toHaveBeenCalled();
 });
 
-test('arena boots on an unsynchronized state and draws once the full snapshot arrives', () => {
-  const fixture = combatControls({} as RoomSnapshot);
+test('RAF schedules once, uses the injected clock and releases/recreates the world at the lobby', () => {
+  const fixture = arenaFixture(room([entity({ id: 'self' })]));
+  fixture.state(room([entity({ id: 'self' })]));
+  expect(fixture.browser.requestAnimationFrame).toHaveBeenCalledOnce();
+  fixture.setTime(100); fixture.browser.requestAnimationFrame.mock.calls[0][0](9999);
+  expect(fixture.world.render.mock.lastCall![0].nowMs).toBe(100);
+  fixture.state(room([], { status: 'lobby' }));
+  expect(fixture.world.dispose).toHaveBeenCalledOnce();
+  expect(fixture.browser.cancelAnimationFrame).toHaveBeenCalledWith(7);
+  fixture.state(room([entity({ id: 'self' })]));
+  expect(fixture.createWorld).toHaveBeenCalledTimes(2);
+  fixture.arena.dispose(); fixture.arena.dispose();
+  expect(fixture.world.dispose).toHaveBeenCalledTimes(2);
+});
+
+test('disposal removes listeners, ignores late messages and removes the HUD', () => {
+  const fixture = arenaFixture(room([entity({ id: 'self' })]));
+  fixture.arena.dispose(); fixture.state(room([entity({ id: 'self' })])); fixture.events([]);
   fixture.arena.update(0, 0);
   expect(fixture.world.render).not.toHaveBeenCalled();
-  fixture.states.forEach((callback) => callback({ toJSON: () => ({}) }));
-  fixture.arena.update(0, 0);
-  expect(fixture.world.render).not.toHaveBeenCalled();
-  fixture.states.forEach((callback) => callback({ toJSON: () => room([entity({ id: 'self' })]) }));
-  fixture.arena.update(0, 0);
-  expect(fixture.world.render).toHaveBeenCalledOnce();
+  expect(fixture.browser.removeEventListener.mock.calls.map(([name]) => name)).toEqual(expect.arrayContaining(['keydown', 'keyup', 'blur', 'resize']));
+  expect(fixture.host.removeEventListener).toHaveBeenCalledWith('pointerdown', expect.any(Function));
+  expect(fixture.find('arena-hud')[0].remove).toHaveBeenCalledOnce();
+});
+
+test('resize reframes the world and context menu is suppressed over the game', () => {
+  const fixture = arenaFixture(room([entity({ id: 'self' })]));
+  fixture.browser.innerWidth = 800; fixture.listeners.get('resize')!({});
+  expect(fixture.world.resize).toHaveBeenLastCalledWith(800, 720);
+  const preventDefault = vi.fn(); fixture.host.listeners.get('contextmenu')!({ preventDefault });
+  expect(preventDefault).toHaveBeenCalledOnce();
 });

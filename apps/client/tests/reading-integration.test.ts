@@ -1,55 +1,53 @@
-import { expect, test, vi } from 'vitest';
-import type * as Phaser from 'phaser';
-import type { CombatEvent } from '@mictlan/core';
-import { ArenaScene } from '../src/scene/ArenaScene';
+import { expect, test } from 'vitest';
 import { Hud } from '../src/scene/hud';
 import { room, entity } from './fixtures';
-import { sceneFixture } from './phaser-fixtures';
-import { fakeWorld, legacyProjection } from './world-fixtures';
+import { hudDocument } from './hud-dom-fixtures';
+import { arenaFixture } from './arena-dom-fixtures';
+import { legacyProjection } from './world-fixtures';
+import { actionSlotRects, dodgeSlotRect } from '../src/reading-layout';
 
-vi.mock('phaser', async () => {
-  const { sceneFixture: makeScene } = await import('./phaser-fixtures');
-  return { Scene: class { constructor() { Object.assign(this, makeScene()); } }, Scenes: { Events: { SHUTDOWN: 'shutdown' } } };
-});
+const viewport = { width: 1280, height: 720, project: legacyProjection };
 
-function arenaFixture() {
-  let receiveState: (state: { toJSON(): unknown }) => void = () => undefined;
-  let receiveEvents: (events: CombatEvent[]) => void = () => undefined;
-  const connection = { sessionId: 'h', send: vi.fn(),
-    onStateChange: (callback: typeof receiveState) => { receiveState = callback; },
-    onMessage: (_type: string, callback: typeof receiveEvents) => { receiveEvents = callback; } };
-  vi.stubGlobal('window', { addEventListener: vi.fn(), removeEventListener: vi.fn() });
-  const arena = new ArenaScene(connection, fakeWorld());
-  arena.create();
-  const surface = arena as unknown as ReturnType<typeof sceneFixture>;
-  return { arena, surface, state: (snapshot: unknown) => receiveState({ toJSON: () => snapshot }),
-    events: (events: CombatEvent[]) => receiveEvents(events) };
-}
-
-test('Hud connects reading events, clock, relocated boss cast and reset', () => {
-  const scene = sceneFixture();
-  const hud = new Hud(scene as unknown as Phaser.Scene);
-  const snapshot = room([entity({ id: 'h', classId: 'healer' })]);
+test('Hud connects reading, five slots, resize layout and timed rejection', () => {
+  const fixture = hudDocument();
+  const hud = new Hud(fixture.document, fixture.parent);
+  const snapshot = room([entity({ id: 'h', classId: 'healer', cooldowns: { dodge: 40 } })]);
   hud.receiveCombatEvents([{ type: 'enraged', tick: 1, sourceId: 'boss' }], snapshot, 'h', {});
-  hud.update(snapshot, 'h', 0, 0, { width: 1280, height: 720, project: legacyProjection });
-  expect(scene.labels.some((label) => label.text === '¡Enfurecido!')).toBe(true);
-  expect(scene.labels.some((label) => label.text === '00:00 · Fase 1: Los nueve ríos')).toBe(true);
-  expect(hud.objects).toHaveLength(50);
-  hud.resetReading();
-  hud.update(room([], { status: 'lobby' }), 'h', 0, 0, { width: 1280, height: 720, project: legacyProjection });
-  expect(scene.labels.some((label) => label.visible && label.text === '¡Enfurecido!')).toBe(false);
+  hud.showFlash('Sin maná', 100); hud.update(snapshot, 'h', 100, 0, viewport);
+  expect(fixture.find('hud-log-row')[0].textContent).toBe('¡Enfurecido!');
+  expect(fixture.find('hud-slot')).toHaveLength(5);
+  expect(fixture.find('hud-slot-key').map((node) => node.textContent)).toEqual(['1', '2', '3', '4', 'Espacio']);
+  expect(fixture.find('hud-slot-caption')[4].textContent).toBe('2.0');
+  expect(fixture.find('hud-flash')[0].textContent).toBe('Sin maná');
+  hud.update(snapshot, 'h', 1600, 0, { ...viewport, width: 1000 });
+  expect(fixture.find('hud-flash')[0].hidden).toBe(true);
+  const rectangles = [...actionSlotRects(1000, 720), dodgeSlotRect(1000, 720)];
+  fixture.find('hud-slot').forEach((slot, index) => expect(slot.style.transform).toBe(`translate(${rectangles[index].x}px, ${rectangles[index].y}px)`));
 });
 
-test('ArenaScene wires received events into projected floating texts and resets them in the lobby', () => {
-  const { arena, surface, state, events } = arenaFixture();
-  events([{ type: 'enraged', tick: 0, sourceId: 'boss' }]);
-  const snapshot = room([entity({ id: 'h' })]);
-  state(snapshot);
-  events([{ type: 'damage', tick: 1, sourceId: 'boss', targetId: 'h', abilityId: 'autoAttack', amount: 60, critical: false }]);
-  arena.update(200, 500);
-  expect(surface.labels.some((label) => label.text === '60' && label.visible)).toBe(true);
-  state(room([], { status: 'lobby' }));
-  arena.update(300, 0);
-  expect(surface.labels.some((label) => label.visible && label.text === '60')).toBe(false);
-  vi.unstubAllGlobals();
+test('HUD handles missing self and clears reading, rejection and visibility for lobby', () => {
+  const fixture = hudDocument(); const hud = new Hud(fixture.document, fixture.parent);
+  hud.showFlash('En recarga', 0); hud.resetReading();
+  hud.update(room([], { status: 'lobby' }), 'h', 0, 0, viewport);
+  expect(fixture.find('arena-hud')[0].hidden).toBe(true);
+  hud.update(room([]), 'h', 0, 0, viewport);
+  expect(fixture.find('hud-slot-name').every((node) => node.textContent === '')).toBe(true);
+  expect(fixture.find('hud-flash')[0].hidden).toBe(true);
+  fixture.writes.mockClear(); hud.update(room([]), 'h', 0, 0, viewport);
+  expect(fixture.writes).not.toHaveBeenCalled();
+});
+
+test('arena wires pre-state events safely, projects damage and clears reading for lobby', () => {
+  const fixture = arenaFixture(); fixture.events([{ type: 'enraged', tick: 0, sourceId: 'boss' }]);
+  fixture.state(room([entity({ id: 'self' })]));
+  fixture.events([{ type: 'damage', tick: 1, sourceId: 'boss', targetId: 'self', abilityId: 'autoAttack', amount: 60, critical: false }]);
+  fixture.arena.update(200, 500);
+  expect(fixture.find('hud-floating')[0].textContent).toBe('60');
+  expect(fixture.find('hud-floating')[0].hidden).toBe(false);
+  fixture.events([{ type: 'abilityRejected', tick: 1, sourceId: 'self', abilityId: 'arrow', reason: 'gcd' }]);
+  fixture.arena.update(200, 0); expect(fixture.find('hud-flash')[0].hidden).toBe(false);
+  fixture.state(room([], { status: 'lobby' }));
+  expect(fixture.find('arena-hud')[0].hidden).toBe(true);
+  fixture.state(room([entity({ id: 'self' })])); fixture.arena.update(300, 0);
+  expect(fixture.find('hud-floating')[0].hidden).toBe(true);
 });

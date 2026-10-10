@@ -1,68 +1,64 @@
-import { expect, test, vi } from 'vitest';
-import type * as Phaser from 'phaser';
+import { expect, test } from 'vitest';
 import { CombatReadingView } from '../src/scene/combat-reading-view';
 import { room, entity } from './fixtures';
 import { legacyProjection } from './world-fixtures';
-import { sceneFixture } from './phaser-fixtures';
-
-function readingFixture() {
-  const scene = sceneFixture();
-  const track = vi.fn();
-  const view = new CombatReadingView(scene as unknown as Phaser.Scene, track);
-  return { view, labels: scene.labels, panels: scene.graphics[0], track };
-}
+import { hudDocument } from './hud-dom-fixtures';
 
 const viewport = { width: 1280, height: 720, project: legacyProjection };
 const snapshot = room([entity({ id: 'h', classId: 'healer' })]);
+const damage = { type: 'damage', sourceId: 'boss', targetId: 'h', tick: 1, abilityId: 'autoAttack', amount: 60, critical: false } as const;
 
-test('reading view tracks every HUD object and displays header and ordered log rows', () => {
-  const { view, labels, panels, track } = readingFixture();
+test('reading view displays a bounded header and ordered log rows', () => {
+  const fixture = hudDocument();
+  const view = new CombatReadingView(fixture.document, fixture.parent);
   view.receive([{ type: 'enraged', sourceId: 'boss', tick: 1 }, { type: 'phaseChanged', phase: 2, tick: 2 }], snapshot, 'h', {});
   view.update(snapshot, 0, viewport);
-  expect(labels[0].text).toBe('00:00 · Fase 1: Los nueve ríos');
-  expect(labels[1].text).toBe('Combate');
-  expect(labels.slice(2, 4).map((label) => label.text)).toEqual(['¡Enfurecido!', 'Fase 2: Los guías']);
-  expect(labels[4].visible).toBe(false);
-  expect(panels.fillStyle).toHaveBeenCalledWith(0x1d1726, 0.6);
-  expect(panels.fillRect).toHaveBeenCalledWith(864, 348, 400, 252);
-  expect(track).toHaveBeenCalledTimes(15);
+  expect(fixture.find('hud-header')[0].textContent).toBe('00:00 · Fase 1: Los nueve ríos');
+  expect(fixture.find('hud-header')[0].style.width).toBe('320px');
+  expect(fixture.find('hud-log-title')[0].textContent).toBe('Combate');
+  expect(fixture.find('hud-log-row').slice(0, 2).map((row) => row.textContent)).toEqual(['¡Enfurecido!', 'Fase 2: Los guías']);
+  expect(fixture.find('hud-log-row')[2].hidden).toBe(true);
+  expect(fixture.find('hud-log')[0].style.transform).toBe('translate(864px, 348px)');
+  fixture.writes.mockClear(); view.update(snapshot, 0, viewport);
+  expect(fixture.writes).not.toHaveBeenCalled();
 });
 
-test('reading view pools floating labels, updates style/pose and hides expired entries', () => {
-  const { view, labels, track } = readingFixture();
-  const damage = { type: 'damage', sourceId: 'boss', targetId: 'h', tick: 1, abilityId: 'autoAttack', amount: 60, critical: false } as const;
+test('floating labels pool on receive, project, fade and expire without creating nodes in update', () => {
+  const fixture = hudDocument();
+  const view = new CombatReadingView(fixture.document, fixture.parent);
   view.receive([damage], snapshot, 'h', {});
+  const count = fixture.created.length;
   view.update(snapshot, 500, viewport);
-  const floating = labels[labels.length - 1];
-  expect(floating.text).toBe('60');
-  expect(floating.visible).toBe(true);
-  expect(floating.setPosition).toHaveBeenCalledWith(640, 348);
-  expect(floating.setColor).toHaveBeenCalledWith('#ffffff');
-  expect(floating.setAlpha).toHaveBeenCalledWith(0.5);
-  expect(floating.setFontSize).toHaveBeenCalledWith(18);
-  expect(track).toHaveBeenCalledTimes(16);
-  view.update(snapshot, 500, viewport);
-  expect(floating.visible).toBe(false);
-  view.receive([damage], snapshot, 'h', {});
-  view.update(snapshot, 0, viewport);
-  expect(track).toHaveBeenCalledTimes(16);
+  const label = fixture.find('hud-floating')[0];
+  expect(label.textContent).toBe('60');
+  expect(label.hidden).toBe(false);
+  expect(label.style).toMatchObject({ transform: 'translate(640px, 348px)', color: '#ffffff', opacity: '0.5', fontSize: '18px' });
+  view.update(snapshot, 500, viewport); expect(label.hidden).toBe(true);
+  view.receive([damage], snapshot, 'h', {}); view.update(snapshot, 0, viewport);
+  expect(fixture.created).toHaveLength(count);
 });
 
-test('reading view fits the header inside its protected rectangle', () => {
-  const { view, labels } = readingFixture();
-  labels[0].width = 640;
+test('critical and healing labels hide over HUD or outside the viewport', () => {
+  const fixture = hudDocument();
+  const view = new CombatReadingView(fixture.document, fixture.parent);
+  view.receive([{ ...damage, critical: true }], snapshot, 'h', { h: { x: 0, y: -20 } });
   view.update(snapshot, 0, viewport);
-  expect(labels[0].setScale).toHaveBeenCalledWith(0.5, 1);
-});
-
-test('reading view hides numbers over HUD and clears all reading when reset for lobby', () => {
-  const { view, labels, panels } = readingFixture();
-  const underAction = room([entity({ id: 'h', x: 0, y: -20 })]);
-  view.receive([{ type: 'damage', sourceId: 'boss', targetId: 'h', tick: 1, abilityId: 'autoAttack', amount: 60, critical: true }], underAction, 'h', {});
-  view.update(underAction, 0, viewport);
-  expect(labels.at(-1)?.visible).toBe(false);
+  expect(fixture.find('hud-floating')[0].hidden).toBe(true);
+  expect(fixture.find('hud-floating')[0].style).toMatchObject({ color: '#ffe066', fontSize: '26px' });
   view.reset();
-  view.update(room([], { status: 'lobby' }), 0, viewport);
-  expect(labels.every((label) => !label.visible)).toBe(true);
-  expect(panels.clear).toHaveBeenCalledTimes(2);
+  view.receive([{ type: 'healing', sourceId: 'h', targetId: 'h', tick: 1, abilityId: 'remedy', amount: 120, effectiveAmount: 90, critical: false }], snapshot, 'h', {});
+  view.update(snapshot, 0, { ...viewport, project: () => ({ x: -50, y: 400 }) });
+  expect(fixture.find('hud-floating')[0].textContent).toBe('+90');
+  expect(fixture.find('hud-floating')[0].style.color).toBe('#4cd964');
+  expect(fixture.find('hud-floating')[0].hidden).toBe(true);
+});
+
+test('reset hides the log and all floating labels in the lobby', () => {
+  const fixture = hudDocument();
+  const view = new CombatReadingView(fixture.document, fixture.parent);
+  view.receive([damage], snapshot, 'h', {}); view.update(snapshot, 0, viewport);
+  view.reset(); view.update(room([], { status: 'lobby' }), 0, viewport);
+  expect(fixture.find('hud-header')[0].hidden).toBe(true);
+  expect(fixture.find('hud-log')[0].hidden).toBe(true);
+  expect(fixture.find('hud-floating')[0].hidden).toBe(true);
 });
