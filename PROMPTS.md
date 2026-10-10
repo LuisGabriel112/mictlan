@@ -172,6 +172,12 @@ Los .glb están en apps/client/public/models/ (los puso Venegas). Si un archivo 
 1. Módulo `models.ts`: carga los .glb con un loader inyectable, con caché, y devuelve la escena y sus clips. Mapa fijo: jaguar, eagle, healer, boss, xolo (ver README). Escala: el jefe 2x del skeleton base; xolo y clases a la altura de entityRadius/unitHeight de arena-world.ts.
 2. Reemplazar las primitivas de unit-layer.ts por el modelo clonado (SkeletonUtils.clone si hay huesos), manteniendo el color de clase como tinte solo si el modelo no trae material propio, muertos a 30 % de opacidad, destello del jefe (T4.6) y la inclinación de casteo (applyLean).
 3. Mezcla de animaciones (AnimationMixer, un mixer por unidad, reloj inyectado): idle al quieto, walk cuando la posición interpolada cambia, attack al recibir evento damage con sourceId de esa unidad, cast mientras entity.cast, death al morir (se queda en el último cuadro). Sin crear objetos por cuadro; mezclador y acciones se reutilizan.
+
+Datos reales de los archivos (verificados por Claude):
+- jaguar/eagle/healer/boss.glb: esqueleto `Rig_Medium` de 23 huesos, textura embebida, SIN clips. Sus clips salen de `Rig_Medium_General.glb` y `Rig_Medium_MovementBasic.glb` (mismo esqueleto, se enlazan por nombre de hueso; cárgalos una vez y compártelos).
+- El pack gratis no trae clips de ataque ni de casteo. Mapa fijo para KayKit: idle=`Idle_A`, walk=`Walking_A`, attack=`Throw` (una vez), cast=`Use_Item` (en bucle mientras castea), death=`Death_A` (clampWhenFinished).
+- xolo.glb: esqueleto propio con clips `Idle`, `Walk`, `Attack`, `Death` (úsalos con esos nombres); cast no aplica.
+- Escala: normaliza con la altura del Box3 del modelo cargado (una vez por modelo) a unitHeight; el jefe además 2x.
 4. Liberar mixers, clones y geometrías en dispose() y al salir del combate (leaveAttempt).
 5. Fallbacks: sin modelo, sin clip de la animación pedida o error de carga → primitiva y sin animación; un log de advertencia, una sola vez.
 

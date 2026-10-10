@@ -252,4 +252,4 @@ Ninguna.
 3. Teclas: WASD camina, 1 2 3 4 habilidades, Espacio esquiva, X detiene, Tab/F1–F5 objetivos, H guía, T repite tutorial.
 4. Pendiente: Venegas confirma la vida del jefe; T5.2 (HUD en HTML) y T5.4 (modelos CC0) para Codex cuando vuelva su cupo; Checkpoint B con amigos.
 
-**T5.4 (modelos CC0), preparado:** el prompt está en PROMPTS.md. Venegas descarga los packs (KayKit Adventurers, KayKit Skeletons, Quaternius Ultimate Animated Animals) en el otro equipo y los copia a apps/client/public/models/ según su README. Luego se lanza la tarea.
+**T5.4 (modelos CC0), preparado:** modelos copiados y en git (e62346e). Personajes KayKit sin clips: animaciones en Rig_Medium_*.glb; el pack gratis no trae ataque ni casteo (se usan Throw y Use_Item). Xolo = ShibaInu convertido a GLB. Prompt en PROMPTS.md.
