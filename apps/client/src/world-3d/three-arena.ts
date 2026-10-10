@@ -65,5 +65,7 @@ export class ThreeArenaWorld implements ArenaWorld {
     this.effects.dispose();
     this.atmosphere.dispose();
     this.renderer.dispose();
+    // Each attempt builds a new world (T5.2), so the old canvas must leave the page.
+    this.renderer.domElement.remove();
   }
 }

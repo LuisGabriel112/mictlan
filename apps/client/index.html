@@ -7,13 +7,13 @@
     <style>
       html, body { margin: 0; height: 100%; background: #14101c; color: #f2e9dc; font-family: system-ui, sans-serif; overflow: hidden; }
       #game { position: relative; width: 100vw; height: 100vh; }
-      /* T5.1: Three.js world below, transparent Phaser HUD above with all input. */
+      /* Three.js world canvas; #game itself receives pointer input. */
       #game canvas { position: absolute; inset: 0; }
       #game canvas.world-canvas { pointer-events: none; }
-      /* T5.3: V Rising vignette over the 3D world, under the Phaser HUD canvas. */
+      /* T5.3: V Rising vignette over the 3D world, under the HTML HUD. */
       #game::after { content: ""; position: absolute; inset: 0; pointer-events: none; z-index: 1;
         background: radial-gradient(ellipse at center, transparent 45%, rgba(3, 2, 8, 0.85) 100%); }
-      #game canvas:not(.world-canvas) { z-index: 2; }
+      /* T5.2: the HTML HUD (.arena-hud, hud.css) sits above at z-index 2; there is no Phaser canvas anymore. */
     </style>
   </head>
   <body>

@@ -1,4 +1,3 @@
-import * as Phaser from 'phaser';
 import { Client } from '@colyseus/sdk';
 import { parseLaunchParams } from './launch-params';
 import { LobbyController } from './lobby-controller';
@@ -10,17 +9,14 @@ import { TutorialController, browserTutorialStore } from './tutorial-controller'
 import { TutorialView } from './tutorial-view';
 import './lobby.css';
 import './help.css';
+import './hud.css';
 
 function createArena(room: ArenaRoom): void {
-  const world = createBrowserWorld(document.getElementById('game')!, window.devicePixelRatio);
-  new Phaser.Game({
-    type: Phaser.AUTO,
-    parent: 'game',
-    // T5.1: the Three.js world draws the background; Phaser only paints the HUD on top.
-    transparent: true,
-    scale: { mode: Phaser.Scale.RESIZE, width: window.innerWidth, height: window.innerHeight },
-    scene: [new ArenaScene(room, world)],
-  });
+  const host = document.getElementById('game')!;
+  // T5.2: no Phaser; the arena owns its DOM HUD and recreates the Three.js world each attempt.
+  const arena = new ArenaScene(room, () => createBrowserWorld(host, window.devicePixelRatio),
+    { document, window, host, now: () => window.performance.now() });
+  arena.create();
   new TutorialController(room, browserTutorialStore(() => window.localStorage), new TutorialView(document), window);
 }
 

@@ -9,7 +9,6 @@ test.each([[null, 'eagle'], ['', 'eagle'], ['wizard', 'eagle'], ['jaguar', 'jagu
   'parseClassId validates %s', (requested, expected) => { expect(parseClassId(requested)).toBe(expected); });
 
 vi.mock('@colyseus/sdk', () => ({ Client: vi.fn() }));
-vi.mock('phaser', () => ({}));
 vi.mock('../src/scene/ArenaScene', () => ({}));
 vi.mock('../src/help-view', () => ({ HelpView: vi.fn(function () { return { render: vi.fn() }; }) }));
 afterEach(() => { vi.unstubAllEnvs(); vi.unstubAllGlobals(); vi.resetModules(); });

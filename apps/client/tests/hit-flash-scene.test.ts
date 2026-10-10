@@ -45,7 +45,7 @@ test('right click uses container-relative ground coordinates and forwards its de
 test('WASD clears the marker, avoids duplicate moves and stops on keyup or blur', () => {
   const fixture = arenaFixture(room([entity({ id: 'self' })])); click(fixture, 64, -96, 2);
   press(fixture, 'KeyW'); press(fixture, 'KeyW', true); fixture.arena.update(0, 16);
-  expect(fixture.connection.send).toHaveBeenCalledWith('move', { dx: -Math.SQRT1_2, dy: Math.SQRT1_2 });
+  expect(fixture.connection.send).toHaveBeenCalledWith('move', { dx: expect.closeTo(-Math.SQRT1_2, 9), dy: expect.closeTo(Math.SQRT1_2, 9) });
   expect(fixture.world.render.mock.lastCall![0].destination).toBeUndefined();
   fixture.listeners.get('keyup')!({ code: 'KeyW' });
   expect(fixture.connection.send).toHaveBeenLastCalledWith('move', { dx: 0, dy: 0 });
@@ -67,7 +67,7 @@ test('keys reset when combat ends, X stops, and Space dodges without scrolling',
 test('ability keys, ally shortcuts, unknown keys and casts preserve input behavior', () => {
   const fixture = arenaFixture(room([entity({ id: 'self', classId: 'eagle' })]));
   click(fixture, 64, -96, 2); press(fixture, 'Digit1'); fixture.arena.update(0, 16);
-  expect(fixture.connection.send).toHaveBeenLastCalledWith('cast', { abilityId: 'arrow' });
+  expect(fixture.connection.send).toHaveBeenLastCalledWith('cast', { abilityId: 'obsidianArrow' });
   expect(fixture.world.render.mock.lastCall![0].destination).toBeUndefined();
   press(fixture, 'Numpad2'); expect(fixture.connection.send).toHaveBeenLastCalledWith('cast', { abilityId: 'quickShot' });
   expect(press(fixture, 'F1').preventDefault).toHaveBeenCalledOnce();

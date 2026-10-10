@@ -1,25 +1,44 @@
-import type * as Phaser from 'phaser';
 import type { Positions } from '../interpolation';
 import { entityRadius, isLiving, type EntitySnapshot, type Point, type RoomSnapshot } from '../snapshot';
 import { unitHeight } from '../world-3d/arena-world';
+import { HudNode } from './hud-node';
 
 type Project = (world: Point, heightMeters?: number) => Point;
 
-const BAR = { heightPx: 4, minWidthPx: 32, pxPerMeter: 28, liftMeters: 0.5, back: 0x222222, fill: 0x4cd964 } as const;
+const BAR = { heightPx: 4, minWidthPx: 32, pxPerMeter: 28, liftMeters: 0.5 } as const;
 
-function drawBar(graphics: Phaser.GameObjects.Graphics, entity: EntitySnapshot, position: Point, project: Project): void {
-  const head = project(position, unitHeight(entity) + BAR.liftMeters);
-  const width = Math.max(BAR.minWidthPx, entityRadius(entity) * 2 * BAR.pxPerMeter);
-  const left = head.x - width / 2;
-  const top = head.y - BAR.heightPx;
-  const ratio = Math.min(1, Math.max(0, entity.health / entity.maxHealth));
-  graphics.fillStyle(BAR.back, 1).fillRect(left, top, width, BAR.heightPx);
-  graphics.fillStyle(BAR.fill, 1).fillRect(left, top, width * ratio, BAR.heightPx);
-}
+interface UnitBar { track: HudNode; fill: HudNode }
 
-// Health bars stay in the Phaser HUD layer until T5.3 replaces them with LoL-style bars.
-export function drawUnitBars(graphics: Phaser.GameObjects.Graphics, snapshot: RoomSnapshot, positions: Positions, project: Project): void {
-  for (const entity of Object.values(snapshot.entities)) {
-    if (isLiving(entity)) drawBar(graphics, entity, positions[entity.id] ?? entity, project);
+// LoL-style compact bars over each living unit, pooled so frames never create nodes.
+export class UnitBars {
+  private readonly bars: UnitBar[] = [];
+
+  constructor(private readonly document: Document, private readonly parent: HTMLElement) {}
+
+  sync(snapshot: RoomSnapshot): void {
+    const count = Object.keys(snapshot.entities).length;
+    while (this.bars.length < count) this.bars.push(this.createBar());
+    this.bars.slice(count).forEach(({ track }) => track.visible(false));
+  }
+
+  update(snapshot: RoomSnapshot, positions: Positions, project: Project): void {
+    const entities = Object.values(snapshot.entities);
+    this.bars.forEach((bar, index) => this.draw(bar, entities[index], positions, project));
+  }
+
+  private createBar(): UnitBar {
+    const track = new HudNode(this.document, this.parent, 'hud-unit-bar');
+    return { track, fill: new HudNode(this.document, track.element, 'hud-unit-fill') };
+  }
+
+  private draw(bar: UnitBar, entity: EntitySnapshot | undefined, positions: Positions, project: Project): void {
+    if (!entity || !isLiving(entity)) {
+      bar.track.visible(false);
+      return;
+    }
+    const head = project(positions[entity.id] ?? entity, unitHeight(entity) + BAR.liftMeters);
+    const width = Math.max(BAR.minWidthPx, entityRadius(entity) * 2 * BAR.pxPerMeter);
+    bar.track.place({ x: head.x - width / 2, y: head.y - BAR.heightPx, width, height: BAR.heightPx }).visible(true);
+    bar.fill.fill(entity.health / entity.maxHealth);
   }
 }

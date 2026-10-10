@@ -13,7 +13,7 @@ import { bossRoom, hit } from './hit-flash-fixtures';
 type AnyMesh = THREE.Mesh<THREE.BufferGeometry, THREE.Material & { opacity: number; color: THREE.Color }>;
 
 function fixture() {
-  const renderer = { domElement: {} as HTMLCanvasElement, setSize: vi.fn(), render: vi.fn(), dispose: vi.fn() };
+  const renderer = { domElement: { remove: vi.fn() } as unknown as HTMLCanvasElement, setSize: vi.fn(), render: vi.fn(), dispose: vi.fn() };
   const world = new ThreeArenaWorld(renderer);
   const draw = (frame: Partial<WorldFrame> & Pick<WorldFrame, 'snapshot'>) => {
     world.render({ positions: {}, selfId: 'eagle', hits: new Map(), effects: [], nowMs: 0, ...frame });
@@ -176,4 +176,5 @@ test('dispose frees every layer and the renderer', () => {
   expect(free).toHaveBeenCalled();
   expect(freeFloor).toHaveBeenCalled();
   expect(renderer.dispose).toHaveBeenCalledOnce();
+  expect(renderer.domElement.remove).toHaveBeenCalledOnce();
 });

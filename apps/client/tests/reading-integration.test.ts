@@ -11,7 +11,7 @@ const viewport = { width: 1280, height: 720, project: legacyProjection };
 test('Hud connects reading, five slots, resize layout and timed rejection', () => {
   const fixture = hudDocument();
   const hud = new Hud(fixture.document, fixture.parent);
-  const snapshot = room([entity({ id: 'h', classId: 'healer', cooldowns: { dodge: 40 } })]);
+  const snapshot = room([entity({ id: 'h', classId: 'healer', cooldowns: { dodge: { id: 'dodge', remainingTicks: 40 } } })]);
   hud.receiveCombatEvents([{ type: 'enraged', tick: 1, sourceId: 'boss' }], snapshot, 'h', {});
   hud.showFlash('Sin maná', 100); hud.update(snapshot, 'h', 100, 0, viewport);
   expect(fixture.find('hud-log-row')[0].textContent).toBe('¡Enfurecido!');
@@ -44,7 +44,7 @@ test('arena wires pre-state events safely, projects damage and clears reading fo
   fixture.arena.update(200, 500);
   expect(fixture.find('hud-floating')[0].textContent).toBe('60');
   expect(fixture.find('hud-floating')[0].hidden).toBe(false);
-  fixture.events([{ type: 'abilityRejected', tick: 1, sourceId: 'self', abilityId: 'arrow', reason: 'gcd' }]);
+  fixture.events([{ type: 'abilityRejected', tick: 1, sourceId: 'self', abilityId: 'obsidianArrow', reason: 'gcd' }]);
   fixture.arena.update(200, 0); expect(fixture.find('hud-flash')[0].hidden).toBe(false);
   fixture.state(room([], { status: 'lobby' }));
   expect(fixture.find('arena-hud')[0].hidden).toBe(true);

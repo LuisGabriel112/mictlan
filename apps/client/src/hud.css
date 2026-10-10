@@ -1,0 +1,30 @@
+/* T5.2: HTML HUD over the Three.js arena. Positions come from inline transforms; this file sets look only. */
+.arena-hud { position: absolute; inset: 0; z-index: 2; pointer-events: none; overflow: hidden;
+  font-family: system-ui, sans-serif; color: #ffffff; }
+.arena-hud > *, .hud-floating, .hud-unit-bar { position: absolute; left: 0; top: 0; box-sizing: border-box; }
+.hud-frame { background: #1d1726e6; border: 1px solid #3a3147; border-radius: 4px; padding: 3px 6px 0 10px; }
+.hud-frame-stripe { position: absolute; left: 0; top: 0; bottom: 0; width: 4px; }
+.hud-frame-name { font-size: 13px; }
+.hud-frame-health { position: absolute; right: 6px; top: 3px; font-size: 13px; }
+.hud-health-track, .hud-mana-track { position: absolute; left: 10px; right: 6px; background: #2b2435; overflow: hidden; }
+.hud-health-track { bottom: 14px; height: 8px; }
+.hud-mana-track { bottom: 6px; height: 5px; }
+.hud-health-fill, .hud-mana-fill, .hud-cast-fill, .hud-unit-fill { height: 100%; transform-origin: left; }
+.hud-mana-fill { background: #3b82f6; }
+.hud-cast { background: #2b2435; border-style: solid; overflow: hidden; }
+.hud-cast-fill { background: #d9a441; }
+.hud-cast-label { position: absolute; inset: 0; display: grid; place-items: center; font-size: 13px; }
+.hud-header { text-align: center; font-size: 15px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.hud-log { background: #1d172699; padding: 8px; font-size: 12px; overflow: hidden; }
+.hud-log-title { color: #d9c08c; margin-bottom: 6px; }
+.hud-log-row { line-height: 18px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.hud-status { font-size: 28px; }
+.hud-flash { font-size: 18px; color: #ffd166; }
+.hud-slot { background: #1d1726e6; border: 2px solid; padding: 4px 6px; }
+.hud-slot-key { font-size: 12px; }
+.hud-slot-caption { position: absolute; right: 6px; top: 4px; font-size: 12px; }
+.hud-slot-name { display: block; font-size: 13px; margin-top: 2px; }
+.hud-floating { width: 160px; margin-left: -80px; margin-top: -1.2em; text-align: center; font-weight: 700;
+  text-shadow: 0 1px 3px #000; white-space: nowrap; }
+.hud-unit-bar { background: #222222; border: 1px solid #000000; overflow: hidden; }
+.hud-unit-fill { background: #4cd964; }

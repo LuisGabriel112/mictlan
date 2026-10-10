@@ -11,7 +11,7 @@ type BasicMesh = THREE.Mesh<THREE.BufferGeometry, THREE.MeshBasicMaterial>;
 const units = [entity({ id: 'eagle', x: 10, y: 0 }), entity({ id: 'boss', type: 'boss', classId: '', x: 0, y: 0 })];
 
 function fixture() {
-  const renderer = { domElement: {} as HTMLCanvasElement, setSize: vi.fn(), render: vi.fn(), dispose: vi.fn() };
+  const renderer = { domElement: { remove: vi.fn() } as unknown as HTMLCanvasElement, setSize: vi.fn(), render: vi.fn(), dispose: vi.fn() };
   const world = new ThreeArenaWorld(renderer);
   const draw = (frame: Partial<WorldFrame>) => {
     world.render({ snapshot: room(units), positions: {}, selfId: 'eagle', hits: new Map(), nowMs: 0, effects: [], ...frame });

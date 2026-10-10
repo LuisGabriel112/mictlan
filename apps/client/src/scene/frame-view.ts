@@ -1,66 +1,60 @@
-import type * as Phaser from 'phaser';
 import { castBarBorder, type CastBarView, type Rect, type UnitFrameView } from '../frames';
+import { HudNode, hexColor } from './hud-node';
 
-const COLORS = { panel: 0x1d1726, health: 0x4cd964, healthLow: 0xe5484d, mana: 0x3b82f6, track: 0x2b2435,
-  cast: 0xd9a441, selfBorder: 0xffffff, border: 0x3a3147 } as const;
-const TEXT_STYLE = { fontFamily: 'system-ui, sans-serif', fontSize: '13px', color: '#ffffff' } as const;
+const COLORS = { health: 0x4cd964, healthLow: 0xe5484d, selfBorder: 0xffffff, border: 0x3a3147 } as const;
 const LOW_HEALTH_RATIO = 0.35;
 
-type Track = (object: Phaser.GameObjects.GameObject) => void;
-
-export function drawBar(graphics: Phaser.GameObjects.Graphics, rect: Rect, ratio: number, color: number): void {
-  graphics.fillStyle(COLORS.track, 1).fillRect(rect.x, rect.y, rect.width, rect.height);
-  graphics.fillStyle(color, 1).fillRect(rect.x, rect.y, rect.width * Math.min(1, Math.max(0, ratio)), rect.height);
-}
-
 export class CastBarWidget {
-  private readonly label: Phaser.GameObjects.Text;
+  private readonly root: HudNode;
+  private readonly fill: HudNode;
+  private readonly label: HudNode;
 
-  constructor(scene: Phaser.Scene, track: Track) {
-    this.label = scene.add.text(0, 0, '', TEXT_STYLE).setOrigin(0.5, 0.5);
-    track(this.label);
+  constructor(document: Document, parent: HTMLElement) {
+    this.root = new HudNode(document, parent, 'hud-cast');
+    this.fill = new HudNode(document, this.root.element, 'hud-cast-fill');
+    this.label = new HudNode(document, this.root.element, 'hud-cast-label', 'span');
   }
 
-  draw(graphics: Phaser.GameObjects.Graphics, cast: CastBarView | undefined, rect: Rect): void {
-    this.label.setVisible(cast !== undefined);
+  draw(cast: CastBarView | undefined, rect: Rect): void {
+    this.root.visible(cast !== undefined);
     if (!cast) return;
-    drawBar(graphics, rect, cast.progress, COLORS.cast);
-    graphics.lineStyle(cast.interruptible ? 3 : 1, castBarBorder(cast), 1).strokeRect(rect.x, rect.y, rect.width, rect.height);
-    this.label.setText(`${cast.abilityName} · ${cast.remainingSeconds.toFixed(1)} s`);
-    this.label.setPosition(rect.x + rect.width / 2, rect.y + rect.height / 2);
+    this.root.place(rect).style('borderColor', hexColor(castBarBorder(cast))).style('borderWidth', cast.interruptible ? '3px' : '1px');
+    this.fill.fill(cast.progress);
+    this.label.text(`${cast.abilityName} · ${cast.remainingSeconds.toFixed(1)} s`);
   }
 }
 
 export class FrameWidget {
-  private readonly name: Phaser.GameObjects.Text;
-  private readonly health: Phaser.GameObjects.Text;
+  private readonly root: HudNode;
+  private readonly stripe: HudNode;
+  private readonly name: HudNode;
+  private readonly health: HudNode;
+  private readonly healthFill: HudNode;
+  private readonly manaTrack: HudNode;
+  private readonly manaFill: HudNode;
 
-  constructor(scene: Phaser.Scene, track: Track) {
-    this.name = scene.add.text(0, 0, '', TEXT_STYLE);
-    this.health = scene.add.text(0, 0, '', TEXT_STYLE).setOrigin(1, 0);
-    track(this.name);
-    track(this.health);
+  constructor(document: Document, parent: HTMLElement) {
+    this.root = new HudNode(document, parent, 'hud-frame');
+    this.stripe = new HudNode(document, this.root.element, 'hud-frame-stripe');
+    this.name = new HudNode(document, this.root.element, 'hud-frame-name', 'span');
+    this.health = new HudNode(document, this.root.element, 'hud-frame-health', 'span');
+    const healthTrack = new HudNode(document, this.root.element, 'hud-health-track');
+    this.healthFill = new HudNode(document, healthTrack.element, 'hud-health-fill');
+    this.manaTrack = new HudNode(document, this.root.element, 'hud-mana-track');
+    this.manaFill = new HudNode(document, this.manaTrack.element, 'hud-mana-fill');
   }
 
-  draw(graphics: Phaser.GameObjects.Graphics, frame: UnitFrameView | undefined, rect: Rect): void {
-    this.name.setVisible(frame !== undefined);
-    this.health.setVisible(frame !== undefined);
+  draw(frame: UnitFrameView | undefined, rect: Rect): void {
+    this.root.visible(frame !== undefined);
     if (!frame) return;
-    graphics.fillStyle(COLORS.panel, 0.9).fillRect(rect.x, rect.y, rect.width, rect.height);
-    graphics.lineStyle(frame.isSelf ? 2 : 1, frame.isSelf ? COLORS.selfBorder : COLORS.border, 1)
-      .strokeRect(rect.x, rect.y, rect.width, rect.height);
-    graphics.fillStyle(frame.color, frame.dead ? 0.3 : 1).fillRect(rect.x, rect.y, 4, rect.height);
-    this.drawBars(graphics, frame, rect);
-    this.name.setText(frame.name).setPosition(rect.x + 10, rect.y + 3).setAlpha(frame.dead ? 0.5 : 1);
-    this.health.setText(frame.dead ? 'Muerto' : `${frame.health.value}/${frame.health.max}`)
-      .setPosition(rect.x + rect.width - 6, rect.y + 3);
-  }
-
-  private drawBars(graphics: Phaser.GameObjects.Graphics, frame: UnitFrameView, rect: Rect): void {
-    const inner = { x: rect.x + 10, width: rect.width - 16 };
-    const healthColor = frame.health.ratio <= LOW_HEALTH_RATIO ? COLORS.healthLow : COLORS.health;
-    const healthBottomGap = frame.resource ? 14 : 6;
-    drawBar(graphics, { ...inner, y: rect.y + rect.height - healthBottomGap - 8, height: 8 }, frame.health.ratio, healthColor);
-    if (frame.resource) drawBar(graphics, { ...inner, y: rect.y + rect.height - 11, height: 5 }, frame.resource.ratio, COLORS.mana);
+    this.root.place(rect).style('borderColor', hexColor(frame.isSelf ? COLORS.selfBorder : COLORS.border))
+      .style('opacity', frame.dead ? '0.5' : '1');
+    this.stripe.style('backgroundColor', hexColor(frame.color));
+    this.name.text(frame.name);
+    this.health.text(frame.dead ? 'Muerto' : `${frame.health.value}/${frame.health.max}`);
+    this.healthFill.fill(frame.health.ratio)
+      .style('backgroundColor', hexColor(frame.health.ratio <= LOW_HEALTH_RATIO ? COLORS.healthLow : COLORS.health));
+    this.manaTrack.visible(frame.resource !== undefined);
+    if (frame.resource) this.manaFill.fill(frame.resource.ratio);
   }
 }
