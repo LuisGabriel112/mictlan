@@ -251,3 +251,5 @@ Ninguna.
 2. Probar solo: `$env:MICTLAN_DEV_MIN_PLAYERS='2'; npm.cmd run dev`, abrir `http://127.0.0.1:5173/?dev=1&class=jaguar` y `...class=eagle` en dos pestañas. `npm run start` ignora esa variable.
 3. Teclas: WASD camina, 1 2 3 4 habilidades, Espacio esquiva, X detiene, Tab/F1–F5 objetivos, H guía, T repite tutorial.
 4. Pendiente: Venegas confirma la vida del jefe; T5.2 (HUD en HTML) y T5.4 (modelos CC0) para Codex cuando vuelva su cupo; Checkpoint B con amigos.
+
+**T5.4 (modelos CC0), preparado:** el prompt está en PROMPTS.md. Venegas descarga los packs (KayKit Adventurers, KayKit Skeletons, Quaternius Ultimate Animated Animals) en el otro equipo y los copia a apps/client/public/models/ según su README. Luego se lanza la tarea.

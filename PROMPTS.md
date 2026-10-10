@@ -155,3 +155,28 @@ Criterio (manual de Venegas): misma información que el HUD de Phaser; los núme
 Si algo es ambiguo, detente y reporta una propuesta. No inventes.
 Termina con npm.cmd run check en verde y el reporte del formato de AGENTS.md (incluye qué debe revisar Venegas en el navegador).
 ```
+
+---
+
+## T5.4 — Modelos y animaciones (packs CC0)
+
+```
+Tarea T5.4 — Modelos y animaciones.
+
+Lee AGENTS.md, SPEC.md §9, la tarea T5.4 de PLAN.md, NOTAS.md (T5.1, T5.1b, T5.2, T5.3) y apps/client/public/models/README.md. Implementa SOLO T5.4 en apps/client. No toques core ni server.
+
+IMPORTANTE: NO ejecutes `npm ci`, `npm install`, `npm run dev` ni `npm run start`. Usa npm.cmd. No hagas commit. No crees archivos de reporte en el repo. `three` ya está instalado; GLTFLoader está en three/addons/loaders/GLTFLoader.js.
+
+Los .glb están en apps/client/public/models/ (los puso Venegas). Si un archivo falta, la clase se queda con su primitiva actual: nunca falles por falta de modelo.
+
+1. Módulo `models.ts`: carga los .glb con un loader inyectable, con caché, y devuelve la escena y sus clips. Mapa fijo: jaguar, eagle, healer, boss, xolo (ver README). Escala: el jefe 2x del skeleton base; xolo y clases a la altura de entityRadius/unitHeight de arena-world.ts.
+2. Reemplazar las primitivas de unit-layer.ts por el modelo clonado (SkeletonUtils.clone si hay huesos), manteniendo el color de clase como tinte solo si el modelo no trae material propio, muertos a 30 % de opacidad, destello del jefe (T4.6) y la inclinación de casteo (applyLean).
+3. Mezcla de animaciones (AnimationMixer, un mixer por unidad, reloj inyectado): idle al quieto, walk cuando la posición interpolada cambia, attack al recibir evento damage con sourceId de esa unidad, cast mientras entity.cast, death al morir (se queda en el último cuadro). Sin crear objetos por cuadro; mezclador y acciones se reutilizan.
+4. Liberar mixers, clones y geometrías en dispose() y al salir del combate (leaveAttempt).
+5. Fallbacks: sin modelo, sin clip de la animación pedida o error de carga → primitiva y sin animación; un log de advertencia, una sola vez.
+
+Tests: módulo models (loader falso, caché, fallback por archivo faltante), mapeo clip por estado (idle/walk/attack/cast/death) como función pura, unit-layer con clones falsos y dispose. No cargues GLB reales en Vitest.
+Criterio (manual de Venegas): cada clase y el jefe se reconocen sin leer nombres; caminar, atacar, castear y morir se ven; sigue a 60 fps con 5 jugadores, 4 xolos y 3 zonas.
+Si algo es ambiguo, detente y reporta una propuesta. No inventes.
+Termina con npm.cmd run check en verde y el reporte del formato de AGENTS.md (incluye qué debe revisar Venegas en el navegador).
+```
