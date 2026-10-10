@@ -131,3 +131,27 @@ Criterio (manual de Venegas): se juega un intento completo igual que con Phaser 
 Si algo es ambiguo, detente y reporta una propuesta. No inventes.
 Termina con npm.cmd run check en verde y el reporte del formato de AGENTS.md (incluye qué debe revisar Venegas en el navegador).
 ```
+
+---
+
+## T5.2 — HUD en HTML
+
+```
+Tarea T5.2 — HUD en HTML.
+
+Lee AGENTS.md, SPEC.md §8, §9 y §11, la tarea T5.2 de PLAN.md, NOTAS.md (T3.2–T3.4, T5.1, T6.x) y el "Contexto común del cliente" de PROMPTS.md. Implementa SOLO T5.2 en apps/client. No toques core ni server.
+
+IMPORTANTE: NO ejecutes `npm ci`, `npm install`, `npm run dev` ni `npm run start`. Usa npm.cmd. No hagas commit. No crees archivos de reporte en el repo. No agregues dependencias.
+
+Estado actual: el mundo es Three.js (src/world-3d/); Phaser queda SOLO como capa transparente de HUD e input (src/scene/ArenaScene.ts, hud.ts, frame-view.ts, combat-reading-view.ts, unit-bars.ts). T5.2 elimina Phaser por completo.
+
+1. Pasar a HTML/CSS (como lobby-view.ts y help-view.ts, DOM inyectado y testeable con fixtures tipo help-dom-fixtures.ts) todo lo que hoy dibuja Phaser: marcos propio/objetivo/grupo (frames.ts), barras de casteo propia/objetivo/jefe, barra de acción de 4 espacios + Esquiva en Espacio (action-bar.ts, con recarga y estado), log de combate (combat-log.ts), encabezado con tiempo y fase, aviso de rechazo (rejectionFlash), números flotantes proyectados con ArenaWorld.project (floating-texts.ts) y barras de vida sobre las unidades (hoy unit-bars.ts; estilo LoL: compactas, marco oscuro). Reusa los módulos puros existentes y su layout (reading-layout.ts); los tooltips de T4.3 (help-view) deben seguir alineados con los botones.
+2. La entrada (teclado WASD/1-4/Espacio/X/Tab/F1-F5, clic izquierdo con unitAtPixel y groupFrameAt, clic derecho con ArenaWorld.pick) pasa a un controlador sin Phaser que escucha el canvas/contenedor #game; el bucle de render con requestAnimationFrame (o el que justifiques), sin crear objetos por cuadro.
+3. Quitar la dependencia de Phaser del cliente (imports, main.ts, phaser-fixtures en tests). No desinstales el paquete: solo deja de usarse; Claude lo quita de package.json después.
+4. El HTML del HUD actualiza el DOM solo cuando cambia el valor (evitar reflujo a 60 fps).
+
+Tests: cada vista nueva con DOM falso; el controlador de entrada con eventos falsos; conservar la cobertura actual de lobby-arena, hit-flash-scene, reading-integration y reading-view adaptándolas.
+Criterio (manual de Venegas): misma información que el HUD de Phaser; los números no tapan el HUD; 60 fps con 5 jugadores.
+Si algo es ambiguo, detente y reporta una propuesta. No inventes.
+Termina con npm.cmd run check en verde y el reporte del formato de AGENTS.md (incluye qué debe revisar Venegas en el navegador).
+```
