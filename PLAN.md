@@ -289,7 +289,7 @@ Objetivo: el ambiente de SPEC §9 con cámara isométrica. Core, servidor y red 
 - **Hacer:** animaciones baratas en Three.js a partir de los eventos ya sincronizados: proyectil de cada habilidad a distancia (flecha del Águila, curas del Tícitl), arco de golpe cuerpo a cuerpo (Zarpazo, auto-ataques), aura y anillo en el suelo durante el casteo del jefe (turquesa si es interrumpible, rojo si no), aro que se llena bajo el jugador que castea, destello verde en el aliado curado e inclinación del jefe al castear. Sin tocar core ni server.
 - **Criterios (manual de Venegas):** cada ataque se ve salir y llegar; se distingue a simple vista qué casteo del jefe se puede cortar.
 
-### [ ] T5.2 HUD en HTML
+### [x] T5.2 HUD en HTML
 - **Hacer:** marcos propio/objetivo/grupo, barras de casteo, barra de acción con recarga, log, temporizador, avisos y números flotantes (proyectados del mundo a pantalla) en HTML sobre el canvas, reusando los módulos puros de T3.2–T3.4.
 - **Criterios (manual de Venegas):** misma información que el HUD de Phaser; los números no tapan el HUD.
 
