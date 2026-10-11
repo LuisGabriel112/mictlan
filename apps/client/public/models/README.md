@@ -1,6 +1,6 @@
 # Modelos 3D (T5.4)
 
-Copia aquí los archivos de los packs CC0 con estos nombres exactos. Los carga `apps/client/src/world-3d/models.ts` (cuando exista); si falta un archivo, el cliente usa las primitivas actuales.
+Copia aquí los archivos de los packs CC0 con estos nombres exactos. Los carga `apps/client/src/world-3d/models.ts`; si falta un archivo, el cliente usa las primitivas actuales.
 
 | Archivo | Pack | Modelo original |
 |---|---|---|

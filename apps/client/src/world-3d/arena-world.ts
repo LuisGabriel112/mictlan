@@ -22,7 +22,7 @@ export interface ArenaWorld {
   dispose(): void;
 }
 
-// Placeholder body heights until T5.4 brings models; the HUD uses them to place bars over heads.
+// Body heights: T5.4 scales each model to them, and the HUD places bars over heads with them.
 export const UNIT_HEIGHTS = { player: 1.6, boss: 3, xolo: 1 } as const;
 
 export function unitHeight({ type }: Pick<EntitySnapshot, 'type'>): number {

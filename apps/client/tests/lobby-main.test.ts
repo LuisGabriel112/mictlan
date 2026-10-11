@@ -2,13 +2,14 @@ import { afterEach, expect, test, vi } from 'vitest';
 import { Client } from '@colyseus/sdk';
 import { ArenaScene } from '../src/scene/ArenaScene';
 import { HelpView } from '../src/help-view';
-import { createBrowserWorld } from '../src/world-3d/browser-world';
+import { createBrowserWorld, createModelLibrary } from '../src/world-3d/browser-world';
 import { domListener, lobbyDocument } from './lobby-dom-fixtures';
 import { lobbyConnection } from './lobby-fixtures';
 
 vi.mock('@colyseus/sdk', () => ({ Client: vi.fn() }));
 vi.mock('../src/scene/ArenaScene', () => ({ ArenaScene: vi.fn(function () { return { create: vi.fn() }; }) }));
-vi.mock('../src/world-3d/browser-world', () => ({ createBrowserWorld: vi.fn(() => ({ world: true })) }));
+vi.mock('../src/world-3d/browser-world', () => ({ createBrowserWorld: vi.fn(() => ({ world: true })),
+  createModelLibrary: vi.fn(() => ({ get: vi.fn() })) }));
 vi.mock('../src/help-view', () => ({ HelpView: vi.fn(function () { return { render: vi.fn() }; }) }));
 afterEach(() => { vi.unstubAllGlobals(); vi.clearAllMocks(); vi.resetModules(); });
 
@@ -26,7 +27,8 @@ test('main composes the lobby and creates a native arena only after joining', as
   expect(create).toHaveBeenCalledExactlyOnceWith('raid');
   const [receivedRoom, factory, environment] = vi.mocked(ArenaScene).mock.calls[0];
   expect(receivedRoom).toBe(connection); factory();
-  expect(createBrowserWorld).toHaveBeenCalledWith(element('game'), 2);
+  expect(createModelLibrary).toHaveBeenCalledExactlyOnceWith('/');
+  expect(createBrowserWorld).toHaveBeenCalledWith(element('game'), 2, vi.mocked(createModelLibrary).mock.results[0].value);
   expect(environment.now()).toBe(42);
   expect(vi.mocked(ArenaScene).mock.results[0].value.create).toHaveBeenCalledOnce();
 });

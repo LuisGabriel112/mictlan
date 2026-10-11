@@ -6,6 +6,7 @@ import { CastLayer } from './cast-layer';
 import { EffectLayer } from './effect-layer';
 import { GroundLayer } from './ground-layer';
 import { isoCamera, pickGround, projectToScreen, type IsoCamera } from './iso-camera';
+import type { ModelSource } from './models';
 import { UnitLayer } from './unit-layer';
 
 export interface WorldRenderer {
@@ -21,13 +22,14 @@ export class ThreeArenaWorld implements ArenaWorld {
   private readonly scene = new THREE.Scene();
   private readonly atmosphere = new Atmosphere(this.scene);
   private readonly camera = new THREE.OrthographicCamera();
-  private readonly units = new UnitLayer(this.scene);
+  private readonly units: UnitLayer;
   private readonly ground = new GroundLayer(this.scene);
   private readonly casts = new CastLayer(this.scene);
   private readonly effects = new EffectLayer(this.scene);
   private rig: IsoCamera = isoCamera(1, 1);
 
-  constructor(private readonly renderer: WorldRenderer) {
+  constructor(private readonly renderer: WorldRenderer, models?: ModelSource) {
+    this.units = new UnitLayer(this.scene, models);
     this.resize(1, 1);
   }
 
