@@ -186,3 +186,30 @@ Criterio (manual de Venegas): cada clase y el jefe se reconocen sin leer nombres
 Si algo es ambiguo, detente y reporta una propuesta. No inventes.
 Termina con npm.cmd run check en verde y el reporte del formato de AGENTS.md (incluye qué debe revisar Venegas en el navegador).
 ```
+
+## T5.5 — Escenario glTF (packs CC0)
+
+PENDIENTE antes de delegar: Venegas copia los archivos a `apps/client/public/models/scenery/` y Claude rellena la sección "Datos reales" (nombres, alturas, materiales, si traen luz o partículas).
+
+```
+Tarea T5.5 — Escenario glTF.
+
+Lee AGENTS.md, SPEC.md §9, la tarea T5.5 de PLAN.md, NOTAS.md (T5.3 y T5.4) y apps/client/public/models/README.md (sección Escenario). Implementa SOLO T5.5 en apps/client. No toques core ni server.
+
+IMPORTANTE: NO ejecutes `npm ci`, `npm install`, `npm run dev` ni `npm run start`. Usa npm.cmd. No hagas commit. No crees archivos de reporte en el repo. `three` ya está instalado.
+
+1. Reusa la carga de T5.4: extiende `models.ts` (o un `scenery-models.ts` con el mismo patrón: loader inyectable, caché, un aviso por archivo faltante) para los .glb de `models/scenery/`. Sin dependencias nuevas.
+2. Pilares: `brazier-ring.ts` usa `pillar.glb` escalado a ATMOSPHERE.pillars.heightMeters y `brazier.glb` encima. Se conservan las luces de color, el parpadeo y sus posiciones. Si falta un archivo, ese elemento queda procedural como hoy.
+3. Adornos fuera del muro: anillo entre wallRadiusMeters + 2 y wallRadiusMeters + 9 (números en atmosphere-config.ts, no sueltos). Colocación determinista con `hash01` de stone-floor.ts (nada de Math.random): posición, giro y escala. Una InstancedMesh por pieza y material (o geometría unida); nada por cuadro: los adornos son estáticos y no entran en update().
+4. Oclusión: la cámara está en azimut 45° (ISO_VIEW). En la mitad de la arena del lado de la cámara solo van piezas bajas (≤ 1 m: rocas, plantas, cráneos, velas); árboles y piezas altas solo en la mitad lejana. Escribe esa regla como función pura.
+5. Sombras: los adornos reciben sombra; solo pilares y árboles la proyectan. Las velas pueden tener emisivo, pero sin luces nuevas (PointLight cuesta fps).
+6. dispose() libera instancias y materiales propios; las plantillas en caché se quedan (igual que T5.4).
+
+Datos reales de los archivos (los rellena Claude antes de delegar):
+- (pendiente)
+
+Tests: colocación determinista (misma semilla → mismas posiciones), todo fuera del muro, regla de altura por lado de cámara, fallback por archivo faltante (pilar procedural), dispose. Loader falso; no cargues GLB reales en Vitest.
+Criterio (manual de Venegas): la arena se ve como ruina en la jungla de noche; ningún adorno tapa unidades, zonas ni el cono; sigue a 60 fps con 5 jugadores, 4 xolos y 3 zonas.
+Si algo es ambiguo, detente y reporta una propuesta. No inventes.
+Termina con npm.cmd run check en verde y el reporte del formato de AGENTS.md (incluye qué debe revisar Venegas en el navegador).
+```
