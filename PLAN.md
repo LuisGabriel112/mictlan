@@ -297,7 +297,7 @@ Objetivo: el ambiente de SPEC §9 con cámara isométrica. Core, servidor y red 
 - **Hacer:** luz, sombras, bloom, viñeta, áreas de daño que brillan con borde animado, aura del jefe al castear, barras sobre las unidades estilo LoL, partículas y destello al recibir daño (SPEC §9).
 - **Criterios (manual de Venegas):** se parece en ambiente a las referencias, el peligro se lee mejor que en Phaser y sigue a 60 fps con 5 jugadores, 4 xolos y 3 zonas.
 
-### [ ] T5.4 Modelos y animaciones
+### [~] T5.4 Modelos y animaciones
 - **Hacer:** modelos glTF del jefe, las tres clases y los xolos, más escenario, con animaciones (caminar, atacar, castear, morir). Antes de delegar: elegir la fuente (packs CC0 como Quaternius o KayKit, generados o encargados) y registrar la licencia (SPEC §9).
 - **Criterios (manual de Venegas):** cada clase y el jefe se reconocen sin leer nombres; sigue a 60 fps.
 
