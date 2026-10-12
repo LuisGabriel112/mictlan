@@ -21,22 +21,23 @@ Fuentes:
 
 ## Escenario (T5.5)
 
-Copia en `scenery/` (dentro de esta carpeta) con estos nombres. Elige del pack la pieza que más se parezca; si un pack no tiene alguna, déjala fuera (el cliente usa lo procedural).
+Piezas reales copiadas en `scenery/` (formatos tal como vienen en los packs; no se renombraron para no romper las referencias internas de los .gltf):
 
-| Archivo | Pack sugerido | Pieza |
-|---|---|---|
-| `scenery/pillar.glb` | KayKit Dungeon Remastered | pilar de piedra (sustituye a los 12 cilindros) |
-| `scenery/brazier.glb` | KayKit Dungeon Remastered | brasero o antorcha de pie (va sobre el pilar) |
-| `scenery/rock_a.glb`, `scenery/rock_b.glb` | Quaternius Ultimate Nature | rocas medianas |
-| `scenery/plant_a.glb`, `scenery/plant_b.glb` | Quaternius Ultimate Nature | helechos o arbustos de jungla |
-| `scenery/tree.glb` | Quaternius Ultimate Nature | árbol (solo en el lado lejano a la cámara) |
-| `scenery/skulls.glb` | KayKit Dungeon Remastered o Skeletons | cráneo o montón de huesos |
-| `scenery/candles.glb` | KayKit Dungeon Remastered | velas (ofrenda de Día de Muertos) |
+| Uso | Archivo | Pack | Formato |
+|---|---|---|---|
+| pilar | `scenery/pillar.gltf` (+ `pillar.bin`) | KayKit Dungeon | glTF |
+| brasero | `scenery/torch_lit.gltf` (+ `torch_lit.bin`) | KayKit Dungeon | glTF |
+| velas | `scenery/candle_triple.gltf` (+ `.bin`) | KayKit Dungeon | glTF |
+| escombros | `scenery/rubble_large.gltf` (+ `.bin`) | KayKit Dungeon | glTF |
+| textura compartida de KayKit | `scenery/dungeon_texture.png` | KayKit Dungeon | PNG (la usan los 4 .gltf) |
+| rocas | `scenery/Rock_1.fbx`, `scenery/Rock_2.fbx` | Quaternius Ultimate Nature | FBX |
+| plantas | `scenery/Plant_1.fbx`, `scenery/Bush_1.fbx` | Quaternius Ultimate Nature | FBX |
+| árbol (lado lejano) | `scenery/PalmTree_1.fbx` | Quaternius Ultimate Nature | FBX |
 
-Licencias: `LICENSE-kaykit-dungeon.txt` y `LICENSE-quaternius-nature.txt` en esta carpeta (no en `scenery/`).
+No hay cráneos en el pack gratuito de KayKit Dungeon; `skulls` queda fuera.
+
+Licencias (CC0): `LICENSE-kaykit-dungeon.txt` y `LICENSE-quaternius-nature.txt` en esta carpeta.
 
 Fuentes:
-- KayKit Dungeon Remastered: https://kaylousberg.itch.io/kaykit-dungeon-remastered
+- KayKit Dungeon Pack 1.1 FREE: https://kaylousberg.itch.io/kaykit-dungeon-remastered
 - Quaternius Ultimate Nature: https://quaternius.com/packs/ultimatenature.html
-
-Si el pack viene en FBX/OBJ y no en glTF, conviértelo a `.glb` (como el xolo) antes de copiarlo.
