@@ -214,3 +214,23 @@ Criterio (manual de Venegas): la arena se ve como ruina en la jungla de noche; n
 Si algo es ambiguo, detente y reporta una propuesta. No inventes.
 Termina con npm.cmd run check en verde y el reporte del formato de AGENTS.md (incluye qué debe revisar Venegas en el navegador).
 ```
+
+## T6.6 — Cobertura en la arena
+
+```
+Tarea T6.6 — Cobertura en la arena.
+
+Lee AGENTS.md, SPEC.md §11.1 y la tarea T6.6 de PLAN.md. Implementa SOLO T6.6.
+
+IMPORTANTE: NO ejecutes `npm ci`, `npm install`, `npm run dev` ni `npm run start`. Usa npm.cmd. No hagas commit. No crees reportes en el repo. packages/core sigue puro: sin Date, Math.random, red ni DOM.
+
+1. Core: `COMBAT_RULES.arena.obstacles` = 4 círculos de radio 1.2 m a 10 m del centro, ángulos 45°, 135°, 225°, 315° (constante, sin aleatoriedad).
+2. Core: nueva función pura `blockedByObstacle` / `resolveObstacles` en un archivo propio (p. ej. `mechanics/obstacles.ts`): saca al jugador del círculo (radio del obstáculo + `bodyRadiusMeters`) y deja que se deslice. Úsala en TODO desplazamiento de jugadores: caminar WASD y moveTo (busca dónde se mueve el jugador), Esquiva y Vuelo (`displace` en `movement.ts`: recortar al primer obstáculo del trayecto además del muro). El jefe y los xolos NO la usan.
+3. Core: línea de visión del cono (`resolveConeStrike` en `boss.ts`, `mechanics/cone.ts`): un jugador dentro del cono NO recibe daño si el segmento jefe→jugador cruza un obstáculo. Cualquier jugador pegado al obstáculo del lado del jefe sí lo recibe.
+4. Servidor: solo lo imprescindible; si los obstáculos salen de COMBAT_RULES no hay cambio de protocolo.
+5. Cliente: dibuja los 4 obstáculos en las posiciones del core con `rubble_large.gltf` (o `pillar.gltf` si falta, o un cilindro procedural), escalados a ~2.4 m de diámetro y 1.8 m de alto, con sombras. Sin romper `scenery-*` (esos adornos siguen fuera del muro).
+6. Gherkin en `tests/features/T6.6.feature`, tests de core: colisión, deslizamiento, Esquiva/Vuelo recortados, cono bloqueado/no bloqueado/borde, jefe ignora obstáculos.
+7. Si `npm.cmd run check` deja el test de balance T4.2 fuera de 90–150 s, NO cambies la vida del jefe: repórtalo.
+
+Al terminar corre `npm.cmd run check` y reporta qué archivos tocaste.
+```

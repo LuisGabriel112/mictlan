@@ -371,3 +371,12 @@ Motivo: tras probar el cliente 3D, Venegas pidió un raid "más ágil": menos cl
 - Tras el cambio, rebalancear la vida del jefe con el simulador (los bots usan WASD/Esquiva solo si el cambio de reglas lo exige) y mantener el test de duración de T4.5 en rango.
 
 **Teclas (decisión de Venegas, v0.11):** WASD choca con la `W` de las habilidades, así que las habilidades pasan a `1` `2` `3` `4` (fila superior o teclado numérico). `Shift+1`–`Shift+5` siguen seleccionando aliados. Las guías de §5.4 usan los números.
+
+### 11.1 Cobertura (v0.12, aprobado por Venegas el 2026-10-12)
+
+Motivo: Venegas pidió elementos en la arena donde cubrirse.
+- 4 obstáculos fijos circulares, radio 1.2 m, a 10 m del centro de la arena, en ángulos 45°, 135°, 225° y 315°. Posiciones constantes en `COMBAT_RULES.arena.obstacles`; sin aleatoriedad.
+- Bloquean el **movimiento de los jugadores** (se deslizan alrededor; la Esquiva y el Vuelo se recortan al obstáculo igual que al muro). El jefe y los xolos los ignoran.
+- Bloquean la **línea de visión del cono del Golpe del Descarnado**: un jugador cuyo segmento desde el jefe cruza un obstáculo antes de llegar a él no recibe el daño aunque esté dentro del cono.
+- No bloquean zonas de suelo, vientos, curas ni auto-ataques/proyectiles de jugadores.
+- Rebalance: si el test de duración (T4.2) sale de 90–150 s, proponer cambio de vida a Venegas.
