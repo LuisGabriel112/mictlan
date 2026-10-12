@@ -17,7 +17,8 @@ function expectWorldLibraries(host: unknown): void {
   expect(createModelLibrary).toHaveBeenCalledExactlyOnceWith('/');
   expect(createSceneryLibrary).toHaveBeenCalledExactlyOnceWith('/');
   expect(createBrowserWorld).toHaveBeenCalledWith(host, 2,
-    vi.mocked(createModelLibrary).mock.results[0].value, vi.mocked(createSceneryLibrary).mock.results[0].value);
+    vi.mocked(createModelLibrary).mock.results[0].value, vi.mocked(createSceneryLibrary).mock.results[0].value,
+    { bloom: true, shadows: true, maxPixelRatio: 1.5, showFps: false });
 }
 
 test('main composes the lobby and creates a native arena only after joining', async () => {

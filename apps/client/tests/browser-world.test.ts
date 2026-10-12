@@ -83,3 +83,14 @@ test('the browser passes scenery through the world and atmosphere, then releases
   expect(load.mock.calls.map(([key]) => key)).toEqual(expect.arrayContaining(['pillar', 'torch', 'palm', 'rock1']));
   world.dispose();
 });
+
+test('low quality renders without bloom or shadows at pixel ratio 1', () => {
+  vi.mocked(THREE.WebGLRenderer).mockClear();
+  vi.mocked(BloomRenderer).mockClear();
+  createBrowserWorld({ prepend: vi.fn() } as unknown as HTMLElement, 2, { get: () => undefined }, undefined,
+    { bloom: false, shadows: false, maxPixelRatio: 1, showFps: false });
+  const renderer = vi.mocked(THREE.WebGLRenderer).mock.results[0].value;
+  expect(renderer.setPixelRatio).toHaveBeenCalledWith(1);
+  expect(renderer.shadowMap.enabled).toBe(false);
+  expect(BloomRenderer).not.toHaveBeenCalled();
+});

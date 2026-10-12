@@ -5,23 +5,25 @@ import { BloomRenderer } from './bloom-renderer';
 import { ModelLibrary, type ModelSource } from './models';
 import { ThreeArenaWorld } from './three-arena';
 import { SceneryLibrary, type ScenerySource } from './scenery-models';
+import { PlainRenderer } from './plain-renderer';
+import { parseRenderQuality, type RenderQuality } from './render-quality';
 
 const EXPOSURE = 1.15;
-// Venegas saw low fps on high-DPI screens: bloom and shadows scale with every extra pixel.
-const MAX_PIXEL_RATIO = 1.5;
 
 // Composition root for the real WebGL renderer; everything else receives it injected.
-export function createBrowserWorld(container: HTMLElement, pixelRatio: number, models: ModelSource, scenery?: ScenerySource): ThreeArenaWorld {
+export function createBrowserWorld(container: HTMLElement, pixelRatio: number, models: ModelSource, scenery?: ScenerySource,
+  quality: RenderQuality = parseRenderQuality('')): ThreeArenaWorld {
   const renderer = new THREE.WebGLRenderer({ antialias: false });
-  renderer.setPixelRatio(Math.min(pixelRatio, MAX_PIXEL_RATIO));
-  renderer.shadowMap.enabled = true;
+  renderer.setPixelRatio(Math.min(pixelRatio, quality.maxPixelRatio));
+  renderer.shadowMap.enabled = quality.shadows;
   renderer.shadowMap.type = THREE.PCFShadowMap;
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
   renderer.toneMappingExposure = EXPOSURE;
   renderer.domElement.className = 'world-canvas';
   // Prepended so the transparent Phaser canvas, appended later, stays on top and keeps the input.
   container.prepend(renderer.domElement);
-  return new ThreeArenaWorld(new BloomRenderer(renderer), models, scenery);
+  const output = quality.bloom ? new BloomRenderer(renderer) : new PlainRenderer(renderer);
+  return new ThreeArenaWorld(output, models, scenery);
 }
 
 export function createSceneryLibrary(baseUrl: string): SceneryLibrary {

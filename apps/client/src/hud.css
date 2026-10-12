@@ -31,3 +31,13 @@
   text-shadow: 0 1px 3px #000; white-space: nowrap; }
 .hud-unit-bar { background: #222222; border: 1px solid #000000; overflow: hidden; }
 .hud-unit-fill { background: #4cd964; }
+
+.fps-meter {
+  position: fixed;
+  top: 6px;
+  right: 8px;
+  z-index: 10;
+  font: 12px monospace;
+  color: #7fffd4;
+  pointer-events: none;
+}
