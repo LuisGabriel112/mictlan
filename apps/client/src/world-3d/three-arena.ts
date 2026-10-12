@@ -8,6 +8,8 @@ import { GroundLayer } from './ground-layer';
 import { isoCamera, pickGround, projectToScreen, type IsoCamera } from './iso-camera';
 import type { ModelSource } from './models';
 import { UnitLayer } from './unit-layer';
+import { SceneryLayer } from './scenery-layer';
+import type { ScenerySource } from './scenery-models';
 
 export interface WorldRenderer {
   readonly domElement: HTMLCanvasElement;
@@ -20,7 +22,8 @@ const CAMERA_DEPTH = { near: 1, far: 200 } as const;
 
 export class ThreeArenaWorld implements ArenaWorld {
   private readonly scene = new THREE.Scene();
-  private readonly atmosphere = new Atmosphere(this.scene);
+  private readonly atmosphere: Atmosphere;
+  private readonly scenery?: SceneryLayer;
   private readonly camera = new THREE.OrthographicCamera();
   private readonly units: UnitLayer;
   private readonly ground = new GroundLayer(this.scene);
@@ -28,7 +31,9 @@ export class ThreeArenaWorld implements ArenaWorld {
   private readonly effects = new EffectLayer(this.scene);
   private rig: IsoCamera = isoCamera(1, 1);
 
-  constructor(private readonly renderer: WorldRenderer, models?: ModelSource) {
+  constructor(private readonly renderer: WorldRenderer, models?: ModelSource, scenery?: ScenerySource) {
+    this.atmosphere = new Atmosphere(this.scene, scenery);
+    if (scenery) this.scenery = new SceneryLayer(this.scene, scenery);
     this.units = new UnitLayer(this.scene, models);
     this.resize(1, 1);
   }
@@ -66,6 +71,7 @@ export class ThreeArenaWorld implements ArenaWorld {
     this.casts.dispose();
     this.effects.dispose();
     this.atmosphere.dispose();
+    this.scenery?.dispose();
     this.renderer.dispose();
     // Each attempt builds a new world (T5.2), so the old canvas must leave the page.
     this.renderer.domElement.remove();

@@ -6,6 +6,7 @@ import { AshDrift } from './ash-drift';
 import { ATMOSPHERE } from './atmosphere-config';
 import { BrazierRing } from './brazier-ring';
 import { toScene } from './iso-camera';
+import type { ScenerySource } from './scenery-models';
 
 export { ATMOSPHERE } from './atmosphere-config';
 
@@ -33,11 +34,11 @@ export class Atmosphere {
   private readonly braziers: BrazierRing;
   private readonly ash: AshDrift;
 
-  constructor(scene: THREE.Scene) {
+  constructor(scene: THREE.Scene, scenery?: ScenerySource) {
     scene.background = new THREE.Color(ATMOSPHERE.background);
     scene.fog = new THREE.Fog(ATMOSPHERE.fog.color, ATMOSPHERE.fog.near, ATMOSPHERE.fog.far);
     scene.add(new THREE.AmbientLight(ATMOSPHERE.ambient.color, ATMOSPHERE.ambient.intensity), moonLight(), this.bossGlow);
-    this.braziers = new BrazierRing(scene);
+    this.braziers = new BrazierRing(scene, scenery);
     this.ash = new AshDrift(scene);
   }
 

@@ -301,7 +301,7 @@ Objetivo: el ambiente de SPEC §9 con cámara isométrica. Core, servidor y red 
 - **Hacer:** modelos glTF del jefe, las tres clases y los xolos, con animaciones (caminar, atacar, castear, morir). El escenario pasó a T5.5. Antes de delegar: elegir la fuente (packs CC0 como Quaternius o KayKit, generados o encargados) y registrar la licencia (SPEC §9).
 - **Criterios (manual de Venegas):** cada clase y el jefe se reconocen sin leer nombres; sigue a 60 fps.
 
-### [ ] T5.5 Escenario glTF
+### [x] T5.5 Escenario glTF
 - **Hacer:** cambiar los pilares procedurales del anillo de braseros por modelos glTF CC0 (pilar + brasero) y decorar fuera del muro (rocas, plantas de jungla, cráneos, velas) con colocación determinista e instanciada. Solo visual: nada dentro del radio del muro y nada alto en la mitad de la arena del lado de la cámara. Si falta un modelo, queda lo procedural de hoy. Antes de delegar: Venegas copia los packs a `apps/client/public/models/scenery/` y Claude verifica nombres y alturas (ver README).
 - **Criterios (manual de Venegas):** la arena se ve como ruina en la jungla de noche (SPEC §9); ningún adorno tapa unidades, zonas ni el cono; sigue a 60 fps con 5 jugadores, 4 xolos y 3 zonas.
 
