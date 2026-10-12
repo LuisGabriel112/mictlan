@@ -7,13 +7,15 @@ import { ThreeArenaWorld } from './three-arena';
 import { SceneryLibrary, type ScenerySource } from './scenery-models';
 
 const EXPOSURE = 1.15;
+// Venegas saw low fps on high-DPI screens: bloom and shadows scale with every extra pixel.
+const MAX_PIXEL_RATIO = 1.5;
 
 // Composition root for the real WebGL renderer; everything else receives it injected.
 export function createBrowserWorld(container: HTMLElement, pixelRatio: number, models: ModelSource, scenery?: ScenerySource): ThreeArenaWorld {
-  const renderer = new THREE.WebGLRenderer({ antialias: true });
-  renderer.setPixelRatio(pixelRatio);
+  const renderer = new THREE.WebGLRenderer({ antialias: false });
+  renderer.setPixelRatio(Math.min(pixelRatio, MAX_PIXEL_RATIO));
   renderer.shadowMap.enabled = true;
-  renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+  renderer.shadowMap.type = THREE.PCFShadowMap;
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
   renderer.toneMappingExposure = EXPOSURE;
   renderer.domElement.className = 'world-canvas';

@@ -32,15 +32,21 @@ test('the browser world puts a shadowed, tone-mapped Three canvas with bloom und
   const container = { prepend: vi.fn() };
   const world = createBrowserWorld(container as unknown as HTMLElement, 2, { get: () => undefined });
   const renderer = vi.mocked(THREE.WebGLRenderer).mock.results[0].value;
-  expect(THREE.WebGLRenderer).toHaveBeenCalledWith({ antialias: true });
-  expect(renderer.setPixelRatio).toHaveBeenCalledWith(2);
-  expect(renderer.shadowMap).toEqual({ enabled: true, type: THREE.PCFSoftShadowMap });
+  expect(THREE.WebGLRenderer).toHaveBeenCalledWith({ antialias: false });
+  expect(renderer.setPixelRatio).toHaveBeenCalledWith(1.5);
+  expect(renderer.shadowMap).toEqual({ enabled: true, type: THREE.PCFShadowMap });
   expect(renderer.toneMapping).toBe(THREE.ACESFilmicToneMapping);
   expect(renderer.toneMappingExposure).toBeGreaterThan(1);
   expect(renderer.domElement.className).toBe('world-canvas');
   expect(container.prepend).toHaveBeenCalledWith(renderer.domElement);
   expect(BloomRenderer).toHaveBeenCalledWith(renderer);
   expect(world).toBeInstanceOf(ThreeArenaWorld);
+});
+
+test('the browser world keeps low pixel ratios but caps high-DPI screens at 1.5', () => {
+  vi.mocked(THREE.WebGLRenderer).mockClear();
+  createBrowserWorld({ prepend: vi.fn() } as unknown as HTMLElement, 1, { get: () => undefined });
+  expect(vi.mocked(THREE.WebGLRenderer).mock.results[0].value.setPixelRatio).toHaveBeenCalledWith(1);
 });
 
 test('the model library preloads every model from the public models folder once per page', async () => {
