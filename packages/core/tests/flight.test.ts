@@ -1,6 +1,7 @@
 import { expect, test } from 'vitest';
 import { usePlayerAbility } from '../src/abilities.js';
 import { BOSS } from '../src/index.js';
+import { COMBAT_RULES } from '../src/data/classes.js';
 import type { Input } from '../src/index.js';
 import { combatCast, combatEncounter, combatPlayer, combatTick, freezeCombat, muteAutoAttack, readyCast } from './combat-fixtures.js';
 
@@ -82,4 +83,13 @@ test('the first cast wins over Flight and a completing Arrow resolves before Fli
   const finished = combatTick(state, [combatCast('flight')]);
   expect(finished.events.map(({ type }) => type)).toEqual(['castFinished', 'abilityResolved', 'damage', 'abilityResolved']);
   expect(finished.state.entities[BOSS.id].health).toBe(BOSS.maxHealthByPlayerCount[3] - 140);
+});
+
+test('Flight is clipped by the first obstacle on its path', () => {
+  const state = combatEncounter();
+  const obstacle = COMBAT_RULES.arena.obstacles[0];
+  Object.assign(combatPlayer(state), { x: obstacle.x - 5, y: obstacle.y, facing: { x: 1, y: 0 } });
+  const result = combatTick(state, [combatCast('flight')]);
+  expect(Math.hypot(combatPlayer(result.state).x - obstacle.x, combatPlayer(result.state).y - obstacle.y))
+    .toBeCloseTo(obstacle.radiusMeters + combatPlayer(state).bodyRadiusMeters);
 });

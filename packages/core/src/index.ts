@@ -5,4 +5,5 @@ export { BOSS, BOSS_ABILITIES, BOSS_PHASES, XOLO } from './data/boss.js';
 export { createRngState, nextRandom } from './rng.js';
 export { createEncounter, step } from './encounter.js';
 export { removePlayer } from './remove-player.js';
+export { blockedByObstacle, blockedLineOfSight, resolveObstacles } from './mechanics/obstacles.js';
 export { applyDamage, applyHealing, calculateDamage, calculateHealing, rollCritical } from './combat.js';

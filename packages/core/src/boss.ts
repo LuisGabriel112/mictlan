@@ -5,6 +5,7 @@ import { createPhaseAbilityTimers } from './phases.js';
 import { aimCone, insideCone } from './mechanics/cone.js';
 import { createWindZones } from './mechanics/wind.js';
 import { summonXolos } from './mechanics/xolos.js';
+import { blockedLineOfSight } from './mechanics/obstacles.js';
 import type { BossAbilityId, CastAim, CombatEvent, EncounterState, EnemyEntity, Entity, PhaseTimers } from './types.js';
 
 function livingBoss(state: EncounterState): EnemyEntity | undefined {
@@ -63,7 +64,9 @@ function damageLivingPlayers(state: EncounterState, event: ResolvedEvent, baseDa
 function resolveConeStrike(state: EncounterState, event: ResolvedEvent, aim: CastAim | undefined): CombatResult {
   const cone = BOSS_ABILITIES.flayedStrike.effect;
   if (!aim) return { state, events: [event] };
-  return damageLivingPlayers(state, event, cone.baseDamage, (player) => insideCone(aim, cone, player, player.bodyRadiusMeters));
+  return damageLivingPlayers(state, event, cone.baseDamage, (player) =>
+    insideCone(aim, cone, player, player.bodyRadiusMeters)
+      && !blockedLineOfSight(aim, player, player.bodyRadiusMeters));
 }
 
 function resolveBossAbility(state: EncounterState, event: ResolvedEvent, aim?: CastAim): CombatResult {

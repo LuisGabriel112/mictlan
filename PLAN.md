@@ -329,6 +329,6 @@ Objetivo: el ambiente de SPEC §9 con cámara isométrica. Core, servidor y red 
 - **Hacer:** simulador con las reglas nuevas; ajustar la vida del jefe y el test de duración.
 - **Criterios:** test de balance en verde; propuesta de números a Venegas antes de cambiar el SPEC.
 
-### [ ] T6.6 Cobertura en la arena
+### [~] T6.6 Cobertura en la arena
 - **Hacer:** SPEC §11.1: 4 obstáculos circulares dentro de la arena que bloquean movimiento de jugadores y la línea de visión del cono. Core, servidor (sin cambios de protocolo salvo lo necesario), cliente (modelos glTF `rubble_large`/`pillar` en las posiciones del core).
 - **Criterios:** tests de core (colisión, deslizamiento, Esquiva recortada, cono bloqueado/no bloqueado, borde); `npm run check` verde; test T4.2 en 90–150 s; Venegas se cubre del cono detrás de un obstáculo.

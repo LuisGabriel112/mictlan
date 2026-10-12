@@ -139,7 +139,7 @@ export function advancePlayerAbilities(player: PlayerEntity, entities: Entities,
 function resolveInstantAbility(player: PlayerEntity, ability: Ability, targetId: string | null, tick: number): AbilityResult {
   if (ability.effect.type !== 'dash') return resolveAbility(player, ability, targetId, tick);
   const cancelled = cancelPlayerCast(player, ability.id === 'dodge' ? 'dodge' : 'flight', tick);
-  const position = displace(cancelled.player, player.facing, ability.effect.distanceMeters);
+  const position = displace(cancelled.player, player.facing, ability.effect.distanceMeters, player.bodyRadiusMeters);
   const resolved = resolveAbility({ ...cancelled.player, ...position }, ability, targetId, tick);
   return { player: resolved.player, events: [...cancelled.events, ...resolved.events] };
 }

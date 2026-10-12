@@ -1,4 +1,5 @@
 import { expect, test } from 'vitest';
+import { COMBAT_RULES } from '../src/data/classes.js';
 import { clampToWall, displace, normalize } from '../src/movement.js';
 
 test('normalize handles zero and unnormalized input', () => {
@@ -27,4 +28,10 @@ test('displace adds direction times distance before wall clipping without mutati
   expect(displace(position, { x: 0.6, y: 0.8 }, 8)).toEqual({ x: 6.8, y: 7.4 });
   expect(displace(position, { x: 1, y: 0 }, 100).x).toBeLessThan(20);
   expect(position).toEqual({ x: 2, y: 1 });
+});
+
+test('enemy displacement ignores obstacles unless a player body radius is provided', () => {
+  const obstacle = COMBAT_RULES.arena.obstacles[0];
+  expect(displace({ x: obstacle.x - 2, y: obstacle.y }, { x: 1, y: 0 }, 4))
+    .toEqual({ x: obstacle.x + 2, y: obstacle.y });
 });

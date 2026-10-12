@@ -1,4 +1,5 @@
 import { COMBAT_RULES } from './data/classes.js';
+import { resolveObstacles } from './mechanics/obstacles.js';
 import type { Position } from './types.js';
 
 export function normalize(x: number, y: number): Position {
@@ -18,9 +19,10 @@ export function clampToWall(position: Position): Position {
   return { x: center.x + projected.x * correction, y: center.y + projected.y * correction };
 }
 
-export function displace(position: Position, direction: Position, distanceMeters: number): Position {
-  return clampToWall({
+export function displace(position: Position, direction: Position, distanceMeters: number, bodyRadiusMeters?: number): Position {
+  const destination = clampToWall({
     x: position.x + direction.x * distanceMeters,
     y: position.y + direction.y * distanceMeters,
   });
+  return bodyRadiusMeters === undefined ? destination : resolveObstacles(position, destination, bodyRadiusMeters);
 }

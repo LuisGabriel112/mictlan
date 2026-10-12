@@ -49,3 +49,12 @@ test('dead players cannot dodge', () => {
   const result = combatTick(state, [combatCast('dodge', 'p1')]);
   expect(result.events).toEqual([{ type: 'abilityRejected', tick: 1, sourceId: 'p1', abilityId: 'dodge', reason: 'dead' }]);
 });
+
+test('Esquiva is clipped by an obstacle', () => {
+  const state = combatEncounter();
+  const obstacle = COMBAT_RULES.arena.obstacles[0];
+  Object.assign(combatPlayer(state), { x: obstacle.x - 4, y: obstacle.y, facing: { x: 1, y: 0 } });
+  const result = combatTick(state, [combatCast('dodge')]);
+  expect(Math.hypot(combatPlayer(result.state).x - obstacle.x, combatPlayer(result.state).y - obstacle.y))
+    .toBeCloseTo(obstacle.radiusMeters + combatPlayer(state).bodyRadiusMeters);
+});

@@ -65,3 +65,23 @@ test('dead players inside the cone are skipped and the Jaguar armor still applie
   expect(state.entities.p3.health).toBe(0);
   expect(state.entities.p1.health).toBe(state.entities.p1.maxHealth - 280);
 });
+
+test('cover blocks the cone, while a player at its boss-facing edge is hit', () => {
+  let state = combatEncounter();
+  state.bossActive = true;
+  state.bossAbilityTimers = { flayedStrike: 1 };
+  const boss = state.entities[BOSS.id];
+  Object.assign(boss, { x: 7.0710678118654755, y: 3, targetId: 'p1', autoAttackRemainingTicks: 1_000_000 });
+  Object.assign(combatPlayer(state, 'p1'), { x: 7.0710678118654755, y: 9 });
+  Object.assign(combatPlayer(state, 'p2'), { x: 7.0710678118654755, y: 5.37 });
+  Object.assign(combatPlayer(state, 'p3'), { x: -15, y: -15 });
+  state = advanceBossAbilities(state).state;
+  const hits: string[] = [];
+  for (let tick = 0; tick < strike.castTicks; tick += 1) {
+    const result = advanceBossAbilities(state);
+    state = result.state;
+    for (const event of result.events) if (event.type === 'damage') hits.push(event.targetId);
+  }
+  expect(hits).toContain('p2');
+  expect(hits).not.toContain('p1');
+});

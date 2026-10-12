@@ -70,6 +70,12 @@ describe('complete SPEC §3, §5 and §6 data', () => {
         center: { x: 0, y: 0 },
         wallRadiusMeters: 20,
         initialSafeRadiusMeters: 20,
+        obstacles: [
+          { x: 10 * Math.SQRT1_2, y: 10 * Math.SQRT1_2, radiusMeters: 1.2 },
+          { x: -10 * Math.SQRT1_2, y: 10 * Math.SQRT1_2, radiusMeters: 1.2 },
+          { x: -10 * Math.SQRT1_2, y: -10 * Math.SQRT1_2, radiusMeters: 1.2 },
+          { x: 10 * Math.SQRT1_2, y: -10 * Math.SQRT1_2, radiusMeters: 1.2 },
+        ],
       },
     });
     expect(PARTY_RULES).toEqual({

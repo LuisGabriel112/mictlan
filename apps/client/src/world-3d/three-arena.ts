@@ -10,6 +10,7 @@ import type { ModelSource } from './models';
 import { UnitLayer } from './unit-layer';
 import { SceneryLayer } from './scenery-layer';
 import type { ScenerySource } from './scenery-models';
+import { CoverLayer } from './cover-layer';
 
 export interface WorldRenderer {
   readonly domElement: HTMLCanvasElement;
@@ -26,6 +27,7 @@ export class ThreeArenaWorld implements ArenaWorld {
   private readonly scenery?: SceneryLayer;
   private readonly camera = new THREE.OrthographicCamera();
   private readonly units: UnitLayer;
+  private readonly cover: CoverLayer;
   private readonly ground = new GroundLayer(this.scene);
   private readonly casts = new CastLayer(this.scene);
   private readonly effects = new EffectLayer(this.scene);
@@ -33,6 +35,7 @@ export class ThreeArenaWorld implements ArenaWorld {
 
   constructor(private readonly renderer: WorldRenderer, models?: ModelSource, scenery?: ScenerySource) {
     this.atmosphere = new Atmosphere(this.scene, scenery);
+    this.cover = new CoverLayer(this.scene, scenery);
     if (scenery) this.scenery = new SceneryLayer(this.scene, scenery);
     this.units = new UnitLayer(this.scene, models);
     this.resize(1, 1);
@@ -71,6 +74,7 @@ export class ThreeArenaWorld implements ArenaWorld {
     this.casts.dispose();
     this.effects.dispose();
     this.atmosphere.dispose();
+    this.cover.dispose();
     this.scenery?.dispose();
     this.renderer.dispose();
     // Each attempt builds a new world (T5.2), so the old canvas must leave the page.

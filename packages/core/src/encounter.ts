@@ -106,7 +106,7 @@ function movePlayer(player: PlayerEntity, input: MoveInput): PlayerEntity {
 
   const facing = normalize(input.dx, input.dy);
   const distance = player.speedMetersPerSecond / COMBAT_RULES.ticksPerSecond;
-  const position = displace(player, facing, distance);
+  const position = displace(player, facing, distance, player.bodyRadiusMeters);
   return { ...player, ...position, facing };
 }
 
